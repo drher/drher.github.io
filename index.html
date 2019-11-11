@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-Lt9o41NaGRsso-l80H8 -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-LtPGeSH6jh8wyzwI-0Q -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -30,53 +30,86 @@
 
 <body>
   <div><div id="demo-area-02-light" class="off">
-    <img src="http://i.epochtimes.com/assets/uploads/2016/01/1401312341472483-450x450.jpg" id="demo-area-02-off">
-    <img src="https://emotionalfreedomhk.files.wordpress.com/2017/03/efd0007ea7e60492dbd.jpg" id="demo-area-02-on">
+    <img src="./Webduino Blockly Demo 02_files/off.jpg" id="demo-area-02-off">
+    <img src="./Webduino Blockly Demo 02_files/on.jpg" id="demo-area-02-on">
   </div></div>
 
-  <script>var linebot;
+  <script>'use strict';
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
 
-var firebase1ca6d;
-var flag1ca6d=true;
-linebot = {token:'Bsjtqv2A6Pt6d2qcx86G6LpALLgRo+KgtxGUxTxWAIvd6lMqE9NiHnlf3OQwmyqfiDVQXdCicUBuFpEVYxdv+z3A6YjRmegIWLW/SIN2VH/5JEpwRlyOehdoz1RX7r8ttumFtlAovryh0g5CYOlCpQdB04t89/1O/w1cDnyilFU=',userId:'U103bb5dd5c270af55048acada67053d4',onVal:''};
-firebase1ca6d = new Firebase('https://webduino-linebot-1ca6d.firebaseio.com/');
-firebase1ca6d.on('value',function(s){
-  var msg1ca6d=false;
-  if(flag1ca6d){
-    flag1ca6d=false;
-    return;
-  }
-  else {
-    s.forEach(function(e){
-      if(e.val().userid===linebot.userId && e.val().message!==''){
-        linebot.onVal = e.val().message;
-        msg1ca6d=true;}
-    });
-    if(!msg1ca6d) return;
-  }
-  if (linebot.onVal == '開燈') {
-    document.getElementById("demo-area-02-light").className = "on";
-    line_bot($.extend({},linebot,{message:'開1'}));
-  } else if (linebot.onVal == '關燈') {
-    document.getElementById("demo-area-02-light").className = "off";
-    line_bot($.extend({},linebot,{message:'關1'}));
-  }
-});
+_asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+  var linebot, firebase1ca6d, flag1ca6d;
+  return regeneratorRuntime.wrap(function _callee2$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          flag1ca6d = true;
 
-document.getElementById("demo-area-02-light").addEventListener("click", function(){
-  if (document.getElementById("demo-area-02-light").className == "on") {
-     document.getElementById("demo-area-02-light").className = "off";
-  } else {
-    document.getElementById("demo-area-02-light").className = "on";
-  }
-  if (document.getElementById("demo-area-02-light").className == "on") {
-    line_bot($.extend({},linebot,{message:'開'}));
-  } else if (document.getElementById("demo-area-02-light").className == "off") {
-    line_bot($.extend({},linebot,{message:'關'}));
-  }
-});
-</script>
+          linebot = { token: 'i8TO60TA28Pv9Ai2u0Q1JMj8cwWIb3vfx7jcoBwSfP0LqUKu8+tW5vnOh5CJZa0YPfhr21qm9BaCBdkUFOqulZZcpaZ2fgnR9YMadMGAIHRecpuTdpCRlOMvvghZFm2gLgO35HJC7E4H3SFLxt7QDQdB04t89/1O/w1cDnyilFU=', userId: 'U1931ed8cf70e4dc0626c631d9142e6ad', onVal: '' };
+          firebase1ca6d = new Firebase('https://webduino-linebot-1ca6d.firebaseio.com/');
+          firebase1ca6d.on('value', function (s) {
+            var msg1ca6d = false;
+            if (flag1ca6d) {
+              flag1ca6d = false;
+              return;
+            } else {
+              s.forEach(function (e) {
+                if (e.val().userid === linebot.userId && e.val().message !== '') {
+                  linebot.onVal = e.val().message;
+                  msg1ca6d = true;
+                }
+              });
+              if (!msg1ca6d) return;
+            }
+            if (linebot.onVal == '開燈') {
+              document.getElementById("demo-area-02-light").className = "on";
+              line_bot($.extend({}, linebot, { message: '好的!! 主人' }));
+              line_bot($.extend({}, linebot, { message: 'ON (By Line)' }));
+            } else if (linebot.onVal == '關燈') {
+              document.getElementById("demo-area-02-light").className = "off";
+              line_bot($.extend({}, linebot, { message: '好的!! 主人' }));
+              line_bot($.extend({}, linebot, { message: 'OFF (By Line)' }));
+            }
+          });
+          document.getElementById("demo-area-02-light").addEventListener("click", _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+            return regeneratorRuntime.wrap(function _callee$(_context) {
+              while (1) {
+                switch (_context.prev = _context.next) {
+                  case 0:
+                    if (document.getElementById("demo-area-02-light").className == "on") {
+                      document.getElementById("demo-area-02-light").className = "off";
+                    } else {
+                      document.getElementById("demo-area-02-light").className = "on";
+                    }
+                    if (document.getElementById("demo-area-02-light").className == "on") {
+                      line_bot($.extend({}, linebot, { message: '已開燈 (By Html)' }));
+                    } else if (document.getElementById("demo-area-02-light").className == "off") {
+                      line_bot($.extend({}, linebot, { message: '關燈 (By Html)' }));
+                    }
+
+                  case 2:
+                  case 'end':
+                    return _context.stop();
+                }
+              }
+            }, _callee, this);
+          })));
+
+          _context2.next = 7;
+          return delay(0.1);
+
+        case 7:
+          _context2.next = 9;
+          return delay(0.1);
+
+        case 9:
+        case 'end':
+          return _context2.stop();
+      }
+    }
+  }, _callee2, this);
+}))();</script>
 
 
 </body></html>
