@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-Lt9o41NaGRsso-l80H8 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 02</title>
+  <script src="./Webduino Blockly Demo 02_files/jquery.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 02_files/webduino-all.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 02_files/MessageTransport.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 02_files/webduino-blockly.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 02_files/firebase.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 02_files/runtime.min.js.下載"></script><script src="./Webduino Blockly Demo 02_files/main.js.下載"></script>
+
+  <style>#demo-area-02-light img {
+  height: 400px;
+  display: none;
+  pointer-events: auto!important;
+}
+
+#demo-area-02-light.on #demo-area-02-on {
+  display: inline-block;
+  pointer-events: auto!important;
+}
+
+#demo-area-02-light.off #demo-area-02-off {
+  display: inline-block;
+  pointer-events: auto!important;
+}</style>
+</head>
+
+<body>
+  <div><div id="demo-area-02-light" class="off">
+    <img src="http://i.epochtimes.com/assets/uploads/2016/01/1401312341472483-450x450.jpg" id="demo-area-02-off">
+    <img src="https://emotionalfreedomhk.files.wordpress.com/2017/03/efd0007ea7e60492dbd.jpg" id="demo-area-02-on">
+  </div></div>
+
+  <script>var linebot;
+
+
+var firebase1ca6d;
+var flag1ca6d=true;
+linebot = {token:'Bsjtqv2A6Pt6d2qcx86G6LpALLgRo+KgtxGUxTxWAIvd6lMqE9NiHnlf3OQwmyqfiDVQXdCicUBuFpEVYxdv+z3A6YjRmegIWLW/SIN2VH/5JEpwRlyOehdoz1RX7r8ttumFtlAovryh0g5CYOlCpQdB04t89/1O/w1cDnyilFU=',userId:'U103bb5dd5c270af55048acada67053d4',onVal:''};
+firebase1ca6d = new Firebase('https://webduino-linebot-1ca6d.firebaseio.com/');
+firebase1ca6d.on('value',function(s){
+  var msg1ca6d=false;
+  if(flag1ca6d){
+    flag1ca6d=false;
+    return;
+  }
+  else {
+    s.forEach(function(e){
+      if(e.val().userid===linebot.userId && e.val().message!==''){
+        linebot.onVal = e.val().message;
+        msg1ca6d=true;}
+    });
+    if(!msg1ca6d) return;
+  }
+  if (linebot.onVal == '開燈') {
+    document.getElementById("demo-area-02-light").className = "on";
+    line_bot($.extend({},linebot,{message:'開1'}));
+  } else if (linebot.onVal == '關燈') {
+    document.getElementById("demo-area-02-light").className = "off";
+    line_bot($.extend({},linebot,{message:'關1'}));
+  }
+});
+
+document.getElementById("demo-area-02-light").addEventListener("click", function(){
+  if (document.getElementById("demo-area-02-light").className == "on") {
+     document.getElementById("demo-area-02-light").className = "off";
+  } else {
+    document.getElementById("demo-area-02-light").className = "on";
+  }
+  if (document.getElementById("demo-area-02-light").className == "on") {
+    line_bot($.extend({},linebot,{message:'開'}));
+  } else if (document.getElementById("demo-area-02-light").className == "off") {
+    line_bot($.extend({},linebot,{message:'關'}));
+  }
+});
+</script>
+
+
+</body></html>
