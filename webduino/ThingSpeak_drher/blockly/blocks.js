@@ -33,10 +33,7 @@ Blockly.Blocks['thingspeak_update'] = {
       .setCheck(null)
       .setAlign(Blockly.ALIGN_RIGHT)
       .appendField("Field7");
-  this.appendValueInput("field8")
-      .setCheck(null)
-      .setAlign(Blockly.ALIGN_RIGHT)
-      .appendField("Field8");  
+
   this.setPreviousStatement(true);
   this.setNextStatement(true);
   this.setTooltip('');
