@@ -1,10 +1,9 @@
-// Author: Chung-Yi Fu (Kaohsiung, Taiwan)   https://www.facebook.com/francefu
 
 +(function (window, document) {
 
   'use strict';
 
-  function ThingSpeak_update(key,field1,field2,field3,field4,field5,field6,field7,field8) {
+  function ThingSpeak_update(key,field1,field2,field3,field4,field5,field6,field7) {
     
     var input_url ="https://api.thingspeak.com/update";
     var data = $.ajax({
@@ -21,7 +20,6 @@
           "field5": field5, 
           "field6": field6, 
           "field7": field7, 
-          "field8": field8,
         },
         success: function(html)
         {
