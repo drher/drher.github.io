@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M22T-MS728LZaHObdIm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 01</title>
+  <script src="./Webduino Blockly Demo 01_files/jquery.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 01_files/webduino-all.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 01_files/MessageTransport.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 01_files/webduino-blockly.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 01_files/firebase.min.js.下載"></script>
+  <script src="./Webduino Blockly Demo 01_files/runtime.min.js.下載"></script><script src="./Webduino Blockly Demo 01_files/thingspeak.js.下載"></script>
+
+  <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
+</head>
+
+<body>
+  <div><span id="demo-area-01-show">請說話</span></div>
+
+  <script>"use strict";
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
+
+_asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
+  var speechRecognition;
+  return regeneratorRuntime.wrap(function _callee5$(_context5) {
+    while (1) {
+      switch (_context5.prev = _context5.next) {
+        case 0:
+
+          document.getElementById("demo-area-01-show").innerHTML = '請說話';
+
+          speechRecognition = (function () {
+            var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
+              return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                while (1) {
+                  switch (_context4.prev = _context4.next) {
+                    case 0:
+                      if (!("webkitSpeechRecognition" in window)) {
+                        alert("本瀏覽器不支援語音辨識，請更換瀏覽器！(Chrome 25 版以上才支援語音辨識)");
+                      } else {
+                        window._recognition = new webkitSpeechRecognition();
+                        window._recognition.continuous = true;
+                        window._recognition.interimResults = true;
+                        window._recognition.lang = "cmn-Hant-TW";
+
+                        window._recognition.onstart = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+                          return regeneratorRuntime.wrap(function _callee$(_context) {
+                            while (1) {
+                              switch (_context.prev = _context.next) {
+                                case 0:
+                                  window._recognition.status = true;
+                                  console.log("Start recognize...");
+
+                                case 2:
+                                case "end":
+                                  return _context.stop();
+                              }
+                            }
+                          }, _callee, this);
+                        }));
+
+                        window._recognition.onend = _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+                          return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                            while (1) {
+                              switch (_context2.prev = _context2.next) {
+                                case 0:
+                                  console.log("Stop recognize");
+                                  if (window._recognition.status) {
+                                    window._recognition.start();
+                                  }
+
+                                case 2:
+                                case "end":
+                                  return _context2.stop();
+                              }
+                            }
+                          }, _callee2, this);
+                        }));
+
+                        window._recognition.onresult = (function () {
+                          var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(event, result) {
+                            return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                              while (1) {
+                                switch (_context3.prev = _context3.next) {
+                                  case 0:
+                                    result = {};
+                                    result.resultLength = event.results.length - 1;
+                                    result.resultTranscript = event.results[result.resultLength][0].transcript;
+
+                                    if (!(event.results[result.resultLength].isFinal === true)) {
+                                      _context3.next = 17;
+                                      break;
+                                    }
+
+                                    console.log(result.resultTranscript);
+                                    document.getElementById("demo-area-01-show").innerHTML = result.resultTranscript;
+                                    if (result.resultTranscript.indexOf("開燈") !== -1) {
+                                      ThingSpeak_update('YTB3KDYCF72FRI0V', '6', '1', 0, 0, 0, 0, 0, 0);
+                                      console.log(event.results[result.resultLength]);
+                                    }
+                                    if (result.resultTranscript.indexOf("關燈") !== -1) {
+                                      ThingSpeak_update('YTB3KDYCF72FRI0V', '6', '2', 0, 0, 0, 0, 0, 0);
+                                      console.log(event.results[result.resultLength]);
+                                    }
+                                    window._recognition.status = false;
+                                    window._recognition.stop();
+                                    _context3.next = 12;
+                                    return delay(2);
+
+                                  case 12:
+                                    document.getElementById("demo-area-01-show").innerHTML = '請說話...';
+                                    if (!window._recognition.status) {
+                                      window._recognition.start();
+                                    }
+                                    console.log("final");
+                                    _context3.next = 18;
+                                    break;
+
+                                  case 17:
+                                    if (event.results[result.resultLength].isFinal === false) {}
+
+                                  case 18:
+                                  case "end":
+                                    return _context3.stop();
+                                }
+                              }
+                            }, _callee3, this);
+                          }));
+
+                          return function (_x, _x2) {
+                            return ref.apply(this, arguments);
+                          };
+                        })();
+                        window._recognition.start();
+                      }
+
+                    case 1:
+                    case "end":
+                      return _context4.stop();
+                  }
+                }
+              }, _callee4, this);
+            }));
+
+            return function speechRecognition() {
+              return ref.apply(this, arguments);
+            };
+          })();
+
+          speechRecognition();
+
+        case 3:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  }, _callee5, this);
+}))();</script>
+
+
+</body></html>
