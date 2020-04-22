@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M5Wjs8aMo2QxU2e6K5L -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 01</title>
+  <script src="./index_files/jquery.min.js.下載"></script>
+  <script src="./index_files/webduino-all.min.js.下載"></script>
+  <script src="./index_files/MessageTransport.min.js.下載"></script>
+  <script src="./index_files/webduino-blockly.min.js.下載"></script>
+  <script src="./index_files/firebase.min.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitButton.js.下載"></script><script src="./index_files/BitButton-blockly.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script><script src="./index_files/Dht.js.下載"></script><script src="./index_files/Dht-blockly.js.下載"></script><script src="./index_files/IR-blockly.js.下載"></script><script src="./index_files/BitPhotocell-blockly.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script>
+
+  <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
+</head>
+
+<body>
+  <div><span id="demo-area-01-show">123</span></div>
+
+  <script>'use strict';
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
+
+_asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
+  var relay, buttonA, matrix, _E9_97_9C_E5_8D_A1, buttonB, Flag, _E4_BA_92_E6_8E_A5, _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88, photocell, dht, shake, ultrasonic, irrecv, _E7_B4_85_E5_A4_96_E7_B7_9A;
+
+  return regeneratorRuntime.wrap(function _callee16$(_context16) {
+    while (1) {
+      switch (_context16.prev = _context16.next) {
+        case 0:
+
+          if (window.readyBoardLength) {
+            window.readyBoardLength = window.readyBoardLength + 1;
+          } else {
+            window.readyBoardLength = 1;
+          }
+
+          boardReady({ board: 'Bit', device: 'bit3bb875', transport: 'mqtt' }, (function () {
+            var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(board) {
+              var count, startTime, timeout, endTime, interval;
+              return regeneratorRuntime.wrap(function _callee15$(_context15) {
+                while (1) {
+                  switch (_context15.prev = _context15.next) {
+                    case 0:
+                      board.samplingInterval = 250;
+                      for (count = 0; count < 1; count++) {
+                        relay = getRelay(board, bitGPIO(0));
+                        matrix = getMatrix(board, 4, 25);
+                        _E9_97_9C_E5_8D_A1 = 1;
+                        Flag = false;
+                        _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                        buttonA = getPullupButton(board, 35);
+                        buttonB = getPullupButton(board, 27);
+                        _E4_BA_92_E6_8E_A5 = getShock(board, bitGPIO(6));
+                        photocell = getPhotocell(board, 7);
+                        dht = getDht(board, bitGPIO(4));
+                        shake = getShock(board, bitGPIO(3));
+                        ultrasonic = getUltrasonic(board, bitGPIO(7), bitGPIO(8));
+                        irrecv = getIRRecv(board, bitGPIO(1));
+                        _E7_B4_85_E5_A4_96_E7_B7_9A = getButton(board, bitGPIO(9));
+                        relay.on();
+                      }
+                      buttonA.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+                        return regeneratorRuntime.wrap(function _callee$(_context) {
+                          while (1) {
+                            switch (_context.prev = _context.next) {
+                              case 0:
+                                if (_E9_97_9C_E5_8D_A1 == 1 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                                  relay.off();
+                                  matrix.setColor(1 - 1 + (1 - 1) * 5, '#ffffff');
+                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                }
+
+                              case 1:
+                              case 'end':
+                                return _context.stop();
+                            }
+                          }
+                        }, _callee, this);
+                      })));
+                      buttonA.on('longPress', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+                        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                          while (1) {
+                            switch (_context2.prev = _context2.next) {
+                              case 0:
+                                if (_E9_97_9C_E5_8D_A1 == 1 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                  relay.on();
+                                  Flag = true;
+                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                }
+
+                              case 1:
+                              case 'end':
+                                return _context2.stop();
+                            }
+                          }
+                        }, _callee2, this);
+                      })));
+                      buttonB.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+                        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                          while (1) {
+                            switch (_context3.prev = _context3.next) {
+                              case 0:
+                                matrix.setColor(5 - 1 + (5 - 1) * 5, '#cc0000');
+                                if (Flag == true) {
+                                  _E9_97_9C_E5_8D_A1 = _E9_97_9C_E5_8D_A1 + 1;
+                                  Flag = false;
+                                }
+                                _context3.next = 4;
+                                return delay(1);
+
+                              case 4:
+                                matrix.setColor(5 - 1 + (5 - 1) * 5, '#000000');
+
+                              case 5:
+                              case 'end':
+                                return _context3.stop();
+                            }
+                          }
+                        }, _callee3, this);
+                      })));
+                      _E4_BA_92_E6_8E_A5.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
+                        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+                          while (1) {
+                            switch (_context5.prev = _context5.next) {
+                              case 0:
+                                console.log("low");
+                                _context5.next = 3;
+                                return delay(0.5);
+
+                              case 3:
+                                _E4_BA_92_E6_8E_A5.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
+                                  return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                                    while (1) {
+                                      switch (_context4.prev = _context4.next) {
+                                        case 0:
+                                          console.log("low");
+                                          if (_E9_97_9C_E5_8D_A1 == 2 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                                            relay.off();
+                                            _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                            matrix.setColor(2 - 1 + (1 - 1) * 5, '#ffffff');
+                                          }
+
+                                        case 2:
+                                        case 'end':
+                                          return _context4.stop();
+                                      }
+                                    }
+                                  }, _callee4, this);
+                                })));
+
+                              case 4:
+                              case 'end':
+                                return _context5.stop();
+                            }
+                          }
+                        }, _callee5, this);
+                      })));
+                      _E4_BA_92_E6_8E_A5.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee7() {
+                        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+                          while (1) {
+                            switch (_context7.prev = _context7.next) {
+                              case 0:
+                                console.log("high");
+                                _context7.next = 3;
+                                return delay(0.5);
+
+                              case 3:
+                                _E4_BA_92_E6_8E_A5.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee6() {
+                                  return regeneratorRuntime.wrap(function _callee6$(_context6) {
+                                    while (1) {
+                                      switch (_context6.prev = _context6.next) {
+                                        case 0:
+                                          console.log("high");
+                                          if (_E9_97_9C_E5_8D_A1 == 2 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                            _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                            Flag = true;
+                                            relay.on();
+                                          }
+
+                                        case 2:
+                                        case 'end':
+                                          return _context6.stop();
+                                      }
+                                    }
+                                  }, _callee6, this);
+                                })));
+
+                              case 4:
+                              case 'end':
+                                return _context7.stop();
+                            }
+                          }
+                        }, _callee7, this);
+                      })));
+
+                    case 7:
+                      if (!(_E9_97_9C_E5_8D_A1 == 3)) {
+                        _context15.next = 14;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").innerHTML = photocell.detectedVal;
+                      photocell.measure((function () {
+                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(val) {
+                          return regeneratorRuntime.wrap(function _callee8$(_context8) {
+                            while (1) {
+                              switch (_context8.prev = _context8.next) {
+                                case 0:
+                                  photocell.detectedVal = val;
+                                  if (_E9_97_9C_E5_8D_A1 == 3 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                                    if (photocell.detectedVal < 0.5) {
+                                      relay.off();
+                                      _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                    }
+                                  }
+                                  if (_E9_97_9C_E5_8D_A1 == 3 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                    if (photocell.detectedVal > 0.3) {
+                                      matrix.setColor(3 - 1 + (1 - 1) * 5, '#ffffff');
+                                      _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                      Flag = true;
+                                      relay.on();
+                                    }
+                                  }
+
+                                case 3:
+                                case 'end':
+                                  return _context8.stop();
+                              }
+                            }
+                          }, _callee8, this);
+                        }));
+
+                        return function (_x2) {
+                          return ref.apply(this, arguments);
+                        };
+                      })());
+                      _context15.next = 12;
+                      return delay(1);
+
+                    case 12:
+                      _context15.next = 7;
+                      break;
+
+                    case 14:
+                      while (_E9_97_9C_E5_8D_A1 == 4) {
+                        dht.read((function () {
+                          var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(evt) {
+                            return regeneratorRuntime.wrap(function _callee9$(_context9) {
+                              while (1) {
+                                switch (_context9.prev = _context9.next) {
+                                  case 0:
+                                    if (_E9_97_9C_E5_8D_A1 == 4 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                                      if (dht.humidity >= 90) {
+                                        relay.off();
+                                        _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                      }
+                                    }
+                                    if (_E9_97_9C_E5_8D_A1 == 4 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                      if (dht.humidity <= 88) {
+                                        matrix.setColor(4 - 1 + (1 - 1) * 5, '#ffffff');
+                                        _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                        Flag = true;
+                                        relay.on();
+                                      }
+                                    }
+
+                                  case 2:
+                                  case 'end':
+                                    return _context9.stop();
+                                }
+                              }
+                            }, _callee9, this);
+                          }));
+
+                          return function (_x3) {
+                            return ref.apply(this, arguments);
+                          };
+                        })(), 50);
+                      }
+                      shake.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
+                        return regeneratorRuntime.wrap(function _callee10$(_context10) {
+                          while (1) {
+                            switch (_context10.prev = _context10.next) {
+                              case 0:
+                                console.log("high");
+
+                                if (!(_E9_97_9C_E5_8D_A1 == 5 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false)) {
+                                  _context10.next = 8;
+                                  break;
+                                }
+
+                                relay.off();
+                                _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                matrix.setColor(5 - 1 + (1 - 1) * 5, '#ffffff');
+                                _context10.next = 7;
+                                return delay(2);
+
+                              case 7:
+                                if (_E9_97_9C_E5_8D_A1 == 5 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                  relay.off();
+                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                  Flag = true;
+                                  relay.on();
+                                }
+
+                              case 8:
+                              case 'end':
+                                return _context10.stop();
+                            }
+                          }
+                        }, _callee10, this);
+                      })));
+
+                    case 16:
+                      if (!(_E9_97_9C_E5_8D_A1 == 6)) {
+                        _context15.next = 34;
+                        break;
+                      }
+
+                      ThingSpeak_read(1, '991259', "", 1, 'ANJTR9XNNIUDUO6B');
+                      startTime = new Date();
+                      timeout = 3;
+
+                    case 20:
+                      if (!(ThingSpeak_getResponse() == "")) {
+                        _context15.next = 29;
+                        break;
+                      }
+
+                      endTime = new Date();
+                      interval = parseInt(endTime - startTime) / 1000;
+
+                      if (!(interval > timeout)) {
+                        _context15.next = 25;
+                        break;
+                      }
+
+                      return _context15.abrupt('break', 29);
+
+                    case 25:
+                      _context15.next = 27;
+                      return delay(0.1);
+
+                    case 27:
+                      _context15.next = 20;
+                      break;
+
+                    case 29:
+                      document.getElementById("demo-area-01-show").style.fontSize = 20 + "px";
+                      if (_E9_97_9C_E5_8D_A1 == 6 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                        if (ThingSpeak_getResponse()[0][7] == 1 && ThingSpeak_getResponse()[0][5] == 6) {
+                          relay.off();
+                          _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                        }
+                      }
+                      if (_E9_97_9C_E5_8D_A1 == 6 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                        if (ThingSpeak_getResponse()[0][5] == 6 && ThingSpeak_getResponse()[0][7] == 2) {
+                          matrix.setColor(1 - 1 + (2 - 1) * 5, '#ffffff');
+                          relay.on();
+                          _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                        }
+                      }
+                      _context15.next = 16;
+                      break;
+
+                    case 34:
+                      while (_E9_97_9C_E5_8D_A1 == 7) {
+                        ultrasonic.ping((function () {
+                          var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(cm) {
+                            return regeneratorRuntime.wrap(function _callee11$(_context11) {
+                              while (1) {
+                                switch (_context11.prev = _context11.next) {
+                                  case 0:
+                                    console.log(ultrasonic.distance);
+                                    if (_E9_97_9C_E5_8D_A1 == 7 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                                      if (ultrasonic.distance > 20 && ultrasonic.distance < 25) {
+                                        relay.off();
+                                        _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                      }
+                                    }
+                                    if (_E9_97_9C_E5_8D_A1 == 7 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                      if (ultrasonic.distance > 45 && ultrasonic.distance < 55) {
+                                        matrix.setColor(2 - 1 + (2 - 1) * 5, '#ffffff');
+                                        _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                        Flag = true;
+                                        relay.on();
+                                      }
+                                    }
+
+                                  case 3:
+                                  case 'end':
+                                    return _context11.stop();
+                                }
+                              }
+                            }, _callee11, this);
+                          }));
+
+                          return function (_x4) {
+                            return ref.apply(this, arguments);
+                          };
+                        })(), 500);
+                      }
+                      irrecv.receive((function () {
+                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee12(val) {
+                          return regeneratorRuntime.wrap(function _callee12$(_context12) {
+                            while (1) {
+                              switch (_context12.prev = _context12.next) {
+                                case 0:
+                                  irrecv.onVal = val;
+                                  if (_E9_97_9C_E5_8D_A1 == 8 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                                    if (irrecv.onVal == 'ff38c7') {
+                                      relay.off();
+                                      _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                    }
+                                  }
+                                  if (_E9_97_9C_E5_8D_A1 == 8 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                    if (irrecv.onVal == 'ffb04f') {
+                                      matrix.setColor(3 - 1 + (2 - 1) * 5, '#ffffff');
+                                      _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                      Flag = true;
+                                      relay.on();
+                                    }
+                                  }
+
+                                case 3:
+                                case 'end':
+                                  return _context12.stop();
+                              }
+                            }
+                          }, _callee12, this);
+                        }));
+
+                        return function (_x5) {
+                          return ref.apply(this, arguments);
+                        };
+                      })(), function () {});
+                      _E7_B4_85_E5_A4_96_E7_B7_9A.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee13() {
+                        return regeneratorRuntime.wrap(function _callee13$(_context13) {
+                          while (1) {
+                            switch (_context13.prev = _context13.next) {
+                              case 0:
+                                if (_E9_97_9C_E5_8D_A1 == 9 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                  relay.off();
+                                }
+
+                              case 1:
+                              case 'end':
+                                return _context13.stop();
+                            }
+                          }
+                        }, _callee13, this);
+                      })));
+                      _E7_B4_85_E5_A4_96_E7_B7_9A.on('released', _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
+                        return regeneratorRuntime.wrap(function _callee14$(_context14) {
+                          while (1) {
+                            switch (_context14.prev = _context14.next) {
+                              case 0:
+                                if (_E9_97_9C_E5_8D_A1 == 9 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                  matrix.setColor(4 - 1 + (2 - 1) * 5, '#ffffff');
+                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                  Flag = true;
+                                  relay.on();
+                                }
+
+                              case 1:
+                              case 'end':
+                                return _context14.stop();
+                            }
+                          }
+                        }, _callee14, this);
+                      })));
+                      if (window.boardReadyNumber) {
+                        window.boardReadyNumber = window.boardReadyNumber + 1;
+                      } else {
+                        window.boardReadyNumber = 1;
+                      }
+                      allBoardReady(window.boardReadyNumber);
+
+                    case 40:
+                    case 'end':
+                      return _context15.stop();
+                  }
+                }
+              }, _callee15, this);
+            }));
+
+            return function (_x) {
+              return ref.apply(this, arguments);
+            };
+          })());
+
+        case 2:
+        case 'end':
+          return _context16.stop();
+      }
+    }
+  }, _callee16, this);
+}))();</script>
+
+
+</body></html>
