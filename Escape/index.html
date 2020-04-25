@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M5Wjs8aMo2QxU2e6K5L -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M5lZYhvS8yICxKNL_Mn -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -22,7 +22,7 @@
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
 
 _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
-  var relay, buttonA, matrix, _E9_97_9C_E5_8D_A1, buttonB, Flag, _E4_BA_92_E6_8E_A5, _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88, photocell, dht, shake, ultrasonic, irrecv, _E7_B4_85_E5_A4_96_E7_B7_9A;
+  var relay, buttonB, matrix, _E9_97_9C_E5_8D_A1, buttonA, Flag, _E4_BA_92_E6_8E_A5, _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88, photocell, dht, shake, ultrasonic, irrecv, _E7_B4_85_E5_A4_96_E7_B7_9A;
 
   return regeneratorRuntime.wrap(function _callee16$(_context16) {
     while (1) {
@@ -60,33 +60,45 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                         _E7_B4_85_E5_A4_96_E7_B7_9A = getButton(board, bitGPIO(9));
                         relay.on();
                       }
-                      buttonA.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+                      buttonB.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
                         return regeneratorRuntime.wrap(function _callee$(_context) {
                           while (1) {
                             switch (_context.prev = _context.next) {
                               case 0:
-                                if (_E9_97_9C_E5_8D_A1 == 1 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
-                                  relay.off();
-                                  matrix.setColor(1 - 1 + (1 - 1) * 5, '#ffffff');
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                matrix.setColor(5 - 1 + (5 - 1) * 5, '#cc0000');
+                                if (Flag == true) {
+                                  _E9_97_9C_E5_8D_A1 = _E9_97_9C_E5_8D_A1 + 1;
+                                  Flag = false;
                                 }
+                                _context.next = 4;
+                                return delay(1);
 
-                              case 1:
+                              case 4:
+                                matrix.setColor(5 - 1 + (5 - 1) * 5, '#000000');
+
+                              case 5:
                               case 'end':
                                 return _context.stop();
                             }
                           }
                         }, _callee, this);
                       })));
-                      buttonA.on('longPress', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+
+                    case 3:
+                      if (!(_E9_97_9C_E5_8D_A1 == 1)) {
+                        _context15.next = 10;
+                        break;
+                      }
+
+                      buttonA.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                         return regeneratorRuntime.wrap(function _callee2$(_context2) {
                           while (1) {
                             switch (_context2.prev = _context2.next) {
                               case 0:
-                                if (_E9_97_9C_E5_8D_A1 == 1 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
-                                  relay.on();
-                                  Flag = true;
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                                  relay.off();
+                                  matrix.setColor(1 - 1 + (1 - 1) * 5, '#ffffff');
+                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
                                 }
 
                               case 1:
@@ -96,29 +108,37 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                           }
                         }, _callee2, this);
                       })));
-                      buttonB.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+                      buttonA.on('longPress', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
                         return regeneratorRuntime.wrap(function _callee3$(_context3) {
                           while (1) {
                             switch (_context3.prev = _context3.next) {
                               case 0:
-                                matrix.setColor(5 - 1 + (5 - 1) * 5, '#cc0000');
-                                if (Flag == true) {
-                                  _E9_97_9C_E5_8D_A1 = _E9_97_9C_E5_8D_A1 + 1;
-                                  Flag = false;
+                                if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                  relay.on();
+                                  Flag = true;
+                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
                                 }
-                                _context3.next = 4;
-                                return delay(1);
 
-                              case 4:
-                                matrix.setColor(5 - 1 + (5 - 1) * 5, '#000000');
-
-                              case 5:
+                              case 1:
                               case 'end':
                                 return _context3.stop();
                             }
                           }
                         }, _callee3, this);
                       })));
+                      _context15.next = 8;
+                      return delay(0.1);
+
+                    case 8:
+                      _context15.next = 3;
+                      break;
+
+                    case 10:
+                      if (!(_E9_97_9C_E5_8D_A1 == 2)) {
+                        _context15.next = 17;
+                        break;
+                      }
+
                       _E4_BA_92_E6_8E_A5.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
                         return regeneratorRuntime.wrap(function _callee5$(_context5) {
                           while (1) {
@@ -135,7 +155,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                                       switch (_context4.prev = _context4.next) {
                                         case 0:
                                           console.log("low");
-                                          if (_E9_97_9C_E5_8D_A1 == 2 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                                          if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
                                             relay.off();
                                             _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
                                             matrix.setColor(2 - 1 + (1 - 1) * 5, '#ffffff');
@@ -172,7 +192,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                                       switch (_context6.prev = _context6.next) {
                                         case 0:
                                           console.log("high");
-                                          if (_E9_97_9C_E5_8D_A1 == 2 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                          if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
                                             _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
                                             Flag = true;
                                             relay.on();
@@ -193,14 +213,19 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                           }
                         }, _callee7, this);
                       })));
+                      _context15.next = 15;
+                      return delay(1);
 
-                    case 7:
+                    case 15:
+                      _context15.next = 10;
+                      break;
+
+                    case 17:
                       if (!(_E9_97_9C_E5_8D_A1 == 3)) {
-                        _context15.next = 14;
+                        _context15.next = 25;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").innerHTML = photocell.detectedVal;
                       photocell.measure((function () {
                         var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(val) {
                           return regeneratorRuntime.wrap(function _callee8$(_context8) {
@@ -208,22 +233,9 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                               switch (_context8.prev = _context8.next) {
                                 case 0:
                                   photocell.detectedVal = val;
-                                  if (_E9_97_9C_E5_8D_A1 == 3 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
-                                    if (photocell.detectedVal < 0.5) {
-                                      relay.off();
-                                      _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                                    }
-                                  }
-                                  if (_E9_97_9C_E5_8D_A1 == 3 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
-                                    if (photocell.detectedVal > 0.3) {
-                                      matrix.setColor(3 - 1 + (1 - 1) * 5, '#ffffff');
-                                      _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
-                                      Flag = true;
-                                      relay.on();
-                                    }
-                                  }
+                                  document.getElementById("demo-area-01-show").innerHTML = photocell.detectedVal;
 
-                                case 3:
+                                case 2:
                                 case 'end':
                                   return _context8.stop();
                               }
@@ -235,14 +247,23 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                           return ref.apply(this, arguments);
                         };
                       })());
-                      _context15.next = 12;
-                      return delay(1);
+                      if (photocell.detectedVal > 0.8) {
+                        relay.on();
+                      }
+                      if (photocell.detectedVal < 0.65) {
+                        relay.off();
+                        matrix.setColor(3 - 1 + (1 - 1) * 5, '#ffffff');
+                        _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                        Flag = true;
+                      }
+                      _context15.next = 23;
+                      return delay(0.1);
 
-                    case 12:
-                      _context15.next = 7;
+                    case 23:
+                      _context15.next = 17;
                       break;
 
-                    case 14:
+                    case 25:
                       while (_E9_97_9C_E5_8D_A1 == 4) {
                         dht.read((function () {
                           var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(evt) {
@@ -278,43 +299,45 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                           };
                         })(), 50);
                       }
-                      shake.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
-                        return regeneratorRuntime.wrap(function _callee10$(_context10) {
-                          while (1) {
-                            switch (_context10.prev = _context10.next) {
-                              case 0:
-                                console.log("high");
+                      while (_E9_97_9C_E5_8D_A1 == 5) {
+                        shake.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
+                          return regeneratorRuntime.wrap(function _callee10$(_context10) {
+                            while (1) {
+                              switch (_context10.prev = _context10.next) {
+                                case 0:
+                                  console.log("high");
 
-                                if (!(_E9_97_9C_E5_8D_A1 == 5 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false)) {
-                                  _context10.next = 8;
-                                  break;
-                                }
+                                  if (!(_E9_97_9C_E5_8D_A1 == 5 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false)) {
+                                    _context10.next = 8;
+                                    break;
+                                  }
 
-                                relay.off();
-                                _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                                matrix.setColor(5 - 1 + (1 - 1) * 5, '#ffffff');
-                                _context10.next = 7;
-                                return delay(2);
-
-                              case 7:
-                                if (_E9_97_9C_E5_8D_A1 == 5 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
                                   relay.off();
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
-                                  Flag = true;
-                                  relay.on();
-                                }
+                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                  matrix.setColor(5 - 1 + (1 - 1) * 5, '#ffffff');
+                                  _context10.next = 7;
+                                  return delay(2);
 
-                              case 8:
-                              case 'end':
-                                return _context10.stop();
+                                case 7:
+                                  if (_E9_97_9C_E5_8D_A1 == 5 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                                    relay.off();
+                                    _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                                    Flag = true;
+                                    relay.on();
+                                  }
+
+                                case 8:
+                                case 'end':
+                                  return _context10.stop();
+                              }
                             }
-                          }
-                        }, _callee10, this);
-                      })));
+                          }, _callee10, this);
+                        })));
+                      }
 
-                    case 16:
+                    case 27:
                       if (!(_E9_97_9C_E5_8D_A1 == 6)) {
-                        _context15.next = 34;
+                        _context15.next = 45;
                         break;
                       }
 
@@ -322,9 +345,9 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                       startTime = new Date();
                       timeout = 3;
 
-                    case 20:
+                    case 31:
                       if (!(ThingSpeak_getResponse() == "")) {
-                        _context15.next = 29;
+                        _context15.next = 40;
                         break;
                       }
 
@@ -332,21 +355,21 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                       interval = parseInt(endTime - startTime) / 1000;
 
                       if (!(interval > timeout)) {
-                        _context15.next = 25;
+                        _context15.next = 36;
                         break;
                       }
 
-                      return _context15.abrupt('break', 29);
+                      return _context15.abrupt('break', 40);
 
-                    case 25:
-                      _context15.next = 27;
+                    case 36:
+                      _context15.next = 38;
                       return delay(0.1);
 
-                    case 27:
-                      _context15.next = 20;
+                    case 38:
+                      _context15.next = 31;
                       break;
 
-                    case 29:
+                    case 40:
                       document.getElementById("demo-area-01-show").style.fontSize = 20 + "px";
                       if (_E9_97_9C_E5_8D_A1 == 6 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
                         if (ThingSpeak_getResponse()[0][7] == 1 && ThingSpeak_getResponse()[0][5] == 6) {
@@ -361,10 +384,10 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                           _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
                         }
                       }
-                      _context15.next = 16;
+                      _context15.next = 27;
                       break;
 
-                    case 34:
+                    case 45:
                       while (_E9_97_9C_E5_8D_A1 == 7) {
                         ultrasonic.ping((function () {
                           var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(cm) {
@@ -478,7 +501,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                       }
                       allBoardReady(window.boardReadyNumber);
 
-                    case 40:
+                    case 51:
                     case 'end':
                       return _context15.stop();
                   }
