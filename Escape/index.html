@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M67hoUhyYWn6s94h-Gi -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M682xMfUiSkUOu7yVBg -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <div><span id="demo-area-01-show">123</span></div>
+  <div><span id="demo-area-01-show">密室逃脫<br>遊戲開始....</span></div>
 
   <script>'use strict';
 
@@ -48,8 +48,9 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                         _E4_BA_92_E6_8E_A5 = getShock(board, bitGPIO(6));
                         photocell = getPhotocell(board, 7);
                         dht = getDht(board, bitGPIO(11));
-                        shake = getShock(board, bitGPIO(3));
+                        shake = getShock(board, bitGPIO(9));
                         relay.on();
+                        document.getElementById("demo-area-01-show").innerHTML = ['密室逃脫', "<br/>", '遊戲開始....'].join('');
                       }
                       buttonB.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
                         return regeneratorRuntime.wrap(function _callee$(_context) {
@@ -232,41 +233,43 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                         break;
                       }
 
-                      dht.read((function () {
-                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(evt) {
-                          return regeneratorRuntime.wrap(function _callee7$(_context7) {
-                            while (1) {
-                              switch (_context7.prev = _context7.next) {
-                                case 0:
-                                  document.getElementById("demo-area-01-show").innerHTML = dht.humidity;
+                      if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                        dht.read((function () {
+                          var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(evt) {
+                            return regeneratorRuntime.wrap(function _callee7$(_context7) {
+                              while (1) {
+                                switch (_context7.prev = _context7.next) {
+                                  case 0:
+                                    document.getElementById("demo-area-01-show").innerHTML = dht.humidity;
 
-                                  if (!(_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false && dht.humidity > 70)) {
-                                    _context7.next = 9;
-                                    break;
-                                  }
+                                    if (!(dht.humidity > 70)) {
+                                      _context7.next = 9;
+                                      break;
+                                    }
 
-                                  relay.off();
-                                  matrix.setColor(4 - 1 + (1 - 1) * 5, '#ffffff');
-                                  _context7.next = 6;
-                                  return delay(4);
+                                    relay.off();
+                                    matrix.setColor(4 - 1 + (1 - 1) * 5, '#ffffff');
+                                    _context7.next = 6;
+                                    return delay(4);
 
-                                case 6:
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                                  relay.on();
-                                  Flag = true;
+                                  case 6:
+                                    _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                    relay.on();
+                                    Flag = true;
 
-                                case 9:
-                                case 'end':
-                                  return _context7.stop();
+                                  case 9:
+                                  case 'end':
+                                    return _context7.stop();
+                                }
                               }
-                            }
-                          }, _callee7, this);
-                        }));
+                            }, _callee7, this);
+                          }));
 
-                        return function (_x3) {
-                          return ref.apply(this, arguments);
-                        };
-                      })());
+                          return function (_x3) {
+                            return ref.apply(this, arguments);
+                          };
+                        })());
+                      }
                       _context9.next = 29;
                       return delay(1);
 
@@ -276,10 +279,11 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
 
                     case 31:
                       if (!(_E9_97_9C_E5_8D_A1 == 5)) {
-                        _context9.next = 37;
+                        _context9.next = 41;
                         break;
                       }
 
+                      document.getElementById("demo-area-01-show").innerHTML = '請震動...';
                       shake.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee8() {
                         return regeneratorRuntime.wrap(function _callee8$(_context8) {
                           while (1) {
@@ -288,11 +292,11 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                                 console.log("high");
                                 relay.off();
                                 matrix.setColor(5 - 1 + (1 - 1) * 5, '#ffffff');
-                                _context8.next = 5;
+                                _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                                _context8.next = 6;
                                 return delay(4);
 
-                              case 5:
-                                _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                              case 6:
                                 relay.on();
                                 Flag = true;
 
@@ -303,14 +307,33 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           }
                         }, _callee8, this);
                       })));
-                      _context9.next = 35;
+                      _context9.next = 36;
+                      return delay(0.6);
+
+                    case 36:
+                      document.getElementById("demo-area-01-show").innerHTML = '.....';
+                      _context9.next = 39;
                       return delay(0.1);
 
-                    case 35:
+                    case 39:
                       _context9.next = 31;
                       break;
 
-                    case 37:
+                    case 41:
+                      if (!(_E9_97_9C_E5_8D_A1 == 6)) {
+                        _context9.next = 47;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").innerHTML = '成功';
+                      _context9.next = 45;
+                      return delay(2);
+
+                    case 45:
+                      _context9.next = 41;
+                      break;
+
+                    case 47:
                     case 'end':
                       return _context9.stop();
                   }
