@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M682xMfUiSkUOu7yVBg -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M6FGoLwEiwn4_54qpti -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -9,20 +9,20 @@
   <script src="./index_files/MessageTransport.min.js.下載"></script>
   <script src="./index_files/webduino-blockly.min.js.下載"></script>
   <script src="./index_files/firebase.min.js.下載"></script>
-  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitButton.js.下載"></script><script src="./index_files/BitButton-blockly.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script><script src="./index_files/Dht.js.下載"></script><script src="./index_files/Dht-blockly.js.下載"></script><script src="./index_files/BitPhotocell-blockly.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitButton.js.下載"></script><script src="./index_files/BitButton-blockly.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script><script src="./index_files/Dht.js.下載"></script><script src="./index_files/Dht-blockly.js.下載"></script><script src="./index_files/BitPhotocell-blockly.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script>
 
   <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
 </head>
 
 <body>
-  <div><span id="demo-area-01-show">密室逃脫<br>遊戲開始....</span></div>
+  <div><span id="demo-area-01-show">請依圖示思考可能的開燈方式<br>按鈕B為開始或執行下一關</span></div>
 
   <script>'use strict';
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
 
 _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
-  var relay, buttonB, matrix, _E9_97_9C_E5_8D_A1, buttonA, Flag, _E4_BA_92_E6_8E_A5, _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88, photocell, dht, shake;
+  var relay, buttonB, matrix, Flag, _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88, _E9_97_9C_E5_8D_A1, buttonA, _E4_BA_92_E6_8E_A5, photocell, dht, shake;
 
   return regeneratorRuntime.wrap(function _callee10$(_context10) {
     while (1) {
@@ -31,27 +31,42 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
 
           boardReady({ board: 'Bit', device: 'bit3bb875', transport: 'mqtt' }, (function () {
             var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(board) {
-              var count;
+              var count, startTime, timeout, endTime, interval;
               return regeneratorRuntime.wrap(function _callee9$(_context9) {
                 while (1) {
                   switch (_context9.prev = _context9.next) {
                     case 0:
                       board.samplingInterval = 250;
-                      for (count = 0; count < 1; count++) {
-                        relay = getRelay(board, bitGPIO(0));
-                        matrix = getMatrix(board, 4, 25);
-                        _E9_97_9C_E5_8D_A1 = 1;
-                        Flag = false;
-                        _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
-                        buttonA = getPullupButton(board, 35);
-                        buttonB = getPullupButton(board, 27);
-                        _E4_BA_92_E6_8E_A5 = getShock(board, bitGPIO(6));
-                        photocell = getPhotocell(board, 7);
-                        dht = getDht(board, bitGPIO(11));
-                        shake = getShock(board, bitGPIO(9));
-                        relay.on();
-                        document.getElementById("demo-area-01-show").innerHTML = ['密室逃脫', "<br/>", '遊戲開始....'].join('');
+                      count = 0;
+
+                    case 2:
+                      if (!(count < 1)) {
+                        _context9.next = 21;
+                        break;
                       }
+
+                      relay = getRelay(board, bitGPIO(0));
+                      matrix = getMatrix(board, 4, 25);
+                      Flag = false;
+                      _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                      buttonA = getPullupButton(board, 35);
+                      buttonB = getPullupButton(board, 27);
+                      _E4_BA_92_E6_8E_A5 = getShock(board, bitGPIO(6));
+                      photocell = getPhotocell(board, 7);
+                      dht = getDht(board, bitGPIO(11));
+                      shake = getShock(board, bitGPIO(9));
+                      relay.on();
+                      document.getElementById("demo-area-01-show").innerHTML = ['密室逃脫', "<br/>", '遊戲開始....'].join('');
+                      _E9_97_9C_E5_8D_A1 = 0;
+                      _context9.next = 18;
+                      return delay(5);
+
+                    case 18:
+                      count++;
+                      _context9.next = 2;
+                      break;
+
+                    case 21:
                       buttonB.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
                         return regeneratorRuntime.wrap(function _callee$(_context) {
                           while (1) {
@@ -77,9 +92,24 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                         }, _callee, this);
                       })));
 
-                    case 3:
+                    case 22:
+                      if (!(_E9_97_9C_E5_8D_A1 == 0)) {
+                        _context9.next = 29;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").innerHTML = ['請依圖示思考可能的開燈方式', "<br/>", '按鈕B為開始或執行下一關'].join('');
+                      Flag = true;
+                      _context9.next = 27;
+                      return delay(1);
+
+                    case 27:
+                      _context9.next = 22;
+                      break;
+
+                    case 29:
                       if (!(_E9_97_9C_E5_8D_A1 == 1)) {
-                        _context9.next = 10;
+                        _context9.next = 36;
                         break;
                       }
 
@@ -119,19 +149,20 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           }
                         }, _callee3, this);
                       })));
-                      _context9.next = 8;
+                      _context9.next = 34;
                       return delay(0.1);
 
-                    case 8:
-                      _context9.next = 3;
+                    case 34:
+                      _context9.next = 29;
                       break;
 
-                    case 10:
+                    case 36:
                       if (!(_E9_97_9C_E5_8D_A1 == 2)) {
-                        _context9.next = 17;
+                        _context9.next = 44;
                         break;
                       }
 
+                      document.getElementById("demo-area-01-show").innerHTML = '請短路....';
                       _E4_BA_92_E6_8E_A5.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
                         return regeneratorRuntime.wrap(function _callee4$(_context4) {
                           while (1) {
@@ -178,16 +209,16 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           }
                         }, _callee5, this);
                       })));
-                      _context9.next = 15;
+                      _context9.next = 42;
                       return delay(1);
 
-                    case 15:
-                      _context9.next = 10;
+                    case 42:
+                      _context9.next = 36;
                       break;
 
-                    case 17:
+                    case 44:
                       if (!(_E9_97_9C_E5_8D_A1 == 3)) {
-                        _context9.next = 25;
+                        _context9.next = 52;
                         break;
                       }
 
@@ -198,7 +229,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                               switch (_context6.prev = _context6.next) {
                                 case 0:
                                   photocell.detectedVal = val;
-                                  document.getElementById("demo-area-01-show").innerHTML = photocell.detectedVal;
+                                  document.getElementById("demo-area-01-show").innerHTML = ['目前光度', photocell.detectedVal, '請想辦法小於0.65...'].join('');
 
                                 case 2:
                                 case 'end':
@@ -220,16 +251,16 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                         matrix.setColor(3 - 1 + (1 - 1) * 5, '#ffffff');
                         Flag = true;
                       }
-                      _context9.next = 23;
+                      _context9.next = 50;
                       return delay(0.2);
 
-                    case 23:
-                      _context9.next = 17;
+                    case 50:
+                      _context9.next = 44;
                       break;
 
-                    case 25:
+                    case 52:
                       if (!(_E9_97_9C_E5_8D_A1 == 4)) {
-                        _context9.next = 31;
+                        _context9.next = 58;
                         break;
                       }
 
@@ -270,16 +301,16 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           };
                         })());
                       }
-                      _context9.next = 29;
+                      _context9.next = 56;
                       return delay(1);
 
-                    case 29:
-                      _context9.next = 25;
+                    case 56:
+                      _context9.next = 52;
                       break;
 
-                    case 31:
+                    case 58:
                       if (!(_E9_97_9C_E5_8D_A1 == 5)) {
-                        _context9.next = 41;
+                        _context9.next = 68;
                         break;
                       }
 
@@ -307,33 +338,77 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           }
                         }, _callee8, this);
                       })));
-                      _context9.next = 36;
+                      _context9.next = 63;
                       return delay(0.6);
 
-                    case 36:
+                    case 63:
                       document.getElementById("demo-area-01-show").innerHTML = '.....';
-                      _context9.next = 39;
+                      _context9.next = 66;
                       return delay(0.1);
 
-                    case 39:
-                      _context9.next = 31;
+                    case 66:
+                      _context9.next = 58;
                       break;
 
-                    case 41:
+                    case 68:
                       if (!(_E9_97_9C_E5_8D_A1 == 6)) {
-                        _context9.next = 47;
+                        _context9.next = 88;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").innerHTML = '成功';
-                      _context9.next = 45;
-                      return delay(2);
+                      ThingSpeak_read(1, '991259', "", 1, 'ANJTR9XNNIUDUO6B');
+                      startTime = new Date();
+                      timeout = 1;
 
-                    case 45:
-                      _context9.next = 41;
+                    case 72:
+                      if (!(ThingSpeak_getResponse() == "")) {
+                        _context9.next = 81;
+                        break;
+                      }
+
+                      endTime = new Date();
+                      interval = parseInt(endTime - startTime) / 1000;
+
+                      if (!(interval > timeout)) {
+                        _context9.next = 77;
+                        break;
+                      }
+
+                      return _context9.abrupt('break', 81);
+
+                    case 77:
+                      _context9.next = 79;
+                      return delay(0.1);
+
+                    case 79:
+                      _context9.next = 72;
                       break;
 
-                    case 47:
+                    case 81:
+                      document.getElementById("demo-area-01-show").style.fontSize = 20 + "px";
+                      if (_E9_97_9C_E5_8D_A1 == 6 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
+                        if (ThingSpeak_getResponse()[0][7] == 1 && ThingSpeak_getResponse()[0][5] == 6) {
+                          relay.off();
+                          _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
+                          document.getElementById("demo-area-01-show").innerHTML = 'Turn on the light';
+                        }
+                      }
+                      if (_E9_97_9C_E5_8D_A1 == 6 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
+                        if (ThingSpeak_getResponse()[0][7] == 2 && ThingSpeak_getResponse()[0][5] == 6) {
+                          matrix.setColor(1 - 1 + (2 - 1) * 5, '#ffffff');
+                          relay.on();
+                          _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
+                          document.getElementById("demo-area-01-show").innerHTML = 'Turn off the light';
+                        }
+                      }
+                      _context9.next = 86;
+                      return delay(1);
+
+                    case 86:
+                      _context9.next = 68;
+                      break;
+
+                    case 88:
                     case 'end':
                       return _context9.stop();
                   }
