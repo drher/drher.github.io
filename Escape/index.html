@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M6FGoLwEiwn4_54qpti -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M6tZz0coCgKgWETHuh0 -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -9,39 +9,39 @@
   <script src="./index_files/MessageTransport.min.js.下載"></script>
   <script src="./index_files/webduino-blockly.min.js.下載"></script>
   <script src="./index_files/firebase.min.js.下載"></script>
-  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitButton.js.下載"></script><script src="./index_files/BitButton-blockly.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script><script src="./index_files/Dht.js.下載"></script><script src="./index_files/Dht-blockly.js.下載"></script><script src="./index_files/BitPhotocell-blockly.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitButton.js.下載"></script><script src="./index_files/BitButton-blockly.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script><script src="./index_files/Dht.js.下載"></script><script src="./index_files/Dht-blockly.js.下載"></script><script src="./index_files/IR-blockly.js.下載"></script><script src="./index_files/BitPhotocell-blockly.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script>
 
   <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
 </head>
 
 <body>
-  <div><span id="demo-area-01-show">請依圖示思考可能的開燈方式<br>按鈕B為開始或執行下一關</span></div>
+  <div><span id="demo-area-01-show">123</span></div>
 
   <script>'use strict';
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
 
-_asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
-  var relay, buttonB, matrix, Flag, _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88, _E9_97_9C_E5_8D_A1, buttonA, _E4_BA_92_E6_8E_A5, photocell, dht, shake;
+_asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
+  var relay, buttonB, matrix, Flag, _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88, _E9_97_9C_E5_8D_A1, buttonA, photocell, _E4_BA_92_E6_8E_A5, dht, shake, ultrasonic, irrecv;
 
-  return regeneratorRuntime.wrap(function _callee10$(_context10) {
+  return regeneratorRuntime.wrap(function _callee12$(_context12) {
     while (1) {
-      switch (_context10.prev = _context10.next) {
+      switch (_context12.prev = _context12.next) {
         case 0:
 
           boardReady({ board: 'Bit', device: 'bit3bb875', transport: 'mqtt' }, (function () {
-            var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(board) {
+            var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee11(board) {
               var count, startTime, timeout, endTime, interval;
-              return regeneratorRuntime.wrap(function _callee9$(_context9) {
+              return regeneratorRuntime.wrap(function _callee11$(_context11) {
                 while (1) {
-                  switch (_context9.prev = _context9.next) {
+                  switch (_context11.prev = _context11.next) {
                     case 0:
                       board.samplingInterval = 250;
                       count = 0;
 
                     case 2:
                       if (!(count < 1)) {
-                        _context9.next = 21;
+                        _context11.next = 25;
                         break;
                       }
 
@@ -55,18 +55,22 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                       photocell = getPhotocell(board, 7);
                       dht = getDht(board, bitGPIO(11));
                       shake = getShock(board, bitGPIO(9));
+                      ultrasonic = getUltrasonic(board, bitGPIO(8), bitGPIO(7));
+                      irrecv = getIRRecv(board, bitGPIO(1));
                       relay.on();
-                      document.getElementById("demo-area-01-show").innerHTML = ['密室逃脫', "<br/>", '遊戲開始....'].join('');
-                      _E9_97_9C_E5_8D_A1 = 0;
-                      _context9.next = 18;
+                      document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
+                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　密室逃脫', "<br/>", '　　遊戲開始....'].join('');
+                      _E9_97_9C_E5_8D_A1 = 7;
+                      _context11.next = 22;
                       return delay(5);
 
-                    case 18:
+                    case 22:
                       count++;
-                      _context9.next = 2;
+                      _context11.next = 2;
                       break;
 
-                    case 21:
+                    case 25:
                       buttonB.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
                         return regeneratorRuntime.wrap(function _callee$(_context) {
                           while (1) {
@@ -92,27 +96,32 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                         }, _callee, this);
                       })));
 
-                    case 22:
+                    case 26:
                       if (!(_E9_97_9C_E5_8D_A1 == 0)) {
-                        _context9.next = 29;
+                        _context11.next = 35;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").innerHTML = ['請依圖示思考可能的開燈方式', "<br/>", '按鈕B為開始或執行下一關'].join('');
+                      document.getElementById("demo-area-01-show").style.color = '#ff0000';
+                      document.getElementById("demo-area-01-show").style.fontSize = 28 + "px";
+                      document.getElementById("demo-area-01-show").innerHTML = ["<br/>", '依圖示思考可能的開燈方式', "<br/>", '　按B開始或執行下一關'].join('');
                       Flag = true;
-                      _context9.next = 27;
+                      _context11.next = 33;
                       return delay(1);
 
-                    case 27:
-                      _context9.next = 22;
+                    case 33:
+                      _context11.next = 26;
                       break;
 
-                    case 29:
+                    case 35:
                       if (!(_E9_97_9C_E5_8D_A1 == 1)) {
-                        _context9.next = 36;
+                        _context11.next = 45;
                         break;
                       }
 
+                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
+                      document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第1關', "<br/>", '　　按A  開燈 ', "<br/>", '　 長按A 關燈 '].join('');
                       buttonA.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                         return regeneratorRuntime.wrap(function _callee2$(_context2) {
                           while (1) {
@@ -149,20 +158,21 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           }
                         }, _callee3, this);
                       })));
-                      _context9.next = 34;
+                      _context11.next = 43;
                       return delay(0.1);
 
-                    case 34:
-                      _context9.next = 29;
+                    case 43:
+                      _context11.next = 35;
                       break;
 
-                    case 36:
+                    case 45:
                       if (!(_E9_97_9C_E5_8D_A1 == 2)) {
-                        _context9.next = 44;
+                        _context11.next = 54;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").innerHTML = '請短路....';
+                      document.getElementById("demo-area-01-show").style.color = '#cc0000';
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第2關', "<br/>", '　　請短路....'].join('');
                       _E4_BA_92_E6_8E_A5.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
                         return regeneratorRuntime.wrap(function _callee4$(_context4) {
                           while (1) {
@@ -209,16 +219,16 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           }
                         }, _callee5, this);
                       })));
-                      _context9.next = 42;
+                      _context11.next = 52;
                       return delay(1);
 
-                    case 42:
-                      _context9.next = 36;
+                    case 52:
+                      _context11.next = 45;
                       break;
 
-                    case 44:
+                    case 54:
                       if (!(_E9_97_9C_E5_8D_A1 == 3)) {
-                        _context9.next = 52;
+                        _context11.next = 62;
                         break;
                       }
 
@@ -229,9 +239,10 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                               switch (_context6.prev = _context6.next) {
                                 case 0:
                                   photocell.detectedVal = val;
-                                  document.getElementById("demo-area-01-show").innerHTML = ['目前光度', photocell.detectedVal, '請想辦法小於0.65...'].join('');
+                                  document.getElementById("demo-area-01-show").style.color = '#ff0000';
+                                  document.getElementById("demo-area-01-show").innerHTML = ['　　 第3關', "<br/>", '　 目前光度', Math.round(photocell.detectedVal * 100), "<br/>", '請想辦法小於65...'].join('');
 
-                                case 2:
+                                case 3:
                                 case 'end':
                                   return _context6.stop();
                               }
@@ -251,16 +262,16 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                         matrix.setColor(3 - 1 + (1 - 1) * 5, '#ffffff');
                         Flag = true;
                       }
-                      _context9.next = 50;
+                      _context11.next = 60;
                       return delay(0.2);
 
-                    case 50:
-                      _context9.next = 44;
+                    case 60:
+                      _context11.next = 54;
                       break;
 
-                    case 52:
+                    case 62:
                       if (!(_E9_97_9C_E5_8D_A1 == 4)) {
-                        _context9.next = 58;
+                        _context11.next = 68;
                         break;
                       }
 
@@ -271,24 +282,25 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                               while (1) {
                                 switch (_context7.prev = _context7.next) {
                                   case 0:
-                                    document.getElementById("demo-area-01-show").innerHTML = dht.humidity;
+                                    document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
+                                    document.getElementById("demo-area-01-show").innerHTML = ['　　 　第4關', "<br/>", '　　目前濕度', dht.humidity, "<br/>", '請想辦法增加濕度....'].join('');
 
                                     if (!(dht.humidity > 70)) {
-                                      _context7.next = 9;
+                                      _context7.next = 10;
                                       break;
                                     }
 
                                     relay.off();
                                     matrix.setColor(4 - 1 + (1 - 1) * 5, '#ffffff');
-                                    _context7.next = 6;
+                                    _context7.next = 7;
                                     return delay(4);
 
-                                  case 6:
+                                  case 7:
                                     _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
                                     relay.on();
                                     Flag = true;
 
-                                  case 9:
+                                  case 10:
                                   case 'end':
                                     return _context7.stop();
                                 }
@@ -301,20 +313,21 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           };
                         })());
                       }
-                      _context9.next = 56;
+                      _context11.next = 66;
                       return delay(1);
 
-                    case 56:
-                      _context9.next = 52;
+                    case 66:
+                      _context11.next = 62;
                       break;
 
-                    case 58:
+                    case 68:
                       if (!(_E9_97_9C_E5_8D_A1 == 5)) {
-                        _context9.next = 68;
+                        _context11.next = 76;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").innerHTML = '請震動...';
+                      document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第5關', "<br/>", '　　請震動...'].join('');
                       shake.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee8() {
                         return regeneratorRuntime.wrap(function _callee8$(_context8) {
                           while (1) {
@@ -338,21 +351,16 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           }
                         }, _callee8, this);
                       })));
-                      _context9.next = 63;
+                      _context11.next = 74;
                       return delay(0.6);
 
-                    case 63:
-                      document.getElementById("demo-area-01-show").innerHTML = '.....';
-                      _context9.next = 66;
-                      return delay(0.1);
-
-                    case 66:
-                      _context9.next = 58;
+                    case 74:
+                      _context11.next = 68;
                       break;
 
-                    case 68:
+                    case 76:
                       if (!(_E9_97_9C_E5_8D_A1 == 6)) {
-                        _context9.next = 88;
+                        _context11.next = 97;
                         break;
                       }
 
@@ -360,9 +368,9 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                       startTime = new Date();
                       timeout = 1;
 
-                    case 72:
+                    case 80:
                       if (!(ThingSpeak_getResponse() == "")) {
-                        _context9.next = 81;
+                        _context11.next = 89;
                         break;
                       }
 
@@ -370,27 +378,27 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                       interval = parseInt(endTime - startTime) / 1000;
 
                       if (!(interval > timeout)) {
-                        _context9.next = 77;
+                        _context11.next = 85;
                         break;
                       }
 
-                      return _context9.abrupt('break', 81);
+                      return _context11.abrupt('break', 89);
 
-                    case 77:
-                      _context9.next = 79;
+                    case 85:
+                      _context11.next = 87;
                       return delay(0.1);
 
-                    case 79:
-                      _context9.next = 72;
+                    case 87:
+                      _context11.next = 80;
                       break;
 
-                    case 81:
-                      document.getElementById("demo-area-01-show").style.fontSize = 20 + "px";
+                    case 89:
+                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
+                      document.getElementById("demo-area-01-show").innerHTML = ['　 　第6關', "<br/>", '請掃描QR Code...'].join('');
                       if (_E9_97_9C_E5_8D_A1 == 6 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
                         if (ThingSpeak_getResponse()[0][7] == 1 && ThingSpeak_getResponse()[0][5] == 6) {
                           relay.off();
                           _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                          document.getElementById("demo-area-01-show").innerHTML = 'Turn on the light';
                         }
                       }
                       if (_E9_97_9C_E5_8D_A1 == 6 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
@@ -398,22 +406,122 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
                           matrix.setColor(1 - 1 + (2 - 1) * 5, '#ffffff');
                           relay.on();
                           _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
-                          document.getElementById("demo-area-01-show").innerHTML = 'Turn off the light';
+                          Flag = true;
                         }
                       }
-                      _context9.next = 86;
+                      _context11.next = 95;
                       return delay(1);
 
-                    case 86:
-                      _context9.next = 68;
+                    case 95:
+                      _context11.next = 76;
                       break;
 
-                    case 88:
+                    case 97:
+                      if (!(_E9_97_9C_E5_8D_A1 == 7)) {
+                        _context11.next = 104;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第7關', "<br/>", '目前偵測距離', ultrasonic.distance, "<br/>", '　 30~50  開燈', "<br/>", '　 05~20  關燈'].join('');
+                      ultrasonic.ping((function () {
+                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(cm) {
+                          return regeneratorRuntime.wrap(function _callee9$(_context9) {
+                            while (1) {
+                              switch (_context9.prev = _context9.next) {
+                                case 0:
+                                  console.log(ultrasonic.distance);
+                                  if (ultrasonic.distance > 30 && ultrasonic.distance < 50) {
+                                    relay.off();
+                                  }
+                                  if (ultrasonic.distance > 5 && ultrasonic.distance < 20) {
+                                    relay.on();
+                                    matrix.setColor(2 - 1 + (2 - 1) * 5, '#ffffff');
+                                    Flag = true;
+                                  }
+
+                                case 3:
+                                case 'end':
+                                  return _context9.stop();
+                              }
+                            }
+                          }, _callee9, this);
+                        }));
+
+                        return function (_x4) {
+                          return ref.apply(this, arguments);
+                        };
+                      })(), 500);
+                      _context11.next = 102;
+                      return delay(0.2);
+
+                    case 102:
+                      _context11.next = 97;
+                      break;
+
+                    case 104:
+                      if (!(_E9_97_9C_E5_8D_A1 == 8)) {
+                        _context11.next = 112;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第8關', "<br/>", '目前代碼：', irrecv.onVal, "<br/>", '　　開燈：ff6897', "<br/>", '　　關燈：ffb04f'].join('');
+                      irrecv.receive((function () {
+                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(val) {
+                          return regeneratorRuntime.wrap(function _callee10$(_context10) {
+                            while (1) {
+                              switch (_context10.prev = _context10.next) {
+                                case 0:
+                                  irrecv.onVal = val;
+                                  if (irrecv.onVal == 'ff6897') {
+                                    relay.off();
+                                  }
+                                  if (irrecv.onVal == 'ffb04f') {
+                                    relay.on();
+                                    matrix.setColor(3 - 1 + (2 - 1) * 5, '#ffffff');
+                                    Flag = true;
+                                  }
+
+                                case 3:
+                                case 'end':
+                                  return _context10.stop();
+                              }
+                            }
+                          }, _callee10, this);
+                        }));
+
+                        return function (_x5) {
+                          return ref.apply(this, arguments);
+                        };
+                      })(), function () {});
+                      _context11.next = 110;
+                      return delay(3);
+
+                    case 110:
+                      _context11.next = 104;
+                      break;
+
+                    case 112:
+                      if (!(_E9_97_9C_E5_8D_A1 == 9)) {
+                        _context11.next = 119;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
+                      document.getElementById("demo-area-01-show").innerHTML = String('成功') + String("<br/>");
+                      _context11.next = 117;
+                      return delay(3);
+
+                    case 117:
+                      _context11.next = 112;
+                      break;
+
+                    case 119:
                     case 'end':
-                      return _context9.stop();
+                      return _context11.stop();
                   }
                 }
-              }, _callee9, this);
+              }, _callee11, this);
             }));
 
             return function (_x) {
@@ -423,10 +531,10 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
 
         case 1:
         case 'end':
-          return _context10.stop();
+          return _context12.stop();
       }
     }
-  }, _callee10, this);
+  }, _callee12, this);
 }))();</script>
 
 
