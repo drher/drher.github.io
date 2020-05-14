@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M76kldVdtPbTYIcWZ3g -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M7FdW_nqQga-JpAVksr -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 28px; color: rgb(255, 0, 0);"><br>依圖示思考可能的開燈方式<br>　按B開始或執行下一關</span></div>
+  <div><span id="demo-area-01-show">123</span></div>
 
   <script>'use strict';
 
@@ -63,7 +63,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
                       document.getElementById("demo-area-01-show").innerHTML = ['　　密室逃脫', "<br/>", '　　遊戲開始....'].join('');
                       _E9_97_9C_E5_8D_A1 = 0;
                       _context11.next = 22;
-                      return delay(5);
+                      return delay(2.5);
 
                     case 22:
                       count++;
@@ -473,10 +473,10 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
                               switch (_context10.prev = _context10.next) {
                                 case 0:
                                   irrecv.onVal = val;
-                                  if (irrecv.onVal == 'ff6897') {
+                                  if (irrecv.onVal == '00ff6897') {
                                     relay.off();
                                   }
-                                  if (irrecv.onVal == 'ffb04f') {
+                                  if (irrecv.onVal == '00ffb04f') {
                                     relay.on();
                                     matrix.setColor(3 - 1 + (2 - 1) * 5, '#ffffff');
                                     Flag = true;
