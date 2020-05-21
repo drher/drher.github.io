@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M7m1vae0DZT8mEu12eQ -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M7r6T7U-xQcEihX0XRH -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -9,46 +9,45 @@
   <script src="./index_files/MessageTransport.min.js.下載"></script>
   <script src="./index_files/webduino-blockly.min.js.下載"></script>
   <script src="./index_files/firebase.min.js.下載"></script>
-  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitButton.js.下載"></script><script src="./index_files/BitButton-blockly.js.下載"></script><script src="./index_files/IR-blockly.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script><script src="./index_files/Dht.js.下載"></script><script src="./index_files/Dht-blockly.js.下載"></script><script src="./index_files/main.js.下載"></script><script src="./index_files/BitPhotocell-blockly.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitButton.js.下載"></script><script src="./index_files/BitButton-blockly.js.下載"></script><script src="./index_files/IR-blockly.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script><script src="./index_files/Dht.js.下載"></script><script src="./index_files/Dht-blockly.js.下載"></script><script src="./index_files/main.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script><script src="./index_files/BitPhotocell-blockly.js.下載"></script>
 
   <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
 </head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 40px; color: rgb(51, 51, 255);">　　　第1關<br>　　按A  開燈 <br>　 長按A 關燈 </span></div>
+  <div><span id="demo-area-01-show" style="font-size: 40px; color: rgb(51, 51, 255);">　　 第12關<br>　LINE AI機器人</span></div>
 
   <script>'use strict';
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
 
-_asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
-  var relay, buttonB, matrix, Flag, _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88, _E9_97_9C_E5_8D_A1, buttonA, photocell, irrecv, _E4_BA_92_E6_8E_A5, _E7_86_B1_E6_95_8F_E9_9B_BB_E9_98_BB, dht, ultrasonic, shake, _E9_81_AE_E6_96_B7, _E6_A5_B5_E9_99_90, linebot;
+_asyncToGenerator(regeneratorRuntime.mark(function _callee13() {
+  var relay, matrix, Flag, _E9_97_9C_E5_8D_A1, buttonA, photocell, buttonB, _E4_BA_92_E6_8E_A5, dht, irrecv, _E7_86_B1_E6_95_8F_E9_9B_BB_E9_98_BB, shake, ultrasonic, ThingSpeak, _E9_81_AE_E6_96_B7, _E6_A5_B5_E9_99_90, linebot;
 
-  return regeneratorRuntime.wrap(function _callee16$(_context16) {
+  return regeneratorRuntime.wrap(function _callee13$(_context13) {
     while (1) {
-      switch (_context16.prev = _context16.next) {
+      switch (_context13.prev = _context13.next) {
         case 0:
 
           boardReady({ board: 'Bit', device: 'bit3bb875', transport: 'mqtt' }, (function () {
-            var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee15(board) {
+            var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee12(board) {
               var count, firebase1ca6d, flag1ca6d, startTime, timeout, endTime, interval;
-              return regeneratorRuntime.wrap(function _callee15$(_context15) {
+              return regeneratorRuntime.wrap(function _callee12$(_context12) {
                 while (1) {
-                  switch (_context15.prev = _context15.next) {
+                  switch (_context12.prev = _context12.next) {
                     case 0:
                       board.samplingInterval = 250;
                       count = 0;
 
                     case 2:
                       if (!(count < 1)) {
-                        _context15.next = 31;
+                        _context12.next = 42;
                         break;
                       }
 
                       relay = getRelay(board, bitGPIO(0));
                       matrix = getMatrix(board, 4, 25);
                       Flag = false;
-                      _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
                       buttonA = getPullupButton(board, 35);
                       buttonB = getPullupButton(board, 27);
                       irrecv = getIRRecv(board, bitGPIO(1));
@@ -62,324 +61,19 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                       _E6_A5_B5_E9_99_90 = getShock(board, bitGPIO(14));
                       flag1ca6d = true;
 
-                      linebot = { token: 'i8TO60TA28Pv9Ai2u0Q1JMj8cwWIb3vfx7jcoBwSfP0LqUKu8+tW5vnOh5CJZa0YPfhr21qm9BaCBdkUFOqulZZcpaZ2fgnR9YMadMGAIHRecpuTdpCRlOMvvghZFm2gLgO35HJC7E4H3SFLxt7QDQdB04t89/1O/w1cDnyilFU=', userId: 'U1931ed8cf70e4dc0626c631d9142e6ad', onVal: '' };
+                      linebot = { token: 'vO6Y7fNdQ5Dou2VHnQ/GYZ4qT5dArwxZG7zjMkYJ7wI8pfU0677b5lUzG4dq2JwDuOrYQRH/Cq8Un+RsLh5pPtgMV84aHPzplCrUQBlr2REp2N+kY6t632qTGLPSV3jgLAHclvBmJ3Hdf2YQ95hfKwdB04t89/1O/w1cDnyilFU=', userId: 'U1931ed8cf70e4dc0626c631d9142e6ad', onVal: '' };
                       firebase1ca6d = new Firebase('https://webduino-linebot-1ca6d.firebaseio.com/');
                       relay.on();
                       document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
                       document.getElementById("demo-area-01-show").style.color = '#3333ff';
                       document.getElementById("demo-area-01-show").innerHTML = ['　　密室逃脫', "<br/>", '　　遊戲開始....'].join('');
-                      _E9_97_9C_E5_8D_A1 = 0;
-                      _context15.next = 28;
-                      return delay(2.5);
-
-                    case 28:
-                      count++;
-                      _context15.next = 2;
-                      break;
-
-                    case 31:
-                      buttonB.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
-                        return regeneratorRuntime.wrap(function _callee$(_context) {
-                          while (1) {
-                            switch (_context.prev = _context.next) {
-                              case 0:
-                                matrix.setColor(5 - 1 + (5 - 1) * 5, '#ff0000');
-                                if (Flag == true) {
-                                  _E9_97_9C_E5_8D_A1 = _E9_97_9C_E5_8D_A1 + 1;
-                                  Flag = false;
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
-                                }
-                                _context.next = 4;
-                                return delay(1);
-
-                              case 4:
-                                matrix.setColor(5 - 1 + (5 - 1) * 5, '#000000');
-
-                              case 5:
-                              case 'end':
-                                return _context.stop();
-                            }
-                          }
-                        }, _callee, this);
-                      })));
-
-                    case 32:
-                      if (!(_E9_97_9C_E5_8D_A1 == 0)) {
-                        _context15.next = 41;
-                        break;
-                      }
-
-                      document.getElementById("demo-area-01-show").style.color = '#ff0000';
-                      document.getElementById("demo-area-01-show").style.fontSize = 28 + "px";
-                      document.getElementById("demo-area-01-show").innerHTML = ["<br/>", '依圖示思考可能的開燈方式', "<br/>", '　按B開始或執行下一關'].join('');
-                      Flag = true;
-                      _context15.next = 39;
-                      return delay(1);
-
-                    case 39:
-                      _context15.next = 32;
-                      break;
-
-                    case 41:
-                      if (!(_E9_97_9C_E5_8D_A1 == 1)) {
-                        _context15.next = 51;
-                        break;
-                      }
-
-                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
-                      document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
-                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第1關', "<br/>", '　　按A  開燈 ', "<br/>", '　 長按A 關燈 '].join('');
-                      buttonA.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
-                        return regeneratorRuntime.wrap(function _callee2$(_context2) {
-                          while (1) {
-                            switch (_context2.prev = _context2.next) {
-                              case 0:
-                                if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
-                                  relay.off();
-                                  matrix.setColor(1 - 1 + (1 - 1) * 5, '#ffffff');
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                                }
-
-                              case 1:
-                              case 'end':
-                                return _context2.stop();
-                            }
-                          }
-                        }, _callee2, this);
-                      })));
-                      buttonA.on('longPress', _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
-                        return regeneratorRuntime.wrap(function _callee3$(_context3) {
-                          while (1) {
-                            switch (_context3.prev = _context3.next) {
-                              case 0:
-                                if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
-                                  relay.on();
-                                  Flag = true;
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
-                                }
-
-                              case 1:
-                              case 'end':
-                                return _context3.stop();
-                            }
-                          }
-                        }, _callee3, this);
-                      })));
-                      _context15.next = 49;
-                      return delay(0.1);
-
-                    case 49:
-                      _context15.next = 41;
-                      break;
-
-                    case 51:
-                      if (!(_E9_97_9C_E5_8D_A1 == 2)) {
-                        _context15.next = 60;
-                        break;
-                      }
-
-                      document.getElementById("demo-area-01-show").style.color = '#cc0000';
-                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第2關', "<br/>", '　　請短路....'].join('');
-                      _E4_BA_92_E6_8E_A5.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee4() {
-                        return regeneratorRuntime.wrap(function _callee4$(_context4) {
-                          while (1) {
-                            switch (_context4.prev = _context4.next) {
-                              case 0:
-                                console.log("low");
-                                _context4.next = 3;
-                                return delay(0.5);
-
-                              case 3:
-                                if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
-                                  relay.off();
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                                  matrix.setColor(2 - 1 + (1 - 1) * 5, '#ffffff');
-                                }
-
-                              case 4:
-                              case 'end':
-                                return _context4.stop();
-                            }
-                          }
-                        }, _callee4, this);
-                      })));
-                      _E4_BA_92_E6_8E_A5.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
-                        return regeneratorRuntime.wrap(function _callee5$(_context5) {
-                          while (1) {
-                            switch (_context5.prev = _context5.next) {
-                              case 0:
-                                console.log("high");
-                                _context5.next = 3;
-                                return delay(0.5);
-
-                              case 3:
-                                if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
-                                  Flag = true;
-                                  relay.on();
-                                }
-
-                              case 4:
-                              case 'end':
-                                return _context5.stop();
-                            }
-                          }
-                        }, _callee5, this);
-                      })));
-                      _context15.next = 58;
-                      return delay(1);
-
-                    case 58:
-                      _context15.next = 51;
-                      break;
-
-                    case 60:
-                      if (!(_E9_97_9C_E5_8D_A1 == 3)) {
-                        _context15.next = 68;
-                        break;
-                      }
-
-                      photocell.measure((function () {
-                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee6(val) {
-                          return regeneratorRuntime.wrap(function _callee6$(_context6) {
-                            while (1) {
-                              switch (_context6.prev = _context6.next) {
-                                case 0:
-                                  photocell.detectedVal = val;
-                                  document.getElementById("demo-area-01-show").style.color = '#3333ff';
-                                  document.getElementById("demo-area-01-show").innerHTML = ['　　 第3關', "<br/>", '　 目前光度', Math.round(photocell.detectedVal * 100), "<br/>", '請想辦法小於65...'].join('');
-
-                                case 3:
-                                case 'end':
-                                  return _context6.stop();
-                              }
-                            }
-                          }, _callee6, this);
-                        }));
-
-                        return function (_x2) {
-                          return ref.apply(this, arguments);
-                        };
-                      })());
-                      if (photocell.detectedVal > 0.8) {
-                        relay.on();
-                      }
-                      if (photocell.detectedVal < 0.65) {
-                        relay.off();
-                        matrix.setColor(3 - 1 + (1 - 1) * 5, '#ffffff');
-                        Flag = true;
-                      }
-                      _context15.next = 66;
-                      return delay(0.2);
-
-                    case 66:
-                      _context15.next = 60;
-                      break;
-
-                    case 68:
-                      if (!(_E9_97_9C_E5_8D_A1 == 4)) {
-                        _context15.next = 74;
-                        break;
-                      }
-
-                      if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
-                        dht.read((function () {
-                          var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(evt) {
-                            return regeneratorRuntime.wrap(function _callee7$(_context7) {
-                              while (1) {
-                                switch (_context7.prev = _context7.next) {
-                                  case 0:
-                                    document.getElementById("demo-area-01-show").style.color = '#ff0000';
-                                    document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
-                                    document.getElementById("demo-area-01-show").innerHTML = ['　　 　第4關', "<br/>", '　　目前濕度', dht.humidity, "<br/>", '請想辦法增加濕度....'].join('');
-
-                                    if (!(dht.humidity > 70)) {
-                                      _context7.next = 11;
-                                      break;
-                                    }
-
-                                    relay.off();
-                                    matrix.setColor(4 - 1 + (1 - 1) * 5, '#ffffff');
-                                    _context7.next = 8;
-                                    return delay(4);
-
-                                  case 8:
-                                    _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                                    relay.on();
-                                    Flag = true;
-
-                                  case 11:
-                                  case 'end':
-                                    return _context7.stop();
-                                }
-                              }
-                            }, _callee7, this);
-                          }));
-
-                          return function (_x3) {
-                            return ref.apply(this, arguments);
-                          };
-                        })());
-                      }
-                      _context15.next = 72;
-                      return delay(1);
-
-                    case 72:
-                      _context15.next = 68;
-                      break;
-
-                    case 74:
-                      if (!(_E9_97_9C_E5_8D_A1 == 5)) {
-                        _context15.next = 83;
-                        break;
-                      }
-
-                      document.getElementById("demo-area-01-show").style.color = '#000099';
-                      document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
-                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第5關', "<br/>", '　　請震動...'].join('');
-                      shake.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee8() {
-                        return regeneratorRuntime.wrap(function _callee8$(_context8) {
-                          while (1) {
-                            switch (_context8.prev = _context8.next) {
-                              case 0:
-                                console.log("high");
-                                relay.off();
-                                matrix.setColor(5 - 1 + (1 - 1) * 5, '#ffffff');
-                                _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                                _context8.next = 6;
-                                return delay(4);
-
-                              case 6:
-                                relay.on();
-                                Flag = true;
-
-                              case 8:
-                              case 'end':
-                                return _context8.stop();
-                            }
-                          }
-                        }, _callee8, this);
-                      })));
-                      _context15.next = 81;
-                      return delay(0.6);
-
-                    case 81:
-                      _context15.next = 74;
-                      break;
-
-                    case 83:
-                      if (!(_E9_97_9C_E5_8D_A1 == 6)) {
-                        _context15.next = 104;
-                        break;
-                      }
-
                       ThingSpeak_read(1, '991259', "", 1, 'ANJTR9XNNIUDUO6B');
                       startTime = new Date();
                       timeout = 1;
 
-                    case 87:
+                    case 27:
                       if (!(ThingSpeak_getResponse() == "")) {
-                        _context15.next = 96;
+                        _context12.next = 36;
                         break;
                       }
 
@@ -387,57 +81,310 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                       interval = parseInt(endTime - startTime) / 1000;
 
                       if (!(interval > timeout)) {
-                        _context15.next = 92;
+                        _context12.next = 32;
                         break;
                       }
 
-                      return _context15.abrupt('break', 96);
+                      return _context12.abrupt('break', 36);
 
-                    case 92:
-                      _context15.next = 94;
+                    case 32:
+                      _context12.next = 34;
                       return delay(0.1);
 
-                    case 94:
-                      _context15.next = 87;
+                    case 34:
+                      _context12.next = 27;
                       break;
 
-                    case 96:
-                      document.getElementById("demo-area-01-show").style.color = '#ff0000';
-                      document.getElementById("demo-area-01-show").innerHTML = ['　 　第6關', "<br/>", '請掃描QR Code...'].join('');
-                      if (_E9_97_9C_E5_8D_A1 == 6 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
-                        if (ThingSpeak_getResponse()[0][7] == 1 && ThingSpeak_getResponse()[0][5] == 6) {
-                          relay.off();
-                          _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                        }
-                      }
-                      if (_E9_97_9C_E5_8D_A1 == 6 && _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
-                        if (ThingSpeak_getResponse()[0][7] == 2 && ThingSpeak_getResponse()[0][5] == 6) {
-                          matrix.setColor(1 - 1 + (2 - 1) * 5, '#ffffff');
-                          relay.on();
-                          _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
-                          Flag = true;
-                        }
-                      }
-                      _context15.next = 102;
-                      return delay(1);
+                    case 36:
+                      _E9_97_9C_E5_8D_A1 = ThingSpeak_getResponse()[0][5];
+                      _context12.next = 39;
+                      return delay(2.5);
 
-                    case 102:
-                      _context15.next = 83;
+                    case 39:
+                      count++;
+                      _context12.next = 2;
                       break;
 
-                    case 104:
-                      if (!(_E9_97_9C_E5_8D_A1 == 7)) {
-                        _context15.next = 112;
+                    case 42:
+                      if (!(_E9_97_9C_E5_8D_A1 == 1)) {
+                        _context12.next = 52;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").style.color = '#000099';
+                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
+                      document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第1關', "<br/>", '　　按A  開燈 ', "<br/>", '　 長按A 關燈 '].join('');
+                      buttonA.on('pressed', _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+                        return regeneratorRuntime.wrap(function _callee$(_context) {
+                          while (1) {
+                            switch (_context.prev = _context.next) {
+                              case 0:
+                                relay.off();
+                                matrix.setColor(1 - 1 + (1 - 1) * 5, '#ffffff');
+
+                              case 2:
+                              case 'end':
+                                return _context.stop();
+                            }
+                          }
+                        }, _callee, this);
+                      })));
+                      buttonA.on('longPress', _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
+                        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                          while (1) {
+                            switch (_context2.prev = _context2.next) {
+                              case 0:
+                                relay.on();
+                                _E9_97_9C_E5_8D_A1 = 2;
+
+                              case 2:
+                              case 'end':
+                                return _context2.stop();
+                            }
+                          }
+                        }, _callee2, this);
+                      })));
+                      _context12.next = 50;
+                      return delay(1);
+
+                    case 50:
+                      _context12.next = 42;
+                      break;
+
+                    case 52:
+                      if (!(_E9_97_9C_E5_8D_A1 == 2)) {
+                        _context12.next = 60;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").style.color = '#cc0000';
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第2關', "<br/>", '　　請短路....'].join('');
+                      _E4_BA_92_E6_8E_A5.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+                        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                          while (1) {
+                            switch (_context3.prev = _context3.next) {
+                              case 0:
+                                console.log("low");
+                                relay.off();
+                                matrix.setColor(2 - 1 + (1 - 1) * 5, '#ffffff');
+                                _context3.next = 5;
+                                return delay(3);
+
+                              case 5:
+                                relay.on();
+                                _E9_97_9C_E5_8D_A1 = 3;
+
+                              case 7:
+                              case 'end':
+                                return _context3.stop();
+                            }
+                          }
+                        }, _callee3, this);
+                      })));
+                      _context12.next = 58;
+                      return delay(1);
+
+                    case 58:
+                      _context12.next = 52;
+                      break;
+
+                    case 60:
+                      if (!(_E9_97_9C_E5_8D_A1 == 3)) {
+                        _context12.next = 73;
+                        break;
+                      }
+
+                      photocell.measure((function () {
+                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee4(val) {
+                          return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                            while (1) {
+                              switch (_context4.prev = _context4.next) {
+                                case 0:
+                                  photocell.detectedVal = val;
+                                  document.getElementById("demo-area-01-show").innerHTML = ['　　　第3關', "<br/>", '　　目前光度', Math.round(photocell.detectedVal * 100), "<br/>", '想辦法小於60...'].join('');
+
+                                case 2:
+                                case 'end':
+                                  return _context4.stop();
+                              }
+                            }
+                          }, _callee4, this);
+                        }));
+
+                        return function (_x2) {
+                          return ref.apply(this, arguments);
+                        };
+                      })());
+
+                      if (!(photocell.detectedVal < 0.6)) {
+                        _context12.next = 69;
+                        break;
+                      }
+
+                      relay.on();
+                      _context12.next = 66;
+                      return delay(3);
+
+                    case 66:
+                      relay.off();
+                      matrix.setColor(3 - 1 + (1 - 1) * 5, '#ffffff');
+                      _E9_97_9C_E5_8D_A1 = 4;
+
+                    case 69:
+                      _context12.next = 71;
+                      return delay(1);
+
+                    case 71:
+                      _context12.next = 60;
+                      break;
+
+                    case 73:
+                      if (!(_E9_97_9C_E5_8D_A1 == 4)) {
+                        _context12.next = 79;
+                        break;
+                      }
+
+                      dht.read((function () {
+                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee5(evt) {
+                          return regeneratorRuntime.wrap(function _callee5$(_context5) {
+                            while (1) {
+                              switch (_context5.prev = _context5.next) {
+                                case 0:
+                                  document.getElementById("demo-area-01-show").innerHTML = ['　　 　第4關', "<br/>", '　　目前濕度', dht.humidity, "<br/>", '想辦法增加濕度....'].join('');
+
+                                  if (!(dht.humidity > 70)) {
+                                    _context5.next = 8;
+                                    break;
+                                  }
+
+                                  relay.off();
+                                  matrix.setColor(4 - 1 + (1 - 1) * 5, '#ffffff');
+                                  _context5.next = 6;
+                                  return delay(3);
+
+                                case 6:
+                                  relay.on();
+                                  _E9_97_9C_E5_8D_A1 = 5;
+
+                                case 8:
+                                case 'end':
+                                  return _context5.stop();
+                              }
+                            }
+                          }, _callee5, this);
+                        }));
+
+                        return function (_x3) {
+                          return ref.apply(this, arguments);
+                        };
+                      })());
+                      _context12.next = 77;
+                      return delay(1);
+
+                    case 77:
+                      _context12.next = 73;
+                      break;
+
+                    case 79:
+                      if (!(_E9_97_9C_E5_8D_A1 == 5)) {
+                        _context12.next = 86;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第5關', "<br/>", '　　請震動...'].join('');
+                      shake.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee6() {
+                        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+                          while (1) {
+                            switch (_context6.prev = _context6.next) {
+                              case 0:
+                                console.log("high");
+                                relay.off();
+                                matrix.setColor(5 - 1 + (1 - 1) * 5, '#ffffff');
+                                _context6.next = 5;
+                                return delay(3);
+
+                              case 5:
+                                relay.on();
+                                _E9_97_9C_E5_8D_A1 = 6;
+
+                              case 7:
+                              case 'end':
+                                return _context6.stop();
+                            }
+                          }
+                        }, _callee6, this);
+                      })));
+                      _context12.next = 84;
+                      return delay(1);
+
+                    case 84:
+                      _context12.next = 79;
+                      break;
+
+                    case 86:
+                      if (!(_E9_97_9C_E5_8D_A1 == 6)) {
+                        _context12.next = 107;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").innerHTML = ['　 　第6關', "<br/>", '請掃描QR Code...'].join('');
+                      ThingSpeak_read(1, '991259', "", 1, 'ANJTR9XNNIUDUO6B');
+                      startTime = new Date();
+                      timeout = 1;
+
+                    case 91:
+                      if (!(ThingSpeak_getResponse() == "")) {
+                        _context12.next = 100;
+                        break;
+                      }
+
+                      endTime = new Date();
+                      interval = parseInt(endTime - startTime) / 1000;
+
+                      if (!(interval > timeout)) {
+                        _context12.next = 96;
+                        break;
+                      }
+
+                      return _context12.abrupt('break', 100);
+
+                    case 96:
+                      _context12.next = 98;
+                      return delay(0.1);
+
+                    case 98:
+                      _context12.next = 91;
+                      break;
+
+                    case 100:
+                      ThingSpeak = ThingSpeak_getResponse()[0][7];
+                      if (ThingSpeak == 1) {
+                        relay.off();
+                      }
+                      if (ThingSpeak == 2) {
+                        matrix.setColor(1 - 1 + (2 - 1) * 5, '#ffffff');
+                        relay.on();
+                        _E9_97_9C_E5_8D_A1 = 7;
+                      }
+                      _context12.next = 105;
+                      return delay(1);
+
+                    case 105:
+                      _context12.next = 86;
+                      break;
+
+                    case 107:
+                      if (!(_E9_97_9C_E5_8D_A1 == 7)) {
+                        _context12.next = 114;
+                        break;
+                      }
+
                       document.getElementById("demo-area-01-show").innerHTML = ['　　　第7關', "<br/>", '目前偵測距離', ultrasonic.distance, "<br/>", '　 30~50  開燈', "<br/>", '　 05~20  關燈'].join('');
                       ultrasonic.ping((function () {
-                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee9(cm) {
-                          return regeneratorRuntime.wrap(function _callee9$(_context9) {
+                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee7(cm) {
+                          return regeneratorRuntime.wrap(function _callee7$(_context7) {
                             while (1) {
-                              switch (_context9.prev = _context9.next) {
+                              switch (_context7.prev = _context7.next) {
                                 case 0:
                                   console.log(ultrasonic.distance);
                                   if (ultrasonic.distance > 30 && ultrasonic.distance < 50) {
@@ -446,42 +393,40 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                                   if (ultrasonic.distance > 5 && ultrasonic.distance < 20) {
                                     relay.on();
                                     matrix.setColor(2 - 1 + (2 - 1) * 5, '#ffffff');
-                                    Flag = true;
+                                    _E9_97_9C_E5_8D_A1 = 8;
                                   }
 
                                 case 3:
                                 case 'end':
-                                  return _context9.stop();
+                                  return _context7.stop();
                               }
                             }
-                          }, _callee9, this);
+                          }, _callee7, this);
                         }));
 
                         return function (_x4) {
                           return ref.apply(this, arguments);
                         };
                       })(), 500);
-                      _context15.next = 110;
+                      _context12.next = 112;
                       return delay(0.2);
 
-                    case 110:
-                      _context15.next = 104;
+                    case 112:
+                      _context12.next = 107;
                       break;
 
-                    case 112:
+                    case 114:
                       if (!(_E9_97_9C_E5_8D_A1 == 8)) {
-                        _context15.next = 121;
+                        _context12.next = 121;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").style.color = '#ff0000';
-                      document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
-                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第8關', "<br/>", '目前代碼：', irrecv.onVal, "<br/>", '　開燈＊：00ff6897', "<br/>", '　關燈＃：00ffb04f'].join('');
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第8關', "<br/>", '目前碼：', irrecv.onVal, "<br/>", '開燈＊：00ff6897', "<br/>", '關燈＃：00ffb04f'].join('');
                       irrecv.receive((function () {
-                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee10(val) {
-                          return regeneratorRuntime.wrap(function _callee10$(_context10) {
+                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee8(val) {
+                          return regeneratorRuntime.wrap(function _callee8$(_context8) {
                             while (1) {
-                              switch (_context10.prev = _context10.next) {
+                              switch (_context8.prev = _context8.next) {
                                 case 0:
                                   irrecv.onVal = val;
                                   if (irrecv.onVal == '00ff6897') {
@@ -490,171 +435,142 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                                   if (irrecv.onVal == '00ffb04f') {
                                     relay.on();
                                     matrix.setColor(3 - 1 + (2 - 1) * 5, '#ffffff');
-                                    Flag = true;
+                                    _E9_97_9C_E5_8D_A1 = 9;
                                   }
 
                                 case 3:
                                 case 'end':
-                                  return _context10.stop();
+                                  return _context8.stop();
                               }
                             }
-                          }, _callee10, this);
+                          }, _callee8, this);
                         }));
 
                         return function (_x5) {
                           return ref.apply(this, arguments);
                         };
                       })(), function () {});
-                      _context15.next = 119;
+                      _context12.next = 119;
                       return delay(3);
 
                     case 119:
-                      _context15.next = 112;
+                      _context12.next = 114;
                       break;
 
                     case 121:
                       if (!(_E9_97_9C_E5_8D_A1 == 9)) {
-                        _context15.next = 130;
+                        _context12.next = 128;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").style.color = '#000099';
                       document.getElementById("demo-area-01-show").innerHTML = ['　　　第9關', "<br/>", '　　請遮斷....'].join('');
-                      _E9_81_AE_E6_96_B7.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee11() {
+                      _E9_81_AE_E6_96_B7.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee9() {
+                        return regeneratorRuntime.wrap(function _callee9$(_context9) {
+                          while (1) {
+                            switch (_context9.prev = _context9.next) {
+                              case 0:
+                                console.log("low");
+                                relay.off();
+                                matrix.setColor(4 - 1 + (2 - 1) * 5, '#ffffff');
+                                _context9.next = 5;
+                                return delay(3);
+
+                              case 5:
+                                relay.on();
+                                _E9_97_9C_E5_8D_A1 = 10;
+
+                              case 7:
+                              case 'end':
+                                return _context9.stop();
+                            }
+                          }
+                        }, _callee9, this);
+                      })));
+                      _context12.next = 126;
+                      return delay(1);
+
+                    case 126:
+                      _context12.next = 121;
+                      break;
+
+                    case 128:
+                      if (!(_E9_97_9C_E5_8D_A1 == 10)) {
+                        _context12.next = 135;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第10關', "<br/>", '　　極限開關...'].join('');
+                      _E6_A5_B5_E9_99_90.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee10() {
+                        return regeneratorRuntime.wrap(function _callee10$(_context10) {
+                          while (1) {
+                            switch (_context10.prev = _context10.next) {
+                              case 0:
+                                console.log("high");
+                                relay.off();
+                                matrix.setColor(5 - 1 + (2 - 1) * 5, '#ffffff');
+                                _context10.next = 5;
+                                return delay(3);
+
+                              case 5:
+                                relay.on();
+                                _E9_97_9C_E5_8D_A1 = 11;
+
+                              case 7:
+                              case 'end':
+                                return _context10.stop();
+                            }
+                          }
+                        }, _callee10, this);
+                      })));
+                      _context12.next = 133;
+                      return delay(1);
+
+                    case 133:
+                      _context12.next = 128;
+                      break;
+
+                    case 135:
+                      if (!(_E9_97_9C_E5_8D_A1 == 11)) {
+                        _context12.next = 142;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　 第11關', "<br/>", '　　熱敏電阻...', "<br/>", '　 想辦法增溫...'].join('');
+                      _E7_86_B1_E6_95_8F_E9_9B_BB_E9_98_BB.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee11() {
                         return regeneratorRuntime.wrap(function _callee11$(_context11) {
                           while (1) {
                             switch (_context11.prev = _context11.next) {
                               case 0:
                                 console.log("low");
-                                _context11.next = 3;
-                                return delay(0.5);
+                                relay.off();
+                                matrix.setColor(1 - 1 + (3 - 1) * 5, '#ffffff');
+                                _context11.next = 5;
+                                return delay(3);
 
-                              case 3:
-                                if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == false) {
-                                  relay.off();
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = true;
-                                  matrix.setColor(4 - 1 + (2 - 1) * 5, '#ffffff');
-                                }
+                              case 5:
+                                relay.on();
+                                _E9_97_9C_E5_8D_A1 = 12;
 
-                              case 4:
+                              case 7:
                               case 'end':
                                 return _context11.stop();
                             }
                           }
                         }, _callee11, this);
                       })));
-                      _E9_81_AE_E6_96_B7.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee12() {
-                        return regeneratorRuntime.wrap(function _callee12$(_context12) {
-                          while (1) {
-                            switch (_context12.prev = _context12.next) {
-                              case 0:
-                                console.log("high");
-                                _context12.next = 3;
-                                return delay(0.5);
-
-                              case 3:
-                                if (_E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 == true) {
-                                  _E9_81_8E_E9_97_9C_E4_BA_AE_E7_87_88 = false;
-                                  Flag = true;
-                                  relay.on();
-                                }
-
-                              case 4:
-                              case 'end':
-                                return _context12.stop();
-                            }
-                          }
-                        }, _callee12, this);
-                      })));
-                      _context15.next = 128;
+                      _context12.next = 140;
                       return delay(1);
 
-                    case 128:
-                      _context15.next = 121;
+                    case 140:
+                      _context12.next = 135;
                       break;
 
-                    case 130:
-                      if (!(_E9_97_9C_E5_8D_A1 == 10)) {
-                        _context15.next = 139;
-                        break;
-                      }
-
-                      document.getElementById("demo-area-01-show").style.color = '#ff0000';
-                      document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
-                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第10關', "<br/>", '　　極限開關...'].join('');
-                      _E6_A5_B5_E9_99_90.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee13() {
-                        return regeneratorRuntime.wrap(function _callee13$(_context13) {
-                          while (1) {
-                            switch (_context13.prev = _context13.next) {
-                              case 0:
-                                console.log("high");
-                                relay.off();
-                                matrix.setColor(5 - 1 + (2 - 1) * 5, '#ffffff');
-                                _context13.next = 5;
-                                return delay(1);
-
-                              case 5:
-                                relay.on();
-                                Flag = true;
-
-                              case 7:
-                              case 'end':
-                                return _context13.stop();
-                            }
-                          }
-                        }, _callee13, this);
-                      })));
-                      _context15.next = 137;
-                      return delay(1);
-
-                    case 137:
-                      _context15.next = 130;
-                      break;
-
-                    case 139:
-                      if (!(_E9_97_9C_E5_8D_A1 == 11)) {
-                        _context15.next = 147;
-                        break;
-                      }
-
-                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
-                      document.getElementById("demo-area-01-show").innerHTML = ['　　 第11關', "<br/>", '　　熱敏電阻...', "<br/>", '　　想辦法增溫...'].join('');
-                      _E7_86_B1_E6_95_8F_E9_9B_BB_E9_98_BB.on("low", _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
-                        return regeneratorRuntime.wrap(function _callee14$(_context14) {
-                          while (1) {
-                            switch (_context14.prev = _context14.next) {
-                              case 0:
-                                console.log("low");
-                                relay.off();
-                                matrix.setColor(1 - 1 + (3 - 1) * 5, '#ffffff');
-                                _context14.next = 5;
-                                return delay(3);
-
-                              case 5:
-                                relay.on();
-                                Flag = true;
-
-                              case 7:
-                              case 'end':
-                                return _context14.stop();
-                            }
-                          }
-                        }, _callee14, this);
-                      })));
-                      _context15.next = 145;
-                      return delay(1);
-
-                    case 145:
-                      _context15.next = 139;
-                      break;
-
-                    case 147:
+                    case 142:
                       if (!(_E9_97_9C_E5_8D_A1 == 12)) {
-                        _context15.next = 155;
+                        _context12.next = 149;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").style.color = '#ff0000';
                       document.getElementById("demo-area-01-show").innerHTML = ['　　 第12關', "<br/>", '　LINE AI機器人'].join('');
                       firebase1ca6d.on('value', function (s) {
                         var msg1ca6d = false;
@@ -678,37 +594,89 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
                           line_bot($.extend({}, linebot, { message: '已經關燈' }));
                           relay.on();
                           matrix.setColor(2 - 1 + (3 - 1) * 5, '#ffffff');
-                          Flag = true;
+                          _E9_97_9C_E5_8D_A1 = 13;
                         }
                       });
-                      _context15.next = 153;
+                      _context12.next = 147;
                       return delay(1);
 
-                    case 153:
-                      _context15.next = 147;
+                    case 147:
+                      _context12.next = 142;
                       break;
 
-                    case 155:
+                    case 149:
                       if (!(_E9_97_9C_E5_8D_A1 == 13)) {
-                        _context15.next = 162;
+                        _context12.next = 171;
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
-                      document.getElementById("demo-area-01-show").innerHTML = String('成功') + String("<br/>");
-                      _context15.next = 160;
-                      return delay(3);
+                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
+                      document.getElementById("demo-area-01-show").innerHTML = ['　 　第13關', "<br/>", '請執行觸控App...'].join('');
+                      ThingSpeak_read(1, '991259', "", 1, 'ANJTR9XNNIUDUO6B');
+                      startTime = new Date();
+                      timeout = 1;
+
+                    case 155:
+                      if (!(ThingSpeak_getResponse() == "")) {
+                        _context12.next = 164;
+                        break;
+                      }
+
+                      endTime = new Date();
+                      interval = parseInt(endTime - startTime) / 1000;
+
+                      if (!(interval > timeout)) {
+                        _context12.next = 160;
+                        break;
+                      }
+
+                      return _context12.abrupt('break', 164);
 
                     case 160:
-                      _context15.next = 155;
-                      break;
+                      _context12.next = 162;
+                      return delay(0.1);
 
                     case 162:
+                      _context12.next = 155;
+                      break;
+
+                    case 164:
+                      ThingSpeak = ThingSpeak_getResponse()[0][7];
+                      if (ThingSpeak == 3) {
+                        relay.off();
+                      }
+                      if (ThingSpeak == 4) {
+                        matrix.setColor(3 - 1 + (3 - 1) * 5, '#ffffff');
+                        relay.on();
+                        _E9_97_9C_E5_8D_A1 = 14;
+                      }
+                      _context12.next = 169;
+                      return delay(1);
+
+                    case 169:
+                      _context12.next = 149;
+                      break;
+
+                    case 171:
+                      if (!(_E9_97_9C_E5_8D_A1 == 14)) {
+                        _context12.next = 177;
+                        break;
+                      }
+
+                      document.getElementById("demo-area-01-show").innerHTML = '成功';
+                      _context12.next = 175;
+                      return delay(1);
+
+                    case 175:
+                      _context12.next = 171;
+                      break;
+
+                    case 177:
                     case 'end':
-                      return _context15.stop();
+                      return _context12.stop();
                   }
                 }
-              }, _callee15, this);
+              }, _callee12, this);
             }));
 
             return function (_x) {
@@ -718,10 +686,10 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee16() {
 
         case 1:
         case 'end':
-          return _context16.stop();
+          return _context13.stop();
       }
     }
-  }, _callee16, this);
+  }, _callee13, this);
 }))();</script>
 
 
