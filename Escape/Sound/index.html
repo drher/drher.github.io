@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M22T-MS728LZaHObdIm -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M7pBU0RRQDa7_GE9cB6 -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Webduino Blockly Demo 01</title>
-  <script src="./Webduino Blockly Demo 01_files/jquery.min.js.下載"></script>
-  <script src="./Webduino Blockly Demo 01_files/webduino-all.min.js.下載"></script>
-  <script src="./Webduino Blockly Demo 01_files/MessageTransport.min.js.下載"></script>
-  <script src="./Webduino Blockly Demo 01_files/webduino-blockly.min.js.下載"></script>
-  <script src="./Webduino Blockly Demo 01_files/firebase.min.js.下載"></script>
-  <script src="./Webduino Blockly Demo 01_files/runtime.min.js.下載"></script><script src="./Webduino Blockly Demo 01_files/thingspeak.js.下載"></script>
+  <script src="./index_files/jquery.min.js.下載"></script>
+  <script src="./index_files/webduino-all.min.js.下載"></script>
+  <script src="./index_files/MessageTransport.min.js.下載"></script>
+  <script src="./index_files/webduino-blockly.min.js.下載"></script>
+  <script src="./index_files/firebase.min.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script>
 
   <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
 </head>
@@ -96,11 +96,11 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
                                     console.log(result.resultTranscript);
                                     document.getElementById("demo-area-01-show").innerHTML = result.resultTranscript;
                                     if (result.resultTranscript.indexOf("開燈") !== -1) {
-                                      ThingSpeak_update('YTB3KDYCF72FRI0V', '6', '1', 0, 0, 0, 0, 0, 0);
+                                      ThingSpeak_update('YTB3KDYCF72FRI0V', '', '1', 0, 0, 0, 0, 0, 0);
                                       console.log(event.results[result.resultLength]);
                                     }
                                     if (result.resultTranscript.indexOf("關燈") !== -1) {
-                                      ThingSpeak_update('YTB3KDYCF72FRI0V', '6', '2', 0, 0, 0, 0, 0, 0);
+                                      ThingSpeak_update('YTB3KDYCF72FRI0V', '', '2', 0, 0, 0, 0, 0, 0);
                                       console.log(event.results[result.resultLength]);
                                     }
                                     window._recognition.status = false;
