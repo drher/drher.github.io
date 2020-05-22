@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M7rNcWii7g3XyoFtyOe -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M7uOA45CaH0EA1vdItd -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 40px; color: rgb(51, 51, 255);">　 　第14關<br>目前X軸加速度：0<br>想辦法超過15：</span></div>
+  <div><span id="demo-area-01-show" style="font-size: 40px; color: rgb(51, 51, 255);">　　密室逃脫<br>　　遊戲開始....</span></div>
 
   <script>'use strict';
 
@@ -201,7 +201,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
                               switch (_context4.prev = _context4.next) {
                                 case 0:
                                   photocell.detectedVal = val;
-                                  document.getElementById("demo-area-01-show").innerHTML = ['　　　第3關', "<br/>", '　　目前光度', Math.round(photocell.detectedVal * 100), "<br/>", '想辦法小於60...'].join('');
+                                  document.getElementById("demo-area-01-show").innerHTML = ['　　　第3關', "<br/>", '　 目前光度', Math.round(photocell.detectedVal * 100), "<br/>", '　想辦法小於60...'].join('');
 
                                 case 2:
                                 case 'end':
@@ -221,12 +221,12 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
                         break;
                       }
 
-                      relay.on();
+                      relay.off();
                       _context13.next = 66;
                       return delay(3);
 
                     case 66:
-                      relay.off();
+                      relay.on();
                       matrix.setColor(3 - 1 + (1 - 1) * 5, '#ffffff');
                       _E9_97_9C_E5_8D_A1 = 4;
 
@@ -250,7 +250,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
                             while (1) {
                               switch (_context5.prev = _context5.next) {
                                 case 0:
-                                  document.getElementById("demo-area-01-show").innerHTML = ['　　 　第4關', "<br/>", '　　目前濕度', dht.humidity, "<br/>", '想辦法增加濕度....'].join('');
+                                  document.getElementById("demo-area-01-show").innerHTML = ['　　 　第4關', "<br/>", '　　目前濕度', dht.humidity, "<br/>", '　請增加濕度....'].join('');
 
                                   if (!(dht.humidity > 70)) {
                                     _context5.next = 8;
@@ -710,7 +710,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
                         break;
                       }
 
-                      document.getElementById("demo-area-01-show").innerHTML = '成功';
+                      document.getElementById("demo-area-01-show").innerHTML = '　恭喜過關';
                       _context13.next = 181;
                       return delay(1);
 
@@ -731,9 +731,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee14() {
             };
           })());
 
-          Math.round(x);
-
-        case 2:
+        case 1:
         case 'end':
           return _context14.stop();
       }

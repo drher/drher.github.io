@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M7pBU0RRQDa7_GE9cB6 -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M7uShe8FzGijgTD9P0m -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -89,38 +89,63 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee5() {
                                     result.resultTranscript = event.results[result.resultLength][0].transcript;
 
                                     if (!(event.results[result.resultLength].isFinal === true)) {
-                                      _context3.next = 17;
+                                      _context3.next = 31;
                                       break;
                                     }
 
                                     console.log(result.resultTranscript);
                                     document.getElementById("demo-area-01-show").innerHTML = result.resultTranscript;
-                                    if (result.resultTranscript.indexOf("開燈") !== -1) {
-                                      ThingSpeak_update('YTB3KDYCF72FRI0V', '', '1', 0, 0, 0, 0, 0, 0);
-                                      console.log(event.results[result.resultLength]);
+
+                                    if (!(result.resultTranscript.indexOf("開燈") !== -1)) {
+                                      _context3.next = 14;
+                                      break;
                                     }
-                                    if (result.resultTranscript.indexOf("關燈") !== -1) {
-                                      ThingSpeak_update('YTB3KDYCF72FRI0V', '', '2', 0, 0, 0, 0, 0, 0);
-                                      console.log(event.results[result.resultLength]);
-                                    }
+
                                     window._recognition.status = false;
                                     window._recognition.stop();
+                                    ThingSpeak_update('YTB3KDYCF72FRI0V', '', '1', 0, 0, 0, 0, 0, 0);
                                     _context3.next = 12;
-                                    return delay(2);
+                                    return delay(10);
 
                                   case 12:
+                                    document.getElementById("demo-area-01-show").innerHTML = '傳輸中....';
+                                    console.log(event.results[result.resultLength]);
+
+                                  case 14:
+                                    if (!(result.resultTranscript.indexOf("關燈") !== -1)) {
+                                      _context3.next = 22;
+                                      break;
+                                    }
+
+                                    window._recognition.status = false;
+                                    window._recognition.stop();
+                                    ThingSpeak_update('YTB3KDYCF72FRI0V', '', '2', 0, 0, 0, 0, 0, 0);
+                                    _context3.next = 20;
+                                    return delay(10);
+
+                                  case 20:
+                                    document.getElementById("demo-area-01-show").innerHTML = '傳輸中....';
+                                    console.log(event.results[result.resultLength]);
+
+                                  case 22:
+                                    window._recognition.status = false;
+                                    window._recognition.stop();
+                                    _context3.next = 26;
+                                    return delay(5);
+
+                                  case 26:
                                     document.getElementById("demo-area-01-show").innerHTML = '請說話...';
                                     if (!window._recognition.status) {
                                       window._recognition.start();
                                     }
                                     console.log("final");
-                                    _context3.next = 18;
+                                    _context3.next = 32;
                                     break;
 
-                                  case 17:
+                                  case 31:
                                     if (event.results[result.resultLength].isFinal === false) {}
 
-                                  case 18:
+                                  case 32:
                                   case "end":
                                     return _context3.stop();
                                 }
