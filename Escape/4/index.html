@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8FjTiAKDQLNN1SBpdz -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 01</title>
+  <script src="./index_files/jquery.min.js.下載"></script>
+  <script src="./index_files/webduino-all.min.js.下載"></script>
+  <script src="./index_files/MessageTransport.min.js.下載"></script>
+  <script src="./index_files/webduino-blockly.min.js.下載"></script>
+  <script src="./index_files/firebase.min.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/Dht.js.下載"></script><script src="./index_files/Dht-blockly.js.下載"></script>
+
+  <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
+</head>
+
+<body>
+  <div><span id="demo-area-01-show" style="font-size: 35px; color: rgb(51, 51, 255);">　　目前濕度59<br>　想辦法增加濕度....</span></div>
+
+  <script>var relay;
+var matrix;
+var dht;
+
+
+boardReady({board: 'Bit', device: 'bit3bb875', transport: 'mqtt'}, function (board) {
+  board.samplingInterval = 250;
+  relay = getRelay(board, bitGPIO(0));
+  matrix = getMatrix(board, 4, 25);
+  dht = getDht(board, bitGPIO(11));
+  relay.on();
+  document.getElementById("demo-area-01-show").style.fontSize = 35+"px";
+  document.getElementById("demo-area-01-show").style.color = '#3333ff';
+  dht.read(function(evt){
+    document.getElementById("demo-area-01-show").innerHTML = (['　　目前濕度',dht.humidity,("<br/>"),'　想辦法增加濕度....'].join(''));
+    if (dht.humidity > 75) {
+      relay.off();
+      matrix.setColor((4 - 1 + ( 1 - 1) * 5 ), '#ffffff');
+    }
+    if (dht.humidity < 70) {
+      relay.on();
+    }
+  }, 1000);
+});
+</script>
+
+
+</body></html>
