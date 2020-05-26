@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8FsOi-7xTpgNfGsZxF -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8FsrKZm7FQqRkXxADZ -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -37,6 +37,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee6() {
                     case 0:
                       board.samplingInterval = 250;
                       relay = getRelay(board, bitGPIO(0));
+                      relay.on();
                       matrix = getMatrix(board, 4, 25);
                       document.getElementById("demo-area-01-show").innerHTML = '　請說話...';
 
@@ -99,7 +100,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee6() {
                                                 result.resultTranscript = event.results[result.resultLength][0].transcript;
 
                                                 if (!(event.results[result.resultLength].isFinal === true)) {
-                                                  _context3.next = 22;
+                                                  _context3.next = 23;
                                                   break;
                                                 }
 
@@ -107,44 +108,45 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee6() {
                                                 document.getElementById("demo-area-01-show").innerHTML = String('　') + String(result.resultTranscript);
 
                                                 if (!(result.resultTranscript.indexOf("開燈") !== -1)) {
-                                                  _context3.next = 11;
+                                                  _context3.next = 12;
                                                   break;
                                                 }
 
                                                 relay.off();
-                                                _context3.next = 10;
+                                                matrix.setColor(1 - 1 + (2 - 1) * 5, '#ffffff');
+                                                _context3.next = 11;
                                                 return delay(1);
 
-                                              case 10:
+                                              case 11:
                                                 console.log(event.results[result.resultLength]);
 
-                                              case 11:
+                                              case 12:
                                                 if (!(result.resultTranscript.indexOf("關燈") !== -1)) {
-                                                  _context3.next = 16;
+                                                  _context3.next = 17;
                                                   break;
                                                 }
 
                                                 relay.on();
-                                                _context3.next = 15;
+                                                _context3.next = 16;
                                                 return delay(1);
 
-                                              case 15:
+                                              case 16:
                                                 console.log(event.results[result.resultLength]);
 
-                                              case 16:
-                                                _context3.next = 18;
+                                              case 17:
+                                                _context3.next = 19;
                                                 return delay(2);
 
-                                              case 18:
+                                              case 19:
                                                 document.getElementById("demo-area-01-show").innerHTML = '　請說話...';
                                                 console.log("final");
-                                                _context3.next = 23;
+                                                _context3.next = 24;
                                                 break;
 
-                                              case 22:
+                                              case 23:
                                                 if (event.results[result.resultLength].isFinal === false) {}
 
-                                              case 23:
+                                              case 24:
                                               case 'end':
                                                 return _context3.stop();
                                             }
@@ -174,7 +176,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee6() {
 
                       speechRecognition();
 
-                    case 6:
+                    case 7:
                     case 'end':
                       return _context5.stop();
                   }
