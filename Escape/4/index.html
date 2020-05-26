@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8FjTiAKDQLNN1SBpdz -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8Fk6cfr-l_IUmHupPJ -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 35px; color: rgb(51, 51, 255);">　　目前濕度59<br>　想辦法增加濕度....</span></div>
+  <div><span id="demo-area-01-show" style="font-size: 35px; color: rgb(51, 51, 255);">　　目前濕度59<br>想辦法增加濕度....</span></div>
 
   <script>var relay;
 var matrix;
@@ -31,7 +31,7 @@ boardReady({board: 'Bit', device: 'bit3bb875', transport: 'mqtt'}, function (boa
   document.getElementById("demo-area-01-show").style.fontSize = 35+"px";
   document.getElementById("demo-area-01-show").style.color = '#3333ff';
   dht.read(function(evt){
-    document.getElementById("demo-area-01-show").innerHTML = (['　　目前濕度',dht.humidity,("<br/>"),'　想辦法增加濕度....'].join(''));
+    document.getElementById("demo-area-01-show").innerHTML = (['　　目前濕度',dht.humidity,("<br/>"),'想辦法增加濕度....'].join(''));
     if (dht.humidity > 75) {
       relay.off();
       matrix.setColor((4 - 1 + ( 1 - 1) * 5 ), '#ffffff');
