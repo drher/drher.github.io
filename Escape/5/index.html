@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8FkcaseHnLXvqXsqrq -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8FlcQfPDOwzraLky1N -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -9,20 +9,20 @@
   <script src="./index_files/MessageTransport.min.js.下載"></script>
   <script src="./index_files/webduino-blockly.min.js.下載"></script>
   <script src="./index_files/firebase.min.js.下載"></script>
-  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitPhotocell-blockly.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script>
 
   <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
 </head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 35px; color: rgb(51, 51, 255);">　　目前光度93<br>　想辦法小於65...</span></div>
+  <div><span id="demo-area-01-show" style="font-size: 40px; color: rgb(51, 51, 255);">　　　第5關<br>　　請震動...</span></div>
 
   <script>'use strict';
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
 
 _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
-  var relay, matrix, photocell;
+  var relay, matrix, shake;
   return regeneratorRuntime.wrap(function _callee3$(_context3) {
     while (1) {
       switch (_context3.prev = _context3.next) {
@@ -37,42 +37,34 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
                       board.samplingInterval = 250;
                       relay = getRelay(board, bitGPIO(0));
                       matrix = getMatrix(board, 4, 25);
-                      photocell = getPhotocell(board, 7);
+                      shake = getShock(board, bitGPIO(9));
                       relay.on();
-                      document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
+                      document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
                       document.getElementById("demo-area-01-show").style.color = '#3333ff';
-                      photocell.measure((function () {
-                        var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(val) {
-                          return regeneratorRuntime.wrap(function _callee$(_context) {
-                            while (1) {
-                              switch (_context.prev = _context.next) {
-                                case 0:
-                                  photocell.detectedVal = val;
-                                  document.getElementById("demo-area-01-show").innerHTML = ['　　目前光度', Math.round(photocell.detectedVal * 100), "<br/>", '　想辦法小於65...'].join('');
-                                  if (photocell.detectedVal < 0.65) {
-                                    matrix.setColor(3 - 1 + (1 - 1) * 5, '#ffffff');
-                                    relay.off();
-                                  }
-                                  if (photocell.detectedVal > 0.7) {
-                                    relay.on();
-                                  }
-                                  _context.next = 6;
-                                  return delay(0.1);
+                      document.getElementById("demo-area-01-show").innerHTML = ['　　　第5關', "<br/>", '　　請震動...'].join('');
+                      shake.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+                        return regeneratorRuntime.wrap(function _callee$(_context) {
+                          while (1) {
+                            switch (_context.prev = _context.next) {
+                              case 0:
+                                console.log("high");
+                                relay.off();
+                                matrix.setColor(5 - 1 + (1 - 1) * 5, '#ffffff');
+                                _context.next = 5;
+                                return delay(3);
 
-                                case 6:
-                                case 'end':
-                                  return _context.stop();
-                              }
+                              case 5:
+                                relay.on();
+
+                              case 6:
+                              case 'end':
+                                return _context.stop();
                             }
-                          }, _callee, this);
-                        }));
+                          }
+                        }, _callee, this);
+                      })));
 
-                        return function (_x2) {
-                          return ref.apply(this, arguments);
-                        };
-                      })());
-
-                    case 8:
+                    case 9:
                     case 'end':
                       return _context2.stop();
                   }
