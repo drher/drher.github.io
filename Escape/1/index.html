@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8Eug5IzEpL0pzLh4J3 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 02</title>
+  <script src="./index_files/jquery.min.js.下載"></script>
+  <script src="./index_files/webduino-all.min.js.下載"></script>
+  <script src="./index_files/MessageTransport.min.js.下載"></script>
+  <script src="./index_files/webduino-blockly.min.js.下載"></script>
+  <script src="./index_files/firebase.min.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitButton.js.下載"></script><script src="./index_files/BitButton-blockly.js.下載"></script>
+
+  <style>#demo-area-02-light img {
+  height: 200px;
+  display: none;
+  pointer-events: auto!important;
+}
+
+#demo-area-02-light.on #demo-area-02-on {
+  display: inline-block;
+  pointer-events: auto!important;
+}
+
+#demo-area-02-light.off #demo-area-02-off {
+  display: inline-block;
+  pointer-events: auto!important;
+}</style>
+</head>
+
+<body>
+  <div><div id="demo-area-02-light" class="off">
+    <img src="./index_files/off.jpg" id="demo-area-02-off">
+    <img src="./index_files/on.jpg" id="demo-area-02-on">
+  </div></div>
+
+  <script>var Light;
+var relay;
+var matrix;
+var buttonA;
+
+
+boardReady({board: 'Bit', device: 'bit3bb875', transport: 'mqtt'}, function (board) {
+  board.samplingInterval = 250;
+  relay = getRelay(board, bitGPIO(0));
+  matrix = getMatrix(board, 4, 25);
+  buttonA = getPullupButton(board, 35);
+  Light = true;
+  relay.on();
+  document.getElementById("demo-area-02-light").className = "off";
+  buttonA.on('pressed', function () {
+    matrix.setColor((1 - 1 + ( 1 - 1) * 5 ), '#ffffff');
+    relay.off();
+    document.getElementById("demo-area-02-light").className = "on";
+    Light = true;
+  });
+  buttonA.on('longPress', function () {
+    relay.on();
+    document.getElementById("demo-area-02-light").className = "off";
+    Light = false;
+  });
+  document.getElementById("demo-area-02-light").addEventListener("click", function(){
+    if (Light == false) {
+      Light = true;
+      relay.off();
+      document.getElementById("demo-area-02-light").className = "on";
+      matrix.setColor((1 - 1 + ( 1 - 1) * 5 ), '#ffffff');
+    } else {
+      Light = false;
+      relay.on();
+      document.getElementById("demo-area-02-light").className = "off";
+    }
+  });
+});
+
+Light = false;
+</script>
+
+
+</body></html>
