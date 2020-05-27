@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8JYYax57ZpDzYcBlx2 -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8Je7VFvtFD6XtdsIpD -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -38,12 +38,10 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       relay = getRelay(board, bitGPIO(0));
                       matrix = getMatrix(board, 4, 25);
                       relay.on();
-                      document.getElementById("demo-area-01-show").style.fontSize = 40 + "px";
-                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
 
-                    case 6:
+                    case 4:
                       if (!true) {
-                        _context.next = 26;
+                        _context.next = 24;
                         break;
                       }
 
@@ -51,9 +49,9 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       startTime = new Date();
                       timeout = 1;
 
-                    case 10:
+                    case 8:
                       if (!(ThingSpeak_getResponse() == "")) {
-                        _context.next = 19;
+                        _context.next = 17;
                         break;
                       }
 
@@ -61,21 +59,21 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       interval = parseInt(endTime - startTime) / 1000;
 
                       if (!(interval > timeout)) {
-                        _context.next = 15;
+                        _context.next = 13;
                         break;
                       }
 
-                      return _context.abrupt('break', 19);
+                      return _context.abrupt('break', 17);
 
-                    case 15:
-                      _context.next = 17;
+                    case 13:
+                      _context.next = 15;
                       return delay(0.1);
 
-                    case 17:
-                      _context.next = 10;
+                    case 15:
+                      _context.next = 8;
                       break;
 
-                    case 19:
+                    case 17:
                       ThingSpeak = ThingSpeak_getResponse()[0][7];
                       if (ThingSpeak == 1) {
                         matrix.setColor(1 - 1 + (2 - 1) * 5, '#ffffff');
@@ -84,14 +82,14 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       if (ThingSpeak == 2) {
                         relay.on();
                       }
-                      _context.next = 24;
-                      return delay(0.1);
+                      _context.next = 22;
+                      return delay(1);
 
-                    case 24:
-                      _context.next = 6;
+                    case 22:
+                      _context.next = 4;
                       break;
 
-                    case 26:
+                    case 24:
                     case 'end':
                       return _context.stop();
                   }
