@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8K3bfFJtqrp69szeSq -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8K43I6XuFf8pocc_TG -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 40px; color: rgb(51, 51, 255);">目前偵測距離120<br>　 30~50  開燈<br>　 05~20  關燈</span></div>
+  <div><span id="demo-area-01-show" style="font-size: 35px; color: rgb(51, 51, 255);">目前偵測距離121<br>　 30~50  開燈<br>　 05~20  關燈</span></div>
 
   <script>var relay;
 var matrix;
@@ -28,7 +28,7 @@ boardReady({board: 'Bit', device: 'bit3bb875', transport: 'mqtt'}, function (boa
   matrix = getMatrix(board, 4, 25);
   ultrasonic = getUltrasonic(board, bitGPIO(8), bitGPIO(7));
   relay.on();
-  document.getElementById("demo-area-01-show").style.fontSize = 40+"px";
+  document.getElementById("demo-area-01-show").style.fontSize = 35+"px";
   document.getElementById("demo-area-01-show").style.color = '#3333ff';
   ultrasonic.ping(function(cm){
     console.log(ultrasonic.distance);
