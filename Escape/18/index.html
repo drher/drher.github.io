@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8YSEZldsgU4KjCMs2- -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8YUZDpUZgB1XkffctV -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -31,6 +31,7 @@ boardReady({board: 'Bit', device: 'bit3bb875', transport: 'mqtt'}, function (boa
   setDeviceOrientationListener(function(alpha, beta, gamma){
     document.getElementById("demo-area-01-show").innerHTML = (['　 目前水平角度：',(Math.round(alpha)),("<br/>"),'　 旋轉至　 0度：ON',("<br/>"),'　 旋轉至180度：OFF'].join(''));
     if ((Math.round(alpha)) == 0) {
+      matrix.setColor((3 - 1 + ( 5 - 1) * 5 ), '#ffffff');
       relay.off();
     }
     if ((Math.round(alpha)) == 180) {
