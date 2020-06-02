@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8KJAcDQr5fSnfLC6Sh -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8mjhW2uqsSGpG4hKSj -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 35px; color: rgb(51, 51, 255);">　 超音波測距<br>目前偵測距離122<br>　 30~50  開燈<br>　 05~20  關燈</span></div>
+  <div><span id="demo-area-01-show" style="font-size: 35px; color: rgb(51, 51, 255);">　  超音波測距<br>目前偵測距離118<br>　 30~50  開燈<br>　 05~20  關燈</span></div>
 
   <script>var relay;
 var matrix;
@@ -32,7 +32,7 @@ boardReady({board: 'Bit', device: 'bit3bb875', transport: 'mqtt'}, function (boa
   document.getElementById("demo-area-01-show").style.color = '#3333ff';
   ultrasonic.ping(function(cm){
     console.log(ultrasonic.distance);
-    document.getElementById("demo-area-01-show").innerHTML = (['　 超音波測距',("<br/>"),'目前偵測距離',ultrasonic.distance,("<br/>"),'　 30~50  開燈',("<br/>"),'　 05~20  關燈'].join(''));
+    document.getElementById("demo-area-01-show").innerHTML = (['　  超音波測距',("<br/>"),'目前偵測距離',ultrasonic.distance,("<br/>"),'　 30~50  開燈',("<br/>"),'　 05~20  關燈'].join(''));
     if (ultrasonic.distance > 30 && ultrasonic.distance < 50) {
       relay.off();
     }
