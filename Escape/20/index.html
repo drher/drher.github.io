@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8YUZDpUZgB1XkffctV -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M9O0_Lc1yCRo3yZQ6Xa -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -9,34 +9,38 @@
   <script src="./index_files/MessageTransport.min.js.下載"></script>
   <script src="./index_files/webduino-blockly.min.js.下載"></script>
   <script src="./index_files/firebase.min.js.下載"></script>
-  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script>
 
   <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
 </head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 30px; color: rgb(51, 51, 255);">　 目前水平角度：0<br>　 旋轉至　 0度：ON<br>　 旋轉至180度：OFF</span></div>
+  <div><span id="demo-area-01-show" style="font-size: 45px; color: rgb(51, 51, 255);">　 火焰感測</span></div>
 
   <script>var relay;
 var matrix;
+var _E6_A5_B5_E9_99_90;
 
 
 boardReady({board: 'Bit', device: 'bit3bb875', transport: 'mqtt'}, function (board) {
   board.samplingInterval = 250;
   relay = getRelay(board, bitGPIO(0));
   matrix = getMatrix(board, 4, 25);
+  _E6_A5_B5_E9_99_90 = getShock(board, bitGPIO(14));
   relay.on();
-  document.getElementById("demo-area-01-show").style.fontSize = 30+"px";
+  document.getElementById("demo-area-01-show").style.fontSize = 45+"px";
   document.getElementById("demo-area-01-show").style.color = '#3333ff';
-  setDeviceOrientationListener(function(alpha, beta, gamma){
-    document.getElementById("demo-area-01-show").innerHTML = (['　 目前水平角度：',(Math.round(alpha)),("<br/>"),'　 旋轉至　 0度：ON',("<br/>"),'　 旋轉至180度：OFF'].join(''));
-    if ((Math.round(alpha)) == 0) {
-      matrix.setColor((3 - 1 + ( 5 - 1) * 5 ), '#ffffff');
-      relay.off();
-    }
-    if ((Math.round(alpha)) == 180) {
+  document.getElementById("demo-area-01-show").innerHTML = '　 火焰感測';
+  _E6_A5_B5_E9_99_90.on("high", function(){
+    console.log("high");
       relay.on();
-    }
+    matrix.setColor((5 - 1 + ( 4 - 1) * 5 ), '#ffffff');
+
+  });
+  _E6_A5_B5_E9_99_90.on("low", function(){
+    console.log("low");
+      relay.off();
+
   });
 });
 </script>
