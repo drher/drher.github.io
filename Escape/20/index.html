@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M9OBBTduLqnGGY5i2dx -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M9SGCI0SRDsannDPFQB -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -17,33 +17,74 @@
 <body>
   <div><span id="demo-area-01-show" style="font-size: 45px; color: rgb(51, 51, 255);">　 火焰感測</span></div>
 
-  <script>var relay;
-var matrix;
-var _E6_A5_B5_E9_99_90;
+  <script>'use strict';
 
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
 
-boardReady({board: 'Bit', device: 'bit3bb875', transport: 'mqtt'}, function (board) {
-  board.samplingInterval = 250;
-  relay = getRelay(board, bitGPIO(0));
-  matrix = getMatrix(board, 4, 25);
-  _E6_A5_B5_E9_99_90 = getShock(board, bitGPIO(10));
-  relay.on();
-  document.getElementById("demo-area-01-show").style.fontSize = 45+"px";
-  document.getElementById("demo-area-01-show").style.color = '#3333ff';
-  document.getElementById("demo-area-01-show").innerHTML = '　 火焰感測';
-  _E6_A5_B5_E9_99_90.on("high", function(){
-    console.log("high");
-      relay.on();
-    matrix.setColor((5 - 1 + ( 4 - 1) * 5 ), '#ffffff');
+_asyncToGenerator(regeneratorRuntime.mark(function _callee3() {
+  var relay, matrix, _E6_A5_B5_E9_99_90;
 
-  });
-  _E6_A5_B5_E9_99_90.on("low", function(){
-    console.log("low");
-      relay.off();
+  return regeneratorRuntime.wrap(function _callee3$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
 
-  });
-});
-</script>
+          boardReady({ board: 'Bit', device: 'bit3bb875', transport: 'mqtt' }, (function () {
+            var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(board) {
+              return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                while (1) {
+                  switch (_context2.prev = _context2.next) {
+                    case 0:
+                      board.samplingInterval = 250;
+                      relay = getRelay(board, bitGPIO(0));
+                      matrix = getMatrix(board, 4, 25);
+                      _E6_A5_B5_E9_99_90 = getShock(board, bitGPIO(10));
+                      relay.on();
+                      document.getElementById("demo-area-01-show").style.fontSize = 45 + "px";
+                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
+                      document.getElementById("demo-area-01-show").innerHTML = '　 火焰感測';
+                      _E6_A5_B5_E9_99_90.on("high", _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
+                        return regeneratorRuntime.wrap(function _callee$(_context) {
+                          while (1) {
+                            switch (_context.prev = _context.next) {
+                              case 0:
+                                console.log("high");
+                                relay.on();
+                                matrix.setColor(5 - 1 + (4 - 1) * 5, '#ffffff');
+                                _context.next = 5;
+                                return delay(3);
+
+                              case 5:
+                                relay.off();
+
+                              case 6:
+                              case 'end':
+                                return _context.stop();
+                            }
+                          }
+                        }, _callee, this);
+                      })));
+
+                    case 9:
+                    case 'end':
+                      return _context2.stop();
+                  }
+                }
+              }, _callee2, this);
+            }));
+
+            return function (_x) {
+              return ref.apply(this, arguments);
+            };
+          })());
+
+        case 1:
+        case 'end':
+          return _context3.stop();
+      }
+    }
+  }, _callee3, this);
+}))();</script>
 
 
 </body></html>
