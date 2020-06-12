@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M9cKyvfrGey7F5tcGNv -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 01</title>
+  <script src="./index_files/jquery.min.js.下載"></script>
+  <script src="./index_files/webduino-all.min.js.下載"></script>
+  <script src="./index_files/MessageTransport.min.js.下載"></script>
+  <script src="./index_files/webduino-blockly.min.js.下載"></script>
+  <script src="./index_files/firebase.min.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/BitShock-blockly.js.下載"></script>
+
+  <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
+</head>
+
+<body>
+  <div><span id="demo-area-01-show" style="font-size: 45px; color: rgb(51, 51, 255);">　 酒精偵測</span></div>
+
+  <script>var relay;
+var matrix;
+var _E6_A5_B5_E9_99_90;
+
+
+boardReady({board: 'Bit', device: 'bit3bb875', transport: 'mqtt'}, function (board) {
+  board.samplingInterval = 250;
+  relay = getRelay(board, bitGPIO(0));
+  matrix = getMatrix(board, 4, 25);
+  _E6_A5_B5_E9_99_90 = getShock(board, bitGPIO(16));
+  relay.on();
+  document.getElementById("demo-area-01-show").style.fontSize = 45+"px";
+  document.getElementById("demo-area-01-show").style.color = '#3333ff';
+  document.getElementById("demo-area-01-show").innerHTML = '　 酒精偵測';
+  _E6_A5_B5_E9_99_90.on("high", function(){
+    console.log("high");
+      relay.off();
+    matrix.setColor((2 - 1 + ( 5 - 1) * 5 ), '#ffffff');
+
+  });
+  _E6_A5_B5_E9_99_90.on("high", function(){
+    console.log("high");
+      relay.on();
+
+  });
+});
+</script>
+
+
+</body></html>
