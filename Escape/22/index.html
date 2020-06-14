@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M9iApgBrkrWkoFxLSWe -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M9mIxCyMjD8jYjZQDXH -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -9,7 +9,7 @@
   <script src="./index_files/MessageTransport.min.js.下載"></script>
   <script src="./index_files/webduino-blockly.min.js.下載"></script>
   <script src="./index_files/firebase.min.js.下載"></script>
-  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script>
 
   <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
 </head>
@@ -22,7 +22,7 @@
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
 
 _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
-  var relay, matrix, ThingSpeak;
+  var relay, matrix, DataCount, Detect, First, myData;
   return regeneratorRuntime.wrap(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
@@ -30,7 +30,6 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
 
           boardReady({ board: 'Bit', device: 'bit3bb875', transport: 'mqtt' }, (function () {
             var ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(board) {
-              var startTime, timeout, endTime, interval;
               return regeneratorRuntime.wrap(function _callee$(_context) {
                 while (1) {
                   switch (_context.prev = _context.next) {
@@ -38,85 +37,67 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       board.samplingInterval = 250;
                       relay = getRelay(board, bitGPIO(0));
                       matrix = getMatrix(board, 4, 25);
-                      relay.on();
-                      document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
-                      document.getElementById("demo-area-01-show").style.color = '#000099';
-                      document.getElementById("demo-area-01-show").innerHTML = 'Google 表單回應';
+                      DataCount = 1;
+                      Detect = false;
+                      First = true;
+                      myData = {};
+                      myData.sheetUrl = 'https://docs.google.com/spreadsheets/d/1Gx1EFk6I9_iOuEwoUdffYt4s1fLfRHvyTpNgcbp75T4/edit?usp=sharing';
+                      myData.sheetName = 'sheet';
 
-                    case 7:
-                      if (!true) {
-                        _context.next = 36;
+                    case 9:
+                      if (!(First == true)) {
+                        _context.next = 15;
                         break;
                       }
 
-                      ThingSpeak_read(1, '991259', "", 1, 'ANJTR9XNNIUDUO6B');
-                      startTime = new Date();
-                      timeout = 1;
+                      readSheetData({
+                        row: DataCount,
+                        col: 1,
+                        sheetUrl: myData.sheetUrl,
+                        sheetName: myData.sheetName
+                      }, function (googleSheetReadData) {
+                        if (googleSheetReadData != '') {
+                          DataCount = DataCount + 1;
+                        } else {
+                          First = false;
+                        }
+                        document.getElementById("demo-area-01-show").innerHTML = DataCount;
+                      });
+                      _context.next = 13;
+                      return delay(1.5);
 
-                    case 11:
-                      if (!(ThingSpeak_getResponse() == "")) {
-                        _context.next = 20;
-                        break;
-                      }
-
-                      endTime = new Date();
-                      interval = parseInt(endTime - startTime) / 1000;
-
-                      if (!(interval > timeout)) {
-                        _context.next = 16;
-                        break;
-                      }
-
-                      return _context.abrupt('break', 20);
-
-                    case 16:
-                      _context.next = 18;
-                      return delay(0.1);
-
-                    case 18:
-                      _context.next = 11;
+                    case 13:
+                      _context.next = 9;
                       break;
 
-                    case 20:
-                      ThingSpeak = ThingSpeak_getResponse()[0][7];
-
-                      if (!(ThingSpeak >= 5 && ThingSpeak <= 5.8)) {
-                        _context.next = 32;
+                    case 15:
+                      if (!(First == false)) {
+                        _context.next = 22;
                         break;
                       }
 
-                      relay.off();
-                      matrix.setColor(5 - 1 + (3 - 1) * 5, '#ffffff');
-                      if (ThingSpeak == 5) {
-                        document.getElementById("demo-area-01-show").innerHTML = ['　Google 表單回應', "<br/>", '　　非常滿意'];
-                      }
-                      if (ThingSpeak == 5.2) {
-                        document.getElementById("demo-area-01-show").innerHTML = ['　Google 表單回應', "<br/>", '　　　滿意'];
-                      }
-                      if (ThingSpeak == 5.4) {
-                        document.getElementById("demo-area-01-show").innerHTML = ['　Google 表單回應', "<br/>", '　　　普通'];
-                      }
-                      if (ThingSpeak == 5.6) {
-                        document.getElementById("demo-area-01-show").innerHTML = ['　Google 表單回應', "<br/>", '　　　不滿意'];
-                      }
-                      if (ThingSpeak == 5.8) {
-                        document.getElementById("demo-area-01-show").innerHTML = ['　Google 表單回應', "<br/>", '　非常不滿意'];
-                      }
-                      _context.next = 31;
+                      readSheetData({
+                        row: DataCount,
+                        col: 1,
+                        sheetUrl: myData.sheetUrl,
+                        sheetName: myData.sheetName
+                      }, function (googleSheetReadData) {
+                        if (googleSheetReadData != '') {
+                          DataCount = DataCount + 1;
+                          matrix.setColor(2 - 1 + (5 - 1) * 5, '#ffffff');
+                          relay.off();
+                          document.getElementById("demo-area-01-show").innerHTML = DataCount;
+                        }
+                      });
+                      _context.next = 19;
                       return delay(3);
 
-                    case 31:
-                      relay.off();
-
-                    case 32:
-                      _context.next = 34;
-                      return delay(1);
-
-                    case 34:
-                      _context.next = 7;
+                    case 19:
+                      relay.on();
+                      _context.next = 15;
                       break;
 
-                    case 36:
+                    case 22:
                     case 'end':
                       return _context.stop();
                   }
