@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M9mKiuj0EO45Q1q0_su -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M9vz2iXIBBeeR50mDuk -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <div><span id="demo-area-01-show">123</span></div>
+  <div><span id="demo-area-01-show" style="font-size: 35px; color: rgb(51, 51, 255);">　Google表單回應<br>　　資料數8</span></div>
 
   <script>'use strict';
 
@@ -40,13 +40,16 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       DataCount = 1;
                       Detect = false;
                       First = true;
+                      document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
+                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
+                      relay.on();
                       myData = {};
                       myData.sheetUrl = 'https://docs.google.com/spreadsheets/d/1Gx1EFk6I9_iOuEwoUdffYt4s1fLfRHvyTpNgcbp75T4/edit?usp=sharing';
                       myData.sheetName = 'sheet';
 
-                    case 9:
+                    case 12:
                       if (!(First == true)) {
-                        _context.next = 15;
+                        _context.next = 18;
                         break;
                       }
 
@@ -61,18 +64,18 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                         } else {
                           First = false;
                         }
-                        document.getElementById("demo-area-01-show").innerHTML = ['Google表單回應', "<br/>", '資料數', DataCount];
+                        document.getElementById("demo-area-01-show").innerHTML = ['　Google表單回應', "<br/>", '　　資料數', DataCount].join('');
                       });
-                      _context.next = 13;
+                      _context.next = 16;
                       return delay(1.5);
 
-                    case 13:
-                      _context.next = 9;
+                    case 16:
+                      _context.next = 12;
                       break;
 
-                    case 15:
+                    case 18:
                       if (!(First == false)) {
-                        _context.next = 22;
+                        _context.next = 25;
                         break;
                       }
 
@@ -86,18 +89,18 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                           DataCount = DataCount + 1;
                           matrix.setColor(2 - 1 + (5 - 1) * 5, '#ffffff');
                           relay.off();
-                          document.getElementById("demo-area-01-show").innerHTML = ['Google表單回應', "<br/>", '資料數', DataCount];
+                          document.getElementById("demo-area-01-show").innerHTML = ['　Google表單回應', "<br/>", '　　資料數', DataCount].join('');
                         }
                       });
-                      _context.next = 19;
+                      _context.next = 22;
                       return delay(3);
 
-                    case 19:
+                    case 22:
                       relay.on();
-                      _context.next = 15;
+                      _context.next = 18;
                       break;
 
-                    case 22:
+                    case 25:
                     case 'end':
                       return _context.stop();
                   }
