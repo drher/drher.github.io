@@ -50,11 +50,13 @@
     ThingSpeak_response = [];
     ThingSpeak_count = 0;
     var data = $.ajax({
-        "type": "POST",
-        "dataType": "jsonp",
+        "type": "GET",
+        "dataType": "json",
+        "async": false,
         "url": url,
         success: function(json)
         {
+          console.log(JSON.stringify(json));
           json = eval(json.feeds);
           ThingSpeak_getState = true;
           ThingSpeak_count = json.length;
@@ -77,7 +79,9 @@
         },
         error: function(jqXHR, textStatus, errorThrown)
         {
-          //console.log(errorThrown);
+          console.log(errorThrown);
+          ThingSpeak_getState = false;
+          ThingSpeak_count = 0;
         }
      });  
   }
@@ -85,7 +89,6 @@
   function ThingSpeak_getResponse() {
    if (ThingSpeak_getState == false) {
      var res = ThingSpeak_response;
-     //ThingSpeak_response=[];
      return res;
     }
     else

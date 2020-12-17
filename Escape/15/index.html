@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M8xkxn4IzN5ilsdEV88 -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-MOkigJFIAS5fwT-9Esg -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Webduino Blockly App</title>
+  <title>Webduino Blockly Demo 01</title>
   <script src="./index_files/jquery.min.js.下載"></script>
   <script src="./index_files/webduino-all.min.js.下載"></script>
-  <script src="./index_files/MessageTransport.min.js.下載"></script>
   <script src="./index_files/MessageTransport.min.js.下載"></script>
   <script src="./index_files/webduino-blockly.min.js.下載"></script>
   <script src="./index_files/firebase.min.js.下載"></script>
   <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script>
+
+  <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
 </head>
 
 <body>
-  <div></div>
+  <div><span id="demo-area-01-show">3</span></div>
 
   <script>'use strict';
 
@@ -41,7 +42,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
 
                     case 4:
                       if (!true) {
-                        _context.next = 24;
+                        _context.next = 25;
                         break;
                       }
 
@@ -75,6 +76,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
 
                     case 17:
                       ThingSpeak = ThingSpeak_getResponse()[0][7];
+                      document.getElementById("demo-area-01-show").innerHTML = ThingSpeak;
                       if (ThingSpeak == 3) {
                         matrix.setColor(5 - 1 + (3 - 1) * 5, '#ffffff');
                         relay.off();
@@ -82,14 +84,14 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       if (ThingSpeak == 4) {
                         relay.on();
                       }
-                      _context.next = 22;
+                      _context.next = 23;
                       return delay(1);
 
-                    case 22:
+                    case 23:
                       _context.next = 4;
                       break;
 
-                    case 24:
+                    case 25:
                     case 'end':
                       return _context.stop();
                   }
