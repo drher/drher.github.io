@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-M9wLM5Ba_stzbTqVH8m -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-MPMWC4ASZg9vt-wEefW -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -9,20 +9,20 @@
   <script src="./index_files/MessageTransport.min.js.下載"></script>
   <script src="./index_files/webduino-blockly.min.js.下載"></script>
   <script src="./index_files/firebase.min.js.下載"></script>
-  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script>
 
   <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
 </head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 35px; color: rgb(51, 51, 255);">　Google表單回應<br>　　資料數：12</span></div>
+  <div><span id="demo-area-01-show" style="font-size: 20px;">Old</span></div>
 
   <script>'use strict';
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } step("next"); }); }; }
 
 _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
-  var relay, matrix, DataCount, Detect, First, myData;
+  var relay, Old_Data, New_Data, myExcel;
   return regeneratorRuntime.wrap(function _callee2$(_context2) {
     while (1) {
       switch (_context2.prev = _context2.next) {
@@ -36,71 +36,68 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                     case 0:
                       board.samplingInterval = 250;
                       relay = getRelay(board, bitGPIO(0));
-                      matrix = getMatrix(board, 4, 25);
-                      DataCount = 10;
-                      Detect = false;
-                      First = true;
-                      document.getElementById("demo-area-01-show").style.fontSize = 35 + "px";
-                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
-                      relay.on();
-                      myData = {};
-                      myData.sheetUrl = 'https://docs.google.com/spreadsheets/d/1Gx1EFk6I9_iOuEwoUdffYt4s1fLfRHvyTpNgcbp75T4/edit?usp=sharing';
-                      myData.sheetName = 'sheet';
+                      Old_Data = '';
+                      New_Data = '';
+                      document.getElementById("demo-area-01-show").style.fontSize = 20 + "px";
+                      myExcel = {};
+                      myExcel.sheetUrl = 'https://docs.google.com/spreadsheets/d/1Gx1EFk6I9_iOuEwoUdffYt4s1fLfRHvyTpNgcbp75T4/edit?usp=sharing';
+                      myExcel.sheetName = 'Single';
+                      readSheetData({
+                        row: 2,
+                        col: 1,
+                        sheetUrl: myExcel.sheetUrl,
+                        sheetName: myExcel.sheetName
+                      }, function (googleSheetReadData) {
+                        document.getElementById("demo-area-01-show").innerHTML = googleSheetReadData;
+                        Old_Data = googleSheetReadData;
+                        New_Data = googleSheetReadData;
+                      });
+                      _context.next = 11;
+                      return delay(0.2);
 
-                    case 12:
-                      if (!(First == true)) {
-                        _context.next = 18;
+                    case 11:
+                      if (!true) {
+                        _context.next = 27;
                         break;
                       }
 
                       readSheetData({
-                        row: DataCount,
+                        row: 2,
                         col: 1,
-                        sheetUrl: myData.sheetUrl,
-                        sheetName: myData.sheetName
+                        sheetUrl: myExcel.sheetUrl,
+                        sheetName: myExcel.sheetName
                       }, function (googleSheetReadData) {
-                        if (googleSheetReadData != '') {
-                          DataCount = DataCount + 1;
-                        } else {
-                          First = false;
-                        }
-                        document.getElementById("demo-area-01-show").innerHTML = ['　Google表單回應', "<br/>", '　　資料數：', DataCount].join('');
+                        New_Data = googleSheetReadData;
                       });
-                      _context.next = 16;
-                      return delay(1.8);
 
-                    case 16:
-                      _context.next = 12;
-                      break;
-
-                    case 18:
-                      if (!(First == false)) {
-                        _context.next = 25;
+                      if (!(New_Data != Old_Data)) {
+                        _context.next = 21;
                         break;
                       }
 
-                      readSheetData({
-                        row: DataCount,
-                        col: 1,
-                        sheetUrl: myData.sheetUrl,
-                        sheetName: myData.sheetName
-                      }, function (googleSheetReadData) {
-                        if (googleSheetReadData != '') {
-                          DataCount = DataCount + 1;
-                          matrix.setColor(2 - 1 + (5 - 1) * 5, '#ffffff');
-                          relay.off();
-                          document.getElementById("demo-area-01-show").innerHTML = ['　Google表單回應', "<br/>", '　　資料數：', DataCount].join('');
-                        }
-                      });
-                      _context.next = 22;
+                      document.getElementById("demo-area-01-show").innerHTML = 'New';
+                      relay.off();
+                      _context.next = 18;
                       return delay(3);
 
-                    case 22:
-                      relay.on();
-                      _context.next = 18;
+                    case 18:
+                      Old_Data = New_Data;
+                      _context.next = 23;
                       break;
 
+                    case 21:
+                      document.getElementById("demo-area-01-show").innerHTML = 'Old';
+                      relay.on();
+
+                    case 23:
+                      _context.next = 25;
+                      return delay(0.1);
+
                     case 25:
+                      _context.next = 11;
+                      break;
+
+                    case 27:
                     case 'end':
                       return _context.stop();
                   }
