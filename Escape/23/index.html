@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-MPMWC4ASZg9vt-wEefW -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-MPMceU4WaOAEqig9ohd -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -36,6 +36,7 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                     case 0:
                       board.samplingInterval = 250;
                       relay = getRelay(board, bitGPIO(0));
+                      relay.on();
                       Old_Data = '';
                       New_Data = '';
                       document.getElementById("demo-area-01-show").style.fontSize = 20 + "px";
@@ -52,12 +53,12 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                         Old_Data = googleSheetReadData;
                         New_Data = googleSheetReadData;
                       });
-                      _context.next = 11;
+                      _context.next = 12;
                       return delay(0.2);
 
-                    case 11:
+                    case 12:
                       if (!true) {
-                        _context.next = 27;
+                        _context.next = 28;
                         break;
                       }
 
@@ -71,33 +72,33 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       });
 
                       if (!(New_Data != Old_Data)) {
-                        _context.next = 21;
+                        _context.next = 22;
                         break;
                       }
 
                       document.getElementById("demo-area-01-show").innerHTML = 'New';
                       relay.off();
-                      _context.next = 18;
+                      _context.next = 19;
                       return delay(3);
 
-                    case 18:
+                    case 19:
                       Old_Data = New_Data;
-                      _context.next = 23;
+                      _context.next = 24;
                       break;
 
-                    case 21:
+                    case 22:
                       document.getElementById("demo-area-01-show").innerHTML = 'Old';
                       relay.on();
 
-                    case 23:
-                      _context.next = 25;
+                    case 24:
+                      _context.next = 26;
                       return delay(0.1);
 
-                    case 25:
-                      _context.next = 11;
+                    case 26:
+                      _context.next = 12;
                       break;
 
-                    case 27:
+                    case 28:
                     case 'end':
                       return _context.stop();
                   }
