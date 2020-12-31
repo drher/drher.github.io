@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-MBJux4WnD9avfJxZmZx -->
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-MPtOgT9EEz9ASofXH4l -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -12,10 +12,10 @@
   <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script><script src="./index_files/thingspeak.js.下載"></script>
 
   <style>#demo-area-01-show { font-size: 60px; pointer-events: auto!important; }</style>
-<script async="" src="https://api.thingspeak.com/channels/991259/feeds.json?results=1&amp;api_key=ANJTR9XNNIUDUO6B&amp;callback=jQuery21404945150555064448_1593783908995&amp;_=1593783909012"></script></head>
+</head>
 
 <body>
-  <div><span id="demo-area-01-show" style="font-size: 30px; color: rgb(51, 51, 255);">　　請Email至<br>drhermail@gmail.com<br>　收信有"開燈"指示</span></div>
+  <div><span id="demo-area-01-show">123</span></div>
 
   <script>'use strict';
 
@@ -39,13 +39,10 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       relay = getRelay(board, bitGPIO(0));
                       matrix = getMatrix(board, 4, 25);
                       relay.on();
-                      document.getElementById("demo-area-01-show").style.fontSize = 30 + "px";
-                      document.getElementById("demo-area-01-show").style.color = '#3333ff';
-                      document.getElementById("demo-area-01-show").innerHTML = ['　　請Email至', "<br/>", 'drhermail@gmail.com'].join('');
 
-                    case 7:
+                    case 4:
                       if (!true) {
-                        _context.next = 27;
+                        _context.next = 24;
                         break;
                       }
 
@@ -53,9 +50,9 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       startTime = new Date();
                       timeout = 1;
 
-                    case 11:
+                    case 8:
                       if (!(ThingSpeak_getResponse() == "")) {
-                        _context.next = 20;
+                        _context.next = 17;
                         break;
                       }
 
@@ -63,39 +60,37 @@ _asyncToGenerator(regeneratorRuntime.mark(function _callee2() {
                       interval = parseInt(endTime - startTime) / 1000;
 
                       if (!(interval > timeout)) {
-                        _context.next = 16;
+                        _context.next = 13;
                         break;
                       }
 
-                      return _context.abrupt('break', 20);
+                      return _context.abrupt('break', 17);
 
-                    case 16:
-                      _context.next = 18;
+                    case 13:
+                      _context.next = 15;
                       return delay(0.1);
 
-                    case 18:
-                      _context.next = 11;
+                    case 15:
+                      _context.next = 8;
                       break;
 
-                    case 20:
+                    case 17:
                       ThingSpeak = ThingSpeak_getResponse()[0][7];
                       if (ThingSpeak == 5) {
                         matrix.setColor(5 - 1 + (3 - 1) * 5, '#ffffff');
                         relay.off();
-                        document.getElementById("demo-area-01-show").innerHTML = ['　　請Email至', "<br/>", 'drhermail@gmail.com', "<br/>", '　收信有"開燈"指示'].join('');
                       }
                       if (ThingSpeak == 6) {
                         relay.on();
-                        document.getElementById("demo-area-01-show").innerHTML = ['　　請Email至', "<br/>", 'drhermail@gmail.com', "<br/>", '　收信無"開燈"指示'].join('');
                       }
-                      _context.next = 25;
+                      _context.next = 22;
                       return delay(1);
 
-                    case 25:
-                      _context.next = 7;
+                    case 22:
+                      _context.next = 4;
                       break;
 
-                    case 27:
+                    case 24:
                     case 'end':
                       return _context.stop();
                   }
