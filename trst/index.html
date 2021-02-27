@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-MUWN3Gw52AKWGF8Dd9X -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 02</title>
+  <script src="./index_files/jquery.min.js.下載"></script>
+  <script src="./index_files/webduino-all.min.js.下載"></script>
+  <script src="./index_files/MessageTransport.min.js.下載"></script>
+  <script src="./index_files/webduino-blockly.min.js.下載"></script>
+  <script src="./index_files/firebase.min.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script>
+
+  <style>#demo-area-02-light img {
+  height: 200px;
+  display: none;
+  pointer-events: auto!important;
+}
+
+#demo-area-02-light.on #demo-area-02-on {
+  display: inline-block;
+  pointer-events: auto!important;
+}
+
+#demo-area-02-light.off #demo-area-02-off {
+  display: inline-block;
+  pointer-events: auto!important;
+}</style>
+</head>
+
+<body>
+  <div><div id="demo-area-02-light" class="off">
+    <img src="./index_files/off.jpg" id="demo-area-02-off">
+    <img src="./index_files/on.jpg" id="demo-area-02-on">
+  </div></div>
+
+  <script>var matrix;
+var _E8_AE_8A_E6_95_B8;
+
+
+boardReady({board: 'Bit', device: 'wLMH34UpyiMnspLh32', transport: 'mqtt'}, function (board) {
+  board.samplingInterval = 250;
+  matrix = getMatrix(board, 4, 25);
+  _E8_AE_8A_E6_95_B8 = 0;
+  document.getElementById("demo-area-02-light").addEventListener("click", function(){
+    if (document.getElementById("demo-area-02-light").className == "on") {
+       document.getElementById("demo-area-02-light").className = "off";
+    } else {
+      document.getElementById("demo-area-02-light").className = "on";
+    }
+    _E8_AE_8A_E6_95_B8 = (typeof _E8_AE_8A_E6_95_B8 == 'number' ? _E8_AE_8A_E6_95_B8 : 0) + 1;
+    if (_E8_AE_8A_E6_95_B8 % 2 == 1) {
+      matrix.setColor('#ff0000');
+    } else {
+      matrix.setColor('#66ff99');
+    }
+  });
+});
+</script>
+
+
+</body></html>
