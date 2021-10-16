@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)https://bit.webduino.io/blockly/live-preview.html#-Mm61WjhFM8vE1MLADmU -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 02</title>
+  <script src="./index_files/jquery.min.js.下載"></script>
+  <script src="./index_files/webduino-all.min.js.下載"></script>
+  <script src="./index_files/MessageTransport.min.js.下載"></script>
+  <script src="./index_files/webduino-blockly.min.js.下載"></script>
+  <script src="./index_files/firebase.min.js.下載"></script>
+  <script src="./index_files/runtime.min.js.下載"></script><script src="./index_files/BitLedMatrix-blockly.js.下載"></script><script src="./index_files/BitLedMatrix.js.下載"></script>
+
+  <style>#demo-area-02-light img {
+  height: 200px;
+  display: none;
+  pointer-events: auto!important;
+}
+
+#demo-area-02-light.on #demo-area-02-on {
+  display: inline-block;
+  pointer-events: auto!important;
+}
+
+#demo-area-02-light.off #demo-area-02-off {
+  display: inline-block;
+  pointer-events: auto!important;
+}</style>
+</head>
+
+<body>
+  <div><div id="demo-area-02-light" class="off">
+    <img src="./index_files/off.jpg" id="demo-area-02-off">
+    <img src="./index_files/on.jpg" id="demo-area-02-on">
+  </div></div>
+
+  <script>var matrix;
+
+
+boardReady({board: 'Bit', device: 'bitb5e947', transport: 'message', window: window.top.frames[0]}, function (board) {
+  board.samplingInterval = 250;
+  matrix = getMatrix(board, 4, 25);
+  document.getElementById("demo-area-02-light").addEventListener("click", function(){
+    if (document.getElementById("demo-area-02-light").className == "on") {
+       document.getElementById("demo-area-02-light").className = "off";
+    } else {
+      document.getElementById("demo-area-02-light").className = "on";
+    }
+    if (document.getElementById("demo-area-02-light").className == "on") {
+      matrix.setColor('#ff0000');
+    }
+    if (document.getElementById("demo-area-02-light").className == "off") {
+      matrix.setColor('#000000');
+    }
+  });
+});
+</script>
+
+
+</body></html>
