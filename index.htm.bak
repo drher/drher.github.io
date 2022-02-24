@@ -22,16 +22,15 @@ w\:* {behavior:url(#default#VML);}
  <o:DocumentProperties>
   <o:Author>何裕隆</o:Author>
   <o:LastAuthor>何裕隆</o:LastAuthor>
-  <o:Revision>1</o:Revision>
-  <o:TotalTime>3</o:TotalTime>
-  <o:Created>2022-02-24T11:27:00Z</o:Created>
-  <o:LastSaved>2022-02-24T11:30:00Z</o:LastSaved>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>4</o:TotalTime>
+  <o:Created>2022-02-24T11:45:00Z</o:Created>
+  <o:LastSaved>2022-02-24T11:50:00Z</o:LastSaved>
   <o:Pages>1</o:Pages>
-  <o:Words>1</o:Words>
-  <o:Characters>6</o:Characters>
+  <o:Characters>5</o:Characters>
   <o:Lines>1</o:Lines>
   <o:Paragraphs>1</o:Paragraphs>
-  <o:CharactersWithSpaces>6</o:CharactersWithSpaces>
+  <o:CharactersWithSpaces>5</o:CharactersWithSpaces>
   <o:Version>16.00</o:Version>
  </o:DocumentProperties>
  <o:OfficeDocumentSettings>
@@ -719,6 +718,9 @@ w\:* {behavior:url(#default#VML);}
 	mso-bidi-font-family:"Times New Roman";
 	mso-bidi-theme-font:minor-bidi;
 	mso-font-kerning:1.0pt;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
 .MsoChpDefault
 	{mso-style-type:export-only;
 	mso-default-props:yes;
@@ -777,14 +779,14 @@ punctuation'>
 
 <div class=WordSection1 style='layout-grid:18.0pt'>
 
-<p class=MsoNormal align=center style='text-align:center'><span
+<p class=MsoNormal align=center style='text-align:center'><span class=GramE><span
 style='font-size:30.0pt;font-family:"新細明體",serif;mso-ascii-font-family:Calibri;
 mso-ascii-theme-font:minor-latin;mso-fareast-theme-font:minor-fareast;
-mso-hansi-font-family:Calibri;mso-hansi-theme-font:minor-latin'>和裕隆</span><span
+mso-hansi-font-family:Calibri;mso-hansi-theme-font:minor-latin'>蟹陳瑞</span></span><span
 lang=EN-US style='font-size:30.0pt'><o:p></o:p></span></p>
 
 <p class=MsoNormal align=center style='text-align:center'><span lang=EN-US
-style='mso-no-proof:yes'><!--[if gte vml 1]><v:shapetype id="_x0000_t75"
+style='font-size:30.0pt;mso-no-proof:yes'><!--[if gte vml 1]><v:shapetype id="_x0000_t75"
  coordsize="21600,21600" o:spt="75" o:preferrelative="t" path="m@4@5l@4@11@9@11@9@5xe"
  filled="f" stroked="f">
  <v:stroke joinstyle="miter"/>
@@ -805,13 +807,12 @@ style='mso-no-proof:yes'><!--[if gte vml 1]><v:shapetype id="_x0000_t75"
  <v:path o:extrusionok="f" gradientshapeok="t" o:connecttype="rect"/>
  <o:lock v:ext="edit" aspectratio="t"/>
 </v:shapetype><v:shape id="圖片_x0020_1" o:spid="_x0000_i1025" type="#_x0000_t75"
- alt="海&#32501;&#23453;&#23453;(角色) | 海&#32501;&#23453;&#23453;百科全&#20070;| Fandom" style='width:240pt;height:280.5pt;
+ alt="一張含有 家電用品 的圖片&#10;&#10;自動產生的描述" style='width:337pt;height:337pt;
  visibility:visible;mso-wrap-style:square'>
- <v:imagedata src="index.files/image001.png" o:title="海&#32501;&#23453;&#23453;(角色) | 海&#32501;&#23453;&#23453;百科全&#20070;| Fandom"/>
-</v:shape><![endif]--><![if !vml]><img width=320 height=374
-src="index.files/image002.png" alt="海&#32501;&#23453;&#23453;(角色) | 海&#32501;&#23453;&#23453;百科全&#20070;| Fandom" v:shapes="圖片_x0020_1"><![endif]></span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+ <v:imagedata src="index.files/image001.jpg" o:title="一張含有 家電用品 的圖片&#10;&#10;自動產生的描述"/>
+</v:shape><![endif]--><![if !vml]><img width=449 height=449
+src="index.files/image002.jpg" alt="一張含有 家電用品 的圖片&#10;&#10;自動產生的描述" v:shapes="圖片_x0020_1"><![endif]></span><span
+lang=EN-US style='font-size:30.0pt'><o:p></o:p></span></p>
 
 </div>
 
