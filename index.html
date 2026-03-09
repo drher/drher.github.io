@@ -376,6 +376,7 @@
         let moleTimer = null;
         let countdownTimer = null;
         let currentMole = null;
+        let audioContext = null;
 
         // DOM 元素
         const scoreDisplay = document.getElementById('score');
@@ -387,6 +388,96 @@
         const finalScoreDisplay = document.getElementById('finalScore');
         const holes = document.querySelectorAll('.hole');
         const moles = document.querySelectorAll('.mole');
+
+        // 初始化音頻上下文
+        function initAudioContext() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // 播放打擊聲音 - 快速上升的音調
+        function playWhackSound() {
+            initAudioContext();
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.exponentialRampToValueAtTime(200, now + 0.1);
+            gain.gain.setValueAtTime(0.5, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+            osc.start(now);
+            osc.stop(now + 0.1);
+        }
+
+        // 播放遊戲開始聲音 - 兩個"beep"
+        function playStartSound() {
+            initAudioContext();
+            const now = audioContext.currentTime;
+            
+            // 第一個beep
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.connect(gain1);
+            gain1.connect(audioContext.destination);
+            osc1.frequency.value = 523.25; // C5
+            gain1.gain.setValueAtTime(0.3, now);
+            gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc1.start(now);
+            osc1.stop(now + 0.15);
+            
+            // 第二個beep
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.frequency.value = 659.25; // E5
+            gain2.gain.setValueAtTime(0.3, now + 0.2);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+            osc2.start(now + 0.2);
+            osc2.stop(now + 0.35);
+        }
+
+        // 播放遊戲結束聲音 - 向下的音調
+        function playGameOverSound() {
+            initAudioContext();
+            const now = audioContext.currentTime;
+            
+            const frequencies = [523.25, 440, 392, 349.23]; // C5, A4, G4, F4
+            frequencies.forEach((freq, index) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                const startTime = now + index * 0.1;
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.2, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
+                osc.start(startTime);
+                osc.stop(startTime + 0.08);
+            });
+        }
+
+        // 播放時間壓力聲音 - 快速beep（時間少于5秒時）
+        function playWarningSound() {
+            initAudioContext();
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.frequency.value = 800;
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+            osc.start(now);
+            osc.stop(now + 0.08);
+        }
 
         // 初始化
         highScoreDisplay.textContent = highScore;
@@ -442,6 +533,9 @@
             score++;
             scoreDisplay.textContent = score;
 
+            // 播放打擊聲音
+            playWhackSound();
+
             // 播放打擊動畫
             mole.classList.add('whacked');
             mole.classList.remove('show');
@@ -473,6 +567,11 @@
                 timeLeft--;
                 timeDisplay.textContent = timeLeft;
 
+                // 時間少于5秒時播放警告聲
+                if (timeLeft <= 5 && timeLeft > 0) {
+                    playWarningSound();
+                }
+
                 if (timeLeft <= 0) {
                     endGame();
                 }
@@ -493,6 +592,9 @@
             startBtn.disabled = true;
             startBtn.textContent = '遊戲進行中...';
 
+            // 播放開始聲音
+            playStartSound();
+
             // 開始遊戲
             popUp();
             startCountdown();
@@ -508,6 +610,9 @@
             moles.forEach(mole => {
                 mole.classList.remove('show');
             });
+
+            // 播放遊戲結束聲音
+            playGameOverSound();
 
             // 更新最高分
             if (score > highScore) {
