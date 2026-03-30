@@ -74,16 +74,13 @@
 
         .hero {
             position: relative;
-            display: grid;
-            grid-template-columns: 1.35fr 0.95fr;
-            gap: 28px;
+            display: block;
             align-items: stretch;
             margin-bottom: 30px;
             animation: riseIn 0.8s ease-out;
         }
 
         .hero-intro,
-        .hero-panel,
         .project-card {
             background: var(--surface);
             backdrop-filter: blur(12px);
@@ -166,54 +163,6 @@
             border: 1px solid rgba(31, 26, 23, 0.16);
             color: var(--text);
             background: rgba(255, 255, 255, 0.45);
-        }
-
-        .hero-panel {
-            padding: 28px;
-            display: grid;
-            gap: 16px;
-            align-content: center;
-            overflow: hidden;
-        }
-
-        .panel-badge {
-            width: fit-content;
-            padding: 10px 14px;
-            border-radius: 999px;
-            background: rgba(255, 214, 112, 0.36);
-            font-weight: 700;
-            color: #8f5a00;
-        }
-
-        .panel-title {
-            font-family: 'Noto Serif TC', serif;
-            font-size: 2rem;
-            line-height: 1.2;
-        }
-
-        .panel-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-            margin-top: 8px;
-        }
-
-        .stat-card {
-            padding: 18px;
-            border-radius: 22px;
-            background: var(--surface-strong);
-            border: 1px solid rgba(31, 26, 23, 0.08);
-        }
-
-        .stat-card span {
-            display: block;
-            font-size: 0.88rem;
-            color: var(--muted);
-            margin-bottom: 8px;
-        }
-
-        .stat-card strong {
-            font-size: 1.65rem;
         }
 
         .section-header {
@@ -312,20 +261,162 @@
         }
 
         .project-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
+            display: block;
             color: var(--text);
             text-decoration: none;
+            border-radius: 24px;
+        }
+
+        .project-thumb {
+            position: relative;
+            min-height: 230px;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(31, 26, 23, 0.08);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .project-link:hover .project-thumb {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 30px rgba(31, 26, 23, 0.12);
+        }
+
+        .project-thumb.mole-thumb {
+            background:
+                radial-gradient(circle at 50% 82%, #3c271d 0, #3c271d 18%, transparent 18.5%),
+                radial-gradient(circle at 20% 78%, #5b3c2e 0, #5b3c2e 10%, transparent 10.5%),
+                radial-gradient(circle at 80% 74%, #5b3c2e 0, #5b3c2e 11%, transparent 11.5%),
+                linear-gradient(180deg, #bde7ff 0%, #d9f4ff 44%, #95c16b 44%, #6f9446 100%);
+        }
+
+        .project-thumb.snake-thumb {
+            background:
+                linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(135deg, #163f32 0%, #245846 100%);
+            background-size: 36px 36px, 36px 36px, cover;
+            background-position: 0 0, 0 0, center;
+        }
+
+        .thumb-label {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 2;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 248, 236, 0.88);
+            font-size: 0.88rem;
             font-weight: 800;
         }
 
-        .project-link::after {
-            content: "->";
+        .mole-character {
+            position: absolute;
+            left: 50%;
+            bottom: 34px;
+            width: 110px;
+            height: 110px;
+            transform: translateX(-50%);
+            border-radius: 48% 48% 42% 42%;
+            background: linear-gradient(180deg, #9d6c38 0%, #6e4523 100%);
+            box-shadow: 0 18px 30px rgba(62, 39, 22, 0.24);
+        }
+
+        .mole-character::before {
+            content: "";
+            position: absolute;
+            top: 32px;
+            left: 24px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #171311;
+            box-shadow: 46px 0 0 #171311;
+        }
+
+        .mole-character::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 24px;
+            width: 40px;
+            height: 24px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: #dca47c;
+        }
+
+        .mole-score {
+            position: absolute;
+            right: 18px;
+            bottom: 16px;
+            padding: 10px 12px;
+            border-radius: 16px;
+            background: rgba(255, 248, 236, 0.92);
+            font-weight: 900;
+            color: var(--primary);
+            box-shadow: 0 8px 18px rgba(31, 26, 23, 0.1);
+        }
+
+        .snake-piece,
+        .snake-food {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+        }
+
+        .snake-piece {
+            background: linear-gradient(180deg, #9cf39a 0%, #4caf50 100%);
+            box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.16);
+        }
+
+        .snake-head {
+            background: linear-gradient(180deg, #d8ff8e 0%, #79c548 100%);
+        }
+
+        .snake-head::before,
+        .snake-head::after {
+            content: "";
+            position: absolute;
+            top: 8px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #13251c;
+        }
+
+        .snake-head::before {
+            left: 7px;
+        }
+
+        .snake-head::after {
+            right: 7px;
+        }
+
+        .snake-food {
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #ffd4db 0%, #ff6b81 45%, #cf3650 100%);
+            box-shadow: 0 10px 18px rgba(207, 54, 80, 0.24);
+        }
+
+        .thumb-cta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 14px;
+            padding: 0 4px;
+            font-weight: 800;
+        }
+
+        .thumb-cta span:last-child {
+            font-size: 1.1rem;
             transition: transform 0.25s ease;
         }
 
-        .project-link:hover::after {
+        .project-link:hover .thumb-cta span:last-child {
             transform: translateX(4px);
         }
 
@@ -341,13 +432,11 @@
         }
 
         @media (max-width: 920px) {
-            .hero,
             .projects {
                 grid-template-columns: 1fr;
             }
 
             .hero-intro,
-            .hero-panel,
             .project-card {
                 padding: 24px;
             }
@@ -366,7 +455,6 @@
             }
 
             .hero-intro,
-            .hero-panel,
             .project-card {
                 border-radius: 24px;
                 padding: 20px;
@@ -376,20 +464,16 @@
                 font-size: 2.4rem;
             }
 
-            .panel-title {
-                font-size: 1.7rem;
-            }
-
-            .panel-grid {
-                grid-template-columns: 1fr;
-            }
-
             .hero-actions {
                 flex-direction: column;
             }
 
             .button {
                 width: 100%;
+            }
+
+            .project-thumb {
+                min-height: 200px;
             }
         }
     </style>
@@ -410,29 +494,6 @@
                     <a class="button button-secondary" href="1/index.html">直接玩打地鼠</a>
                 </div>
             </article>
-
-            <aside class="hero-panel" aria-label="作品摘要">
-                <div class="panel-badge">目前公開作品</div>
-                <h2 class="panel-title">從經典遊戲出發，練習互動與節奏設計。</h2>
-                <div class="panel-grid">
-                    <div class="stat-card">
-                        <span>作品數量</span>
-                        <strong>2</strong>
-                    </div>
-                    <div class="stat-card">
-                        <span>作品類型</span>
-                        <strong>網頁遊戲</strong>
-                    </div>
-                    <div class="stat-card">
-                        <span>主題風格</span>
-                        <strong>輕鬆直覺</strong>
-                    </div>
-                    <div class="stat-card">
-                        <span>操作方式</span>
-                        <strong>即開即玩</strong>
-                    </div>
-                </div>
-            </aside>
         </section>
 
         <section id="projects" aria-labelledby="projects-title">
@@ -454,7 +515,17 @@
                         <span class="tag">點擊互動</span>
                         <span class="tag">節奏遊玩</span>
                     </div>
-                    <a class="project-link" href="1/index.html">前往作品</a>
+                    <a class="project-link" href="1/index.html" aria-label="前往打地鼠作品">
+                        <div class="project-thumb mole-thumb">
+                            <span class="thumb-label">Whack-a-Mole</span>
+                            <div class="mole-character"></div>
+                            <div class="mole-score">+100</div>
+                        </div>
+                        <div class="thumb-cta">
+                            <span>前往作品</span>
+                            <span>-></span>
+                        </div>
+                    </a>
                 </article>
 
                 <article class="project-card snake">
@@ -466,7 +537,22 @@
                         <span class="tag">空間規劃</span>
                         <span class="tag">經典玩法</span>
                     </div>
-                    <a class="project-link" href="2/index.html">前往作品</a>
+                    <a class="project-link" href="2/index.html" aria-label="前往貪吃蛇作品">
+                        <div class="project-thumb snake-thumb">
+                            <span class="thumb-label">Snake Game</span>
+                            <div class="snake-piece snake-head" style="top: 48px; left: 72px;"></div>
+                            <div class="snake-piece" style="top: 48px; left: 106px;"></div>
+                            <div class="snake-piece" style="top: 48px; left: 140px;"></div>
+                            <div class="snake-piece" style="top: 82px; left: 140px;"></div>
+                            <div class="snake-piece" style="top: 116px; left: 140px;"></div>
+                            <div class="snake-piece" style="top: 116px; left: 174px;"></div>
+                            <div class="snake-food" style="top: 150px; left: 260px;"></div>
+                        </div>
+                        <div class="thumb-cta">
+                            <span>前往作品</span>
+                            <span>-></span>
+                        </div>
+                    </a>
                 </article>
             </div>
         </section>
