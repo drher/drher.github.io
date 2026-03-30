@@ -201,6 +201,10 @@
             animation-delay: 0.12s;
         }
 
+        .project-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
         .project-card::before {
             content: "";
             position: absolute;
@@ -217,6 +221,10 @@
 
         .project-card.snake::before {
             background: radial-gradient(circle, rgba(45, 106, 79, 0.24), rgba(45, 106, 79, 0));
+        }
+
+        .project-card.calc::before {
+            background: radial-gradient(circle, rgba(50, 70, 118, 0.25), rgba(50, 70, 118, 0));
         }
 
         .project-number {
@@ -297,6 +305,12 @@
                 linear-gradient(135deg, #163f32 0%, #245846 100%);
             background-size: 36px 36px, 36px 36px, cover;
             background-position: 0 0, 0 0, center;
+        }
+
+        .project-thumb.calc-thumb {
+            background:
+                radial-gradient(circle at 16% 14%, rgba(255, 255, 255, 0.2), transparent 24%),
+                linear-gradient(155deg, #3f5267 0%, #2a3647 48%, #1d2735 100%);
         }
 
         .thumb-label {
@@ -401,6 +415,51 @@
             box-shadow: 0 10px 18px rgba(207, 54, 80, 0.24);
         }
 
+        .calc-screen {
+            position: absolute;
+            top: 22px;
+            left: 20px;
+            right: 20px;
+            height: 54px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #cadabf 0%, #b8ccb0 100%);
+            border: 1px solid rgba(30, 46, 34, 0.28);
+            box-shadow: inset 0 3px 8px rgba(25, 40, 30, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 12px;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: #1f2b1d;
+        }
+
+        .calc-grid {
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .calc-key {
+            height: 26px;
+            border-radius: 7px;
+            background: linear-gradient(180deg, #f0f4f8 0%, #dbe3ea 100%);
+            box-shadow: 0 2px 0 rgba(13, 21, 31, 0.24);
+        }
+
+        .calc-key.dark {
+            background: linear-gradient(180deg, #5a6d82 0%, #425164 100%);
+        }
+
+        .calc-key.accent {
+            background: linear-gradient(180deg, #f3b24e 0%, #db8f28 100%);
+        }
+
         .thumb-cta {
             display: flex;
             align-items: center;
@@ -487,7 +546,7 @@
                 <p class="lead">
                     我正在持續累積前端與互動設計作品，透過簡單直接的遊戲機制，練習
                     <strong>版面設計、操作手感、邏輯實作</strong>
-                    與使用者體驗。下面收錄了目前完成的兩個小遊戲作品。
+                    與使用者體驗。下面收錄了目前完成的三個互動作品。
                 </p>
                 <div class="hero-actions">
                     <a class="button button-primary" href="#projects">查看作品</a>
@@ -500,9 +559,9 @@
             <div class="section-header">
                 <div>
                     <p class="eyebrow">Selected Works</p>
-                    <h2 id="projects-title">遊戲作品</h2>
+                    <h2 id="projects-title">互動作品</h2>
                 </div>
-                <p>這兩個作品分別著重在不同的互動節奏，一個偏向快速反應，一個偏向路線判斷與持續操作。</p>
+                <p>三個作品分別著重在反應速度、空間判斷與計算工具實作，從娛樂型互動延伸到實用功能。</p>
             </div>
 
             <div class="projects">
@@ -547,6 +606,41 @@
                             <div class="snake-piece" style="top: 116px; left: 140px;"></div>
                             <div class="snake-piece" style="top: 116px; left: 174px;"></div>
                             <div class="snake-food" style="top: 150px; left: 260px;"></div>
+                        </div>
+                        <div class="thumb-cta">
+                            <span>前往作品</span>
+                            <span>-></span>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="project-card calc">
+                    <div class="project-number">03</div>
+                    <h3>工程計算機</h3>
+                    <p>以經典工程計算機介面為靈感，整合常用函數、即時運算與操作提示，適合進行日常算式與進階計算。</p>
+                    <div class="tag-row">
+                        <span class="tag">函數運算</span>
+                        <span class="tag">工具導向</span>
+                        <span class="tag">介面設計</span>
+                    </div>
+                    <a class="project-link" href="3/index.html" aria-label="前往工程計算機作品">
+                        <div class="project-thumb calc-thumb">
+                            <span class="thumb-label">Engineering Calculator</span>
+                            <div class="calc-screen">sin(45) + log(100)</div>
+                            <div class="calc-grid">
+                                <span class="calc-key dark"></span>
+                                <span class="calc-key dark"></span>
+                                <span class="calc-key dark"></span>
+                                <span class="calc-key accent"></span>
+                                <span class="calc-key"></span>
+                                <span class="calc-key"></span>
+                                <span class="calc-key"></span>
+                                <span class="calc-key accent"></span>
+                                <span class="calc-key"></span>
+                                <span class="calc-key"></span>
+                                <span class="calc-key"></span>
+                                <span class="calc-key accent"></span>
+                            </div>
                         </div>
                         <div class="thumb-cta">
                             <span>前往作品</span>
