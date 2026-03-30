@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>何帥 | 作品集首頁</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap');
+
+        :root {
+            --bg: #f7f1e5;
+            --bg-accent: #ffd670;
+            --surface: rgba(255, 250, 239, 0.82);
+            --surface-strong: #fff8ec;
+            --text: #1f1a17;
+            --muted: #61564d;
+            --primary: #d1495b;
+            --secondary: #2d6a4f;
+            --shadow: 0 24px 60px rgba(74, 52, 38, 0.16);
+            --border: rgba(94, 75, 61, 0.14);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(255, 214, 112, 0.85), transparent 28%),
+                radial-gradient(circle at 85% 15%, rgba(209, 73, 91, 0.18), transparent 20%),
+                linear-gradient(135deg, #fff8ee 0%, #f7f1e5 44%, #efe5d4 100%);
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            z-index: -1;
+            border-radius: 999px;
+            filter: blur(6px);
+        }
+
+        body::before {
+            top: -90px;
+            right: -70px;
+            width: 280px;
+            height: 280px;
+            background: rgba(45, 106, 79, 0.12);
+        }
+
+        body::after {
+            bottom: -110px;
+            left: -60px;
+            width: 340px;
+            height: 340px;
+            background: rgba(209, 73, 91, 0.11);
+        }
+
+        .page-shell {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 36px 0 72px;
+        }
+
+        .hero {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1.35fr 0.95fr;
+            gap: 28px;
+            align-items: stretch;
+            margin-bottom: 30px;
+            animation: riseIn 0.8s ease-out;
+        }
+
+        .hero-intro,
+        .hero-panel,
+        .project-card {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-intro {
+            padding: 44px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--secondary);
+            text-transform: uppercase;
+            margin-bottom: 18px;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 42px;
+            height: 2px;
+            background: currentColor;
+        }
+
+        h1 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: clamp(2.8rem, 5vw, 4.8rem);
+            line-height: 1.05;
+            margin-bottom: 18px;
+        }
+
+        .lead {
+            max-width: 38rem;
+            font-size: 1.08rem;
+            line-height: 1.9;
+            color: var(--muted);
+        }
+
+        .lead strong {
+            color: var(--text);
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 28px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
+            padding: 0 22px;
+            border-radius: 999px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button-primary {
+            background: var(--text);
+            color: #fff8ec;
+            box-shadow: 0 14px 30px rgba(31, 26, 23, 0.18);
+        }
+
+        .button-secondary {
+            border: 1px solid rgba(31, 26, 23, 0.16);
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .hero-panel {
+            padding: 28px;
+            display: grid;
+            gap: 16px;
+            align-content: center;
+            overflow: hidden;
+        }
+
+        .panel-badge {
+            width: fit-content;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255, 214, 112, 0.36);
+            font-weight: 700;
+            color: #8f5a00;
+        }
+
+        .panel-title {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 2rem;
+            line-height: 1.2;
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 8px;
+        }
+
+        .stat-card {
+            padding: 18px;
+            border-radius: 22px;
+            background: var(--surface-strong);
+            border: 1px solid rgba(31, 26, 23, 0.08);
+        }
+
+        .stat-card span {
+            display: block;
+            font-size: 0.88rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-card strong {
+            font-size: 1.65rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: end;
+            margin: 22px 0 18px;
+        }
+
+        .section-header h2 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: clamp(2rem, 4vw, 2.9rem);
+        }
+
+        .section-header p {
+            max-width: 34rem;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 24px;
+        }
+
+        .project-card {
+            position: relative;
+            padding: 28px;
+            overflow: hidden;
+            animation: riseIn 0.9s ease-out;
+        }
+
+        .project-card:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+
+        .project-card::before {
+            content: "";
+            position: absolute;
+            inset: auto -40px -40px auto;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            opacity: 0.9;
+        }
+
+        .project-card.mole::before {
+            background: radial-gradient(circle, rgba(209, 73, 91, 0.22), rgba(209, 73, 91, 0));
+        }
+
+        .project-card.snake::before {
+            background: radial-gradient(circle, rgba(45, 106, 79, 0.24), rgba(45, 106, 79, 0));
+        }
+
+        .project-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            font-weight: 900;
+            font-size: 1.15rem;
+            margin-bottom: 18px;
+            background: rgba(31, 26, 23, 0.08);
+        }
+
+        .project-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+
+        .project-card p {
+            color: var(--muted);
+            line-height: 1.85;
+            margin-bottom: 20px;
+            max-width: 28rem;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .tag {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid rgba(31, 26, 23, 0.08);
+            font-size: 0.92rem;
+            font-weight: 600;
+        }
+
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .project-link::after {
+            content: "->";
+            transition: transform 0.25s ease;
+        }
+
+        .project-link:hover::after {
+            transform: translateX(4px);
+        }
+
+        @keyframes riseIn {
+            from {
+                opacity: 0;
+                transform: translateY(26px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 920px) {
+            .hero,
+            .projects {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-intro,
+            .hero-panel,
+            .project-card {
+                padding: 24px;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .page-shell {
+                width: min(100% - 20px, 1120px);
+                padding-top: 20px;
+                padding-bottom: 44px;
+            }
+
+            .hero-intro,
+            .hero-panel,
+            .project-card {
+                border-radius: 24px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.4rem;
+            }
+
+            .panel-title {
+                font-size: 1.7rem;
+            }
+
+            .panel-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page-shell">
+        <section class="hero" id="top">
+            <article class="hero-intro">
+                <p class="eyebrow">Portfolio Landing Page</p>
+                <h1>我是何帥，<br>喜歡把創意做成能玩的作品。</h1>
+                <p class="lead">
+                    我正在持續累積前端與互動設計作品，透過簡單直接的遊戲機制，練習
+                    <strong>版面設計、操作手感、邏輯實作</strong>
+                    與使用者體驗。下面收錄了目前完成的兩個小遊戲作品。
+                </p>
+                <div class="hero-actions">
+                    <a class="button button-primary" href="#projects">查看作品</a>
+                    <a class="button button-secondary" href="1/index.html">直接玩打地鼠</a>
+                </div>
+            </article>
+
+            <aside class="hero-panel" aria-label="作品摘要">
+                <div class="panel-badge">目前公開作品</div>
+                <h2 class="panel-title">從經典遊戲出發，練習互動與節奏設計。</h2>
+                <div class="panel-grid">
+                    <div class="stat-card">
+                        <span>作品數量</span>
+                        <strong>2</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>作品類型</span>
+                        <strong>網頁遊戲</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>主題風格</span>
+                        <strong>輕鬆直覺</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>操作方式</span>
+                        <strong>即開即玩</strong>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <section id="projects" aria-labelledby="projects-title">
+            <div class="section-header">
+                <div>
+                    <p class="eyebrow">Selected Works</p>
+                    <h2 id="projects-title">遊戲作品</h2>
+                </div>
+                <p>這兩個作品分別著重在不同的互動節奏，一個偏向快速反應，一個偏向路線判斷與持續操作。</p>
+            </div>
+
+            <div class="projects">
+                <article class="project-card mole">
+                    <div class="project-number">01</div>
+                    <h3>打地鼠</h3>
+                    <p>以短時間反應與點擊準度為核心，讓玩家在不斷出現的目標中追求更高分數，適合快速上手與反覆挑戰。</p>
+                    <div class="tag-row">
+                        <span class="tag">反應速度</span>
+                        <span class="tag">點擊互動</span>
+                        <span class="tag">節奏遊玩</span>
+                    </div>
+                    <a class="project-link" href="1/index.html">前往作品</a>
+                </article>
+
+                <article class="project-card snake">
+                    <div class="project-number">02</div>
+                    <h3>貪吃蛇</h3>
+                    <p>透過經典移動與成長玩法，練習方向控制、空間判斷與壓力管理，讓每次遊玩都會形成不同的路線策略。</p>
+                    <div class="tag-row">
+                        <span class="tag">方向控制</span>
+                        <span class="tag">空間規劃</span>
+                        <span class="tag">經典玩法</span>
+                    </div>
+                    <a class="project-link" href="2/index.html">前往作品</a>
+                </article>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
