@@ -1,7 +1,16 @@
-const ALLOWED_MODELS = new Set([
-  'gemini-2.5-flash-preview-05-20',
-  'gemini-2.0-flash'
-]);
+const MODEL_ALIASES = {
+  'gemini-2.5-flash': 'gemini-2.5-flash',
+  'gemini-2.5-flash-preview-05-20': 'gemini-2.5-flash',
+  'gemini-2.0-flash': 'gemini-2.0-flash'
+};
+
+function resolveModel(value) {
+  if (typeof value !== 'string') {
+    return 'gemini-2.0-flash';
+  }
+
+  return MODEL_ALIASES[value] || 'gemini-2.0-flash';
+}
 
 function withCors(headers = {}) {
   return {
@@ -68,7 +77,7 @@ async function handlePost(reqBody) {
     });
   }
 
-  const model = ALLOWED_MODELS.has(reqBody.model) ? reqBody.model : 'gemini-2.0-flash';
+  const model = resolveModel(reqBody.model);
   const contents = normalizeContents(reqBody.contents);
 
   if (!contents.length) {
@@ -106,7 +115,10 @@ async function handlePost(reqBody) {
       : 'Gemini 服務回傳錯誤。';
 
     return jsonResponse(response.status, {
-      error: { message }
+      error: {
+        message,
+        status: response.status
+      }
     });
   }
 
@@ -146,7 +158,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await handlePost(req.body || {});
+    let reqBody = req.body;
+    if (typeof reqBody === 'string') {
+      try {
+        reqBody = JSON.parse(reqBody);
+      } catch (error) {
+        reqBody = {};
+      }
+    }
+
+    const response = await handlePost(reqBody || {});
     Object.entries(response.headers).forEach(([key, value]) => res.setHeader(key, value));
     res.status(response.statusCode).send(response.body);
   } catch (error) {
