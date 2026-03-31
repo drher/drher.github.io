@@ -29,6 +29,11 @@ function jsonResponse(statusCode, payload) {
   };
 }
 
+function sendNodeResponse(res, response) {
+  Object.entries(response.headers).forEach(([key, value]) => res.setHeader(key, value));
+  res.status(response.statusCode).send(response.body);
+}
+
 function normalizeContents(contents) {
   if (!Array.isArray(contents)) {
     return [];
@@ -146,14 +151,28 @@ export default async function handler(req, res) {
     return;
   }
 
+  if (req.method === 'GET') {
+    sendNodeResponse(
+      res,
+      jsonResponse(200, {
+        ok: true,
+        service: 'gemini-proxy',
+        message: 'API 可用，請以 POST 呼叫此端點。',
+        accepts: ['POST'],
+        hasApiKey: Boolean(process.env.GEMINI_API_KEY)
+      })
+    );
+    return;
+  }
+
   if (req.method !== 'POST') {
     const response = jsonResponse(405, {
       error: {
-        message: '僅支援 POST。'
+        message: '僅支援 POST。若你在瀏覽器直接開啟此網址，請改用前端頁面送出 POST。'
       }
     });
-    Object.entries(response.headers).forEach(([key, value]) => res.setHeader(key, value));
-    res.status(response.statusCode).send(response.body);
+    res.setHeader('Allow', 'GET, POST, OPTIONS');
+    sendNodeResponse(res, response);
     return;
   }
 
@@ -168,8 +187,7 @@ export default async function handler(req, res) {
     }
 
     const response = await handlePost(reqBody || {});
-    Object.entries(response.headers).forEach(([key, value]) => res.setHeader(key, value));
-    res.status(response.statusCode).send(response.body);
+    sendNodeResponse(res, response);
   } catch (error) {
     const fallback = jsonResponse(500, {
       error: {
@@ -177,7 +195,6 @@ export default async function handler(req, res) {
       }
     });
 
-    Object.entries(fallback.headers).forEach(([key, value]) => res.setHeader(key, value));
-    res.status(fallback.statusCode).send(fallback.body);
+    sendNodeResponse(res, fallback);
   }
 }

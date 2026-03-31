@@ -827,7 +827,12 @@
             }
 
             if (status === 405) {
-                return 'Serverless API 不接受此請求方法（HTTP 405）。請確認你部署的是 API 函式而非靜態頁面。';
+                const isLikelyGithubPages = /github\.io/i.test(window.location.hostname) || /github\.io/i.test(endpoint);
+                if (isLikelyGithubPages) {
+                    return 'Serverless API 不接受此請求方法（HTTP 405）。你目前很可能打到 GitHub Pages 靜態頁，請把 Endpoint 改成你部署在 Vercel/Netlify/Cloudflare Functions 的完整 API 網址。';
+                }
+
+                return 'Serverless API 不接受此請求方法（HTTP 405）。請確認你部署的是 API 函式而非靜態頁面，且路由為可接受 POST 的 API 端點。';
             }
 
             if (responseText && /<!doctype html>|<html/i.test(responseText)) {
@@ -1025,6 +1030,10 @@
             try {
                 if (window.location.protocol === 'file:' && !/^https?:\/\//i.test(endpoint)) {
                     throw new Error('你目前是用 file:// 直接開啟頁面，無法呼叫相對路徑 API。請用本機或雲端伺服器開啟此頁，或把 Endpoint 改成完整的 https:// 網址。');
+                }
+
+                if (/github\.io/i.test(window.location.hostname) && endpoint.startsWith('/')) {
+                    throw new Error('你目前在 GitHub Pages（靜態託管）使用相對 Endpoint。請把左側 Endpoint 改成後端 serverless 的完整網址（例如 https://你的後端網域/api/gemini）。');
                 }
 
                 const response = await fetch(endpoint, {
