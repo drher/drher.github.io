@@ -1000,9 +1000,14 @@
 
             const controller = new AbortController();
             state.requestController = controller;
+            const endpoint = state.endpoint.trim();
 
             try {
-                const response = await fetch(state.endpoint, {
+                if (window.location.protocol === 'file:' && !/^https?:\/\//i.test(endpoint)) {
+                    throw new Error('你目前是用 file:// 直接開啟頁面，無法呼叫相對路徑 API。請用本機或雲端伺服器開啟此頁，或把 Endpoint 改成完整的 https:// 網址。');
+                }
+
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1039,7 +1044,12 @@
                 if (error.name === 'AbortError') {
                     pushMessage('model', '本次請求已停止。', 'error');
                 } else {
-                    pushMessage('model', `發生錯誤：${error.message}`, 'error');
+                    const isFetchFailure = error instanceof TypeError && /failed to fetch/i.test(error.message);
+                    if (isFetchFailure) {
+                        pushMessage('model', '發生連線錯誤：無法連到你的 Serverless API。請檢查 1) Endpoint 是否正確，2) API 是否已部署且可公開存取，3) 是否有 HTTPS/CORS 問題，4) 若前端在 GitHub Pages，請確認後端不在同網域時已填入完整 API 網址。', 'error');
+                    } else {
+                        pushMessage('model', `發生錯誤：${error.message}`, 'error');
+                    }
                 }
             } finally {
                 state.requestController = null;
