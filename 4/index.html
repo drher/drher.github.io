@@ -613,8 +613,8 @@
 
                 <div class="field">
                     <label for="endpointInput">Serverless API Endpoint</label>
-                    <input id="endpointInput" class="input" type="text" placeholder="例如 /api/gemini 或你的完整 API URL" autocomplete="off">
-                    <small>預設為 <strong>/api/gemini</strong>。若前後端分開部署，可改成完整網址。</small>
+                    <input id="endpointInput" class="input" type="text" placeholder="例如 https://drher.github.io/api/gemini 或你的完整 API URL" autocomplete="off">
+                    <small>預設為 <strong>https://drher.github.io/api/gemini</strong>。若前後端分開部署，可改成完整網址。</small>
                 </div>
 
                 <div class="field">
@@ -705,9 +705,10 @@
     <script>
         const STORAGE_KEY = 'gemini-chat-demo-settings';
         const HISTORY_LIMIT = 6;
+        const DEFAULT_ENDPOINT = 'https://drher.github.io/api/gemini';
 
         const state = {
-            endpoint: '/api/gemini',
+            endpoint: DEFAULT_ENDPOINT,
             model: 'gemini-2.5-flash',
             messages: [],
             promptHistory: [],
@@ -765,7 +766,7 @@
         }
 
         function saveSettings() {
-            state.endpoint = elements.endpointInput.value.trim() || '/api/gemini';
+            state.endpoint = elements.endpointInput.value.trim() || DEFAULT_ENDPOINT;
             state.model = elements.modelSelect.value;
 
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -781,18 +782,18 @@
 
         function persistHistory() {
             const raw = localStorage.getItem(STORAGE_KEY);
-            let saved = { endpoint: '/api/gemini', model: state.model, promptHistory: [] };
+            let saved = { endpoint: DEFAULT_ENDPOINT, model: state.model, promptHistory: [] };
 
             if (raw) {
                 try {
                     saved = JSON.parse(raw);
                 } catch (error) {
-                    saved = { endpoint: '/api/gemini', model: state.model, promptHistory: [] };
+                    saved = { endpoint: DEFAULT_ENDPOINT, model: state.model, promptHistory: [] };
                 }
             }
 
             const nextValue = {
-                endpoint: saved.endpoint || '/api/gemini',
+                endpoint: saved.endpoint || DEFAULT_ENDPOINT,
                 model: state.model,
                 promptHistory: state.promptHistory
             };
