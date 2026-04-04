@@ -602,19 +602,19 @@
             <section class="brand-lockup">
                 <span class="eyebrow">Gemini Chat Demo</span>
                 <h1>像 ChatGPT 一樣自然對話。</h1>
-                <p class="intro">這個頁面會把你的提問送到 <strong>你自己的 serverless API</strong>，再由後端安全呼叫 Google Gemini Flash。這樣前端不會暴露 API 金鑰。</p>
+                <p class="intro">這個頁面會直接使用你的 <strong>Gemini API Key</strong> 呼叫 Google Gemini Flash，快速完成可用的聊天功能。</p>
             </section>
 
             <section class="settings-card" aria-labelledby="settings-title">
                 <div>
                     <div class="history-title" id="settings-title">連線設定</div>
-                    <p class="status-note">支援 Gemini 2.5 Flash 與 Gemini 2.0 Flash。金鑰請放在 serverless 環境變數 <strong>GEMINI_API_KEY</strong>。</p>
+                    <p class="status-note">支援 Gemini 2.5 Flash 與 Gemini 2.0 Flash。貼上你的 API Key 後即可開始。</p>
                 </div>
 
                 <div class="field">
-                    <label for="endpointInput">Serverless API Endpoint</label>
-                    <input id="endpointInput" class="input" type="text" placeholder="例如 https://drher.github.io/api/gemini 或你的完整 API URL" autocomplete="off">
-                    <small>預設為 <strong>https://drher.github.io/api/gemini</strong>。若前後端分開部署，可改成完整網址。</small>
+                    <label for="apiKeyInput">Gemini API Key</label>
+                    <input id="apiKeyInput" class="input" type="password" placeholder="貼上你的 Gemini API Key" autocomplete="off">
+                    <small id="apiKeyHint">金鑰會存在此瀏覽器 localStorage（僅供你本機測試）。</small>
                 </div>
 
                 <div class="field">
@@ -635,8 +635,8 @@
             <section class="tip-card" aria-labelledby="tip-title">
                 <div class="tips-title" id="tip-title">使用方式</div>
                 <ul>
-                    <li>先在 serverless 端設定 GEMINI_API_KEY，再部署 API。</li>
-                    <li>確認左側 Endpoint 正確，再按「套用設定」。</li>
+                    <li>先貼上你的 Gemini API Key，再按「套用設定」。</li>
+                    <li>確認模型後即可直接提問。</li>
                     <li>在右側輸入問題，按 Enter 送出，Shift + Enter 換行。</li>
                     <li>頁面會把先前對話一起送出，讓 AI 回答更連貫。</li>
                 </ul>
@@ -658,7 +658,7 @@
                     <h2>Gemini 對話視窗</h2>
                     <p>輸入任何問題、請它整理內容、寫草稿、翻譯或協助解題。</p>
                 </div>
-                <div id="statusPill" class="status-pill">尚未設定 Endpoint</div>
+                <div id="statusPill" class="status-pill">尚未設定 API Key</div>
             </header>
 
             <div id="messages" class="messages" aria-live="polite">
@@ -690,7 +690,7 @@
                 <textarea id="promptInput" placeholder="輸入你的問題，按 Enter 送出；Shift + Enter 換行。"></textarea>
                 <div class="composer-bar">
                     <div class="composer-info">
-                        <span id="composerHint">尚未連線，請先套用 Endpoint。</span>
+                        <span id="composerHint">尚未連線，請先輸入 API Key 並套用設定。</span>
                         <span>目前模型：<strong id="activeModelLabel">Gemini 2.5 Flash</strong></span>
                     </div>
                     <div class="composer-actions">
@@ -705,10 +705,9 @@
     <script>
         const STORAGE_KEY = 'gemini-chat-demo-settings';
         const HISTORY_LIMIT = 6;
-        const DEFAULT_ENDPOINT = 'https://drher.github.io/api/gemini';
 
         const state = {
-            endpoint: DEFAULT_ENDPOINT,
+            apiKey: '',
             model: 'gemini-2.5-flash',
             messages: [],
             promptHistory: [],
@@ -717,7 +716,7 @@
         };
 
         const elements = {
-            endpointInput: document.getElementById('endpointInput'),
+            apiKeyInput: document.getElementById('apiKeyInput'),
             modelSelect: document.getElementById('modelSelect'),
             saveSettingsButton: document.getElementById('saveSettingsButton'),
             clearChatButton: document.getElementById('clearChatButton'),
@@ -732,6 +731,8 @@
             sendButton: document.getElementById('sendButton'),
             stopButton: document.getElementById('stopButton')
         };
+
+        const apiKeyHintNode = document.getElementById('apiKeyHint');
 
         function escapeHtml(value) {
             return value
@@ -755,34 +756,41 @@
 
             try {
                 const parsed = JSON.parse(raw);
-                state.endpoint = typeof parsed.endpoint === 'string' && parsed.endpoint.trim() ? parsed.endpoint.trim() : state.endpoint;
+                state.apiKey = typeof parsed.apiKey === 'string' ? parsed.apiKey.trim() : '';
                 state.model = typeof parsed.model === 'string' ? parsed.model : state.model;
                 state.promptHistory = Array.isArray(parsed.promptHistory) ? parsed.promptHistory.slice(0, HISTORY_LIMIT) : [];
-                elements.endpointInput.value = state.endpoint;
+                elements.apiKeyInput.value = state.apiKey;
                 elements.modelSelect.value = state.model;
             } catch (error) {
                 localStorage.removeItem(STORAGE_KEY);
             }
         }
 
+        function updateApiKeyHint() {
+            if (apiKeyHintNode) {
+                apiKeyHintNode.innerHTML = '會直接呼叫 Gemini API。提醒：前端可看到金鑰，僅建議本機測試。';
+            }
+        }
+
         function saveSettings() {
-            state.endpoint = elements.endpointInput.value.trim() || DEFAULT_ENDPOINT;
+            state.apiKey = elements.apiKeyInput.value.trim();
             state.model = elements.modelSelect.value;
 
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                endpoint: state.endpoint,
+                apiKey: state.apiKey,
                 model: state.model,
                 promptHistory: state.promptHistory
             }));
 
-            elements.endpointInput.value = state.endpoint;
+            elements.apiKeyInput.value = state.apiKey;
 
+            updateApiKeyHint();
             updateConnectionState();
         }
 
         function persistHistory() {
             const raw = localStorage.getItem(STORAGE_KEY);
-            let saved = { endpoint: DEFAULT_ENDPOINT, model: state.model, promptHistory: [] };
+            let saved = { model: state.model, promptHistory: [] };
 
             if (raw) {
                 try {
@@ -793,7 +801,7 @@
             }
 
             const nextValue = {
-                endpoint: saved.endpoint || DEFAULT_ENDPOINT,
+                apiKey: state.apiKey,
                 model: state.model,
                 promptHistory: state.promptHistory
             };
@@ -802,12 +810,28 @@
         }
 
         function updateConnectionState() {
-            const ready = Boolean(state.endpoint);
-            elements.statusPill.textContent = ready ? `Serverless 已就緒 · ${getModelLabel(state.model)}` : '尚未設定 Endpoint';
-            elements.composerHint.textContent = ready ? '可以開始提問，對話會透過 serverless API 送出。' : '尚未連線，請先套用 Endpoint。';
+            const ready = Boolean(state.apiKey);
+            elements.statusPill.textContent = ready
+                ? `直接 API 已就緒 · ${getModelLabel(state.model)}`
+                : '尚未設定 API Key';
+            elements.composerHint.textContent = ready
+                ? '可以開始提問，將直接呼叫 Gemini API。'
+                : '尚未連線，請先輸入 API Key 並套用設定。';
             elements.activeModelLabel.textContent = getModelLabel(state.model);
             elements.sendButton.disabled = !ready || state.isLoading;
             elements.stopButton.disabled = !state.isLoading;
+        }
+
+        function extractDirectGeminiText(data) {
+            const candidate = data && Array.isArray(data.candidates) ? data.candidates[0] : null;
+            const parts = candidate && candidate.content && Array.isArray(candidate.content.parts)
+                ? candidate.content.parts
+                : [];
+
+            return parts
+                .map((part) => (typeof part.text === 'string' ? part.text : ''))
+                .join('')
+                .trim();
         }
 
         function getModelLabel(model) {
@@ -816,31 +840,6 @@
             }
 
             return 'Gemini 2.5 Flash';
-        }
-
-        function getEndpointErrorMessage(status, data, responseText, endpoint) {
-            if (data && data.error && data.error.message) {
-                return data.error.message;
-            }
-
-            if (status === 404) {
-                return `Serverless API 找不到（HTTP 404）。目前 Endpoint：${endpoint}。這通常表示你正在用純靜態主機（例如 GitHub Pages）呼叫 /api 路徑，請改填完整後端網址。`;
-            }
-
-            if (status === 405) {
-                const isLikelyGithubPages = /github\.io/i.test(window.location.hostname) || /github\.io/i.test(endpoint);
-                if (isLikelyGithubPages) {
-                    return 'Serverless API 不接受此請求方法（HTTP 405）。你目前很可能打到 GitHub Pages 靜態頁，請把 Endpoint 改成你部署在 Vercel/Netlify/Cloudflare Functions 的完整 API 網址。';
-                }
-
-                return 'Serverless API 不接受此請求方法（HTTP 405）。請確認你部署的是 API 函式而非靜態頁面，且路由為可接受 POST 的 API 端點。';
-            }
-
-            if (responseText && /<!doctype html>|<html/i.test(responseText)) {
-                return `Endpoint 回傳了 HTML 而不是 JSON（HTTP ${status}），目前網址很可能不是 API。請檢查 Endpoint 是否為你的 /api/gemini。`;
-            }
-
-            return `Serverless API 回傳錯誤（HTTP ${status}），請檢查後端部署、環境變數 GEMINI_API_KEY 與模型可用性。`;
         }
 
         function addPromptToHistory(prompt) {
@@ -1011,8 +1010,8 @@
         async function sendPrompt(prompt) {
             const trimmedPrompt = prompt.trim();
 
-            if (!state.endpoint) {
-                pushMessage('model', '請先在左側設定 Serverless API Endpoint，然後按下「套用設定」。', 'error');
+            if (!state.apiKey) {
+                pushMessage('model', '請先在左側輸入 Gemini API Key，然後按下「套用設定」。', 'error');
                 return;
             }
 
@@ -1026,26 +1025,22 @@
 
             const controller = new AbortController();
             state.requestController = controller;
-            const endpoint = state.endpoint.trim();
+            const apiKey = state.apiKey.trim();
 
             try {
-                if (window.location.protocol === 'file:' && !/^https?:\/\//i.test(endpoint)) {
-                    throw new Error('你目前是用 file:// 直接開啟頁面，無法呼叫相對路徑 API。請用本機或雲端伺服器開啟此頁，或把 Endpoint 改成完整的 https:// 網址。');
-                }
-
-                if (/github\.io/i.test(window.location.hostname) && endpoint.startsWith('/')) {
-                    throw new Error('你目前在 GitHub Pages（靜態託管）使用相對 Endpoint。請把左側 Endpoint 改成後端 serverless 的完整網址（例如 https://你的後端網域/api/gemini）。');
-                }
-
-                const response = await fetch(endpoint, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(state.model)}:generateContent?key=${encodeURIComponent(apiKey)}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     signal: controller.signal,
                     body: JSON.stringify({
-                        model: state.model,
                         contents: buildConversationPayload(),
+                        generationConfig: {
+                            temperature: 0.7,
+                            topP: 0.95,
+                            maxOutputTokens: 2048
+                        },
                         systemInstruction: {
                             parts: [{
                                 text: '你是一個清楚、直接、樂於協助的繁體中文 AI 助手。除非使用者要求，否則預設用繁體中文回答，並盡量給出結構清楚、實用的內容。'
@@ -1064,11 +1059,13 @@
                 }
 
                 if (!response.ok) {
-                    const message = getEndpointErrorMessage(response.status, data, responseText, endpoint);
+                    const message = data && data.error && data.error.message
+                        ? data.error.message
+                        : `Gemini API 回傳錯誤（HTTP ${response.status}）。請檢查 API Key、配額、模型名稱與網路連線。`;
                     throw new Error(message);
                 }
 
-                const answer = typeof data.text === 'string' ? data.text.trim() : '';
+                const answer = extractDirectGeminiText(data);
 
                 if (!answer) {
                     throw new Error('模型沒有回傳可顯示的文字內容。');
@@ -1081,7 +1078,7 @@
                 } else {
                     const isFetchFailure = error instanceof TypeError && /failed to fetch/i.test(error.message);
                     if (isFetchFailure) {
-                        pushMessage('model', '發生連線錯誤：無法連到你的 Serverless API。請檢查 1) Endpoint 是否正確，2) API 是否已部署且可公開存取，3) 是否有 HTTPS/CORS 問題，4) 若前端在 GitHub Pages，請確認後端不在同網域時已填入完整 API 網址。', 'error');
+                        pushMessage('model', '發生連線錯誤：無法連到 Gemini API。請檢查網路、防火牆或瀏覽器擴充套件是否阻擋連線。', 'error');
                     } else {
                         pushMessage('model', `發生錯誤：${error.message}`, 'error');
                     }
@@ -1130,6 +1127,7 @@
         });
 
         loadSavedSettings();
+        updateApiKeyHint();
         renderHistory();
         renderMessages();
         updateConnectionState();
