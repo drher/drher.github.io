@@ -334,42 +334,6 @@
             align-content: start;
         }
 
-        .welcome-card {
-            background: rgba(255, 255, 255, 0.54);
-            border: 1px solid rgba(63, 55, 46, 0.08);
-            border-radius: 28px;
-            padding: 22px;
-            display: grid;
-            gap: 14px;
-        }
-
-        .welcome-card h3 {
-            font-family: 'Noto Serif TC', serif;
-            font-size: 1.55rem;
-        }
-
-        .prompt-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .prompt-chip {
-            text-align: left;
-            padding: 14px 16px;
-            border-radius: 20px;
-            background: #fffdfa;
-            border: 1px solid rgba(63, 55, 46, 0.1);
-            min-height: 96px;
-            line-height: 1.7;
-            color: var(--ink);
-        }
-
-        .prompt-chip strong {
-            display: block;
-            margin-bottom: 4px;
-        }
-
         .message {
             display: flex;
             gap: 14px;
@@ -586,10 +550,6 @@
                 padding: 18px;
             }
 
-            .prompt-grid {
-                grid-template-columns: 1fr;
-            }
-
             .message {
                 max-width: 100%;
             }
@@ -661,29 +621,7 @@
                 <div id="statusPill" class="status-pill">尚未設定 API Key</div>
             </header>
 
-            <div id="messages" class="messages" aria-live="polite">
-                <section class="welcome-card">
-                    <h3>可以直接這樣開始</h3>
-                    <div class="prompt-grid">
-                        <button class="prompt-chip" type="button" data-prompt="幫我整理今天的工作重點，列出三個最重要的執行項目。">
-                            <strong>工作整理</strong>
-                            幫我整理今天的工作重點，列出三個最重要的執行項目。
-                        </button>
-                        <button class="prompt-chip" type="button" data-prompt="請把下面這段文字改寫成更正式的商務 email 口吻。">
-                            <strong>文字改寫</strong>
-                            請把下面這段文字改寫成更正式的商務 email 口吻。
-                        </button>
-                        <button class="prompt-chip" type="button" data-prompt="用初學者也能懂的方式，說明 JavaScript 的 Promise 是什麼。">
-                            <strong>概念解說</strong>
-                            用初學者也能懂的方式，說明 JavaScript 的 Promise 是什麼。
-                        </button>
-                        <button class="prompt-chip" type="button" data-prompt="請幫我規劃一個三天兩夜的台南美食行程，節奏不要太趕。">
-                            <strong>旅遊規劃</strong>
-                            請幫我規劃一個三天兩夜的台南美食行程，節奏不要太趕。
-                        </button>
-                    </div>
-                </section>
-            </div>
+            <div id="messages" class="messages" aria-live="polite"></div>
 
             <form id="composerForm" class="composer">
                 <label class="sr-only" for="promptInput">輸入訊息</label>
@@ -872,33 +810,8 @@
         }
 
         function renderMessages() {
-            const promptChipsMarkup = `
-                <section class="welcome-card">
-                    <h3>可以直接這樣開始</h3>
-                    <div class="prompt-grid">
-                        <button class="prompt-chip" type="button" data-prompt="幫我整理今天的工作重點，列出三個最重要的執行項目。">
-                            <strong>工作整理</strong>
-                            幫我整理今天的工作重點，列出三個最重要的執行項目。
-                        </button>
-                        <button class="prompt-chip" type="button" data-prompt="請把下面這段文字改寫成更正式的商務 email 口吻。">
-                            <strong>文字改寫</strong>
-                            請把下面這段文字改寫成更正式的商務 email 口吻。
-                        </button>
-                        <button class="prompt-chip" type="button" data-prompt="用初學者也能懂的方式，說明 JavaScript 的 Promise 是什麼。">
-                            <strong>概念解說</strong>
-                            用初學者也能懂的方式，說明 JavaScript 的 Promise 是什麼。
-                        </button>
-                        <button class="prompt-chip" type="button" data-prompt="請幫我規劃一個三天兩夜的台南美食行程，節奏不要太趕。">
-                            <strong>旅遊規劃</strong>
-                            請幫我規劃一個三天兩夜的台南美食行程，節奏不要太趕。
-                        </button>
-                    </div>
-                </section>
-            `;
-
             if (!state.messages.length) {
-                elements.messages.innerHTML = promptChipsMarkup;
-                bindPromptChips();
+                elements.messages.innerHTML = '';
                 return;
             }
 
@@ -928,15 +841,6 @@
 
             elements.messages.innerHTML = markup;
             elements.messages.scrollTop = elements.messages.scrollHeight;
-        }
-
-        function bindPromptChips() {
-            document.querySelectorAll('[data-prompt]').forEach((button) => {
-                button.addEventListener('click', () => {
-                    elements.promptInput.value = button.dataset.prompt || '';
-                    elements.promptInput.focus();
-                });
-            });
         }
 
         function pushMessage(role, text, type = 'normal') {
@@ -1131,7 +1035,6 @@
         renderHistory();
         renderMessages();
         updateConnectionState();
-        bindPromptChips();
     </script>
 </body>
 </html>
