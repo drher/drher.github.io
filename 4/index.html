@@ -99,45 +99,6 @@
             animation: slideUp 0.7s ease-out;
         }
 
-        .brand-lockup {
-            display: grid;
-            gap: 14px;
-        }
-
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--accent);
-        }
-
-        .eyebrow::before {
-            content: "";
-            width: 34px;
-            height: 2px;
-            background: currentColor;
-        }
-
-        h1 {
-            font-family: 'Noto Serif TC', serif;
-            font-size: clamp(2.2rem, 5vw, 3.4rem);
-            line-height: 1.05;
-        }
-
-        .intro {
-            color: var(--muted);
-            line-height: 1.85;
-            font-size: 0.98rem;
-        }
-
-        .intro strong {
-            color: var(--ink);
-        }
-
         .settings-card,
         .tip-card {
             background: var(--paper-strong);
@@ -559,12 +520,6 @@
 <body>
     <main class="app-shell">
         <aside class="panel" aria-label="聊天設定">
-            <section class="brand-lockup">
-                <span class="eyebrow">Gemini Chat Demo</span>
-                <h1>像 ChatGPT 一樣自然對話。</h1>
-                <p class="intro">這個頁面會直接使用你的 <strong>Gemini API Key</strong> 呼叫 Google Gemini Flash，快速完成可用的聊天功能。</p>
-            </section>
-
             <section class="settings-card" aria-labelledby="settings-title">
                 <div>
                     <div class="history-title" id="settings-title">連線設定</div>
