@@ -571,7 +571,6 @@
             <header class="chat-header">
                 <div class="chat-title">
                     <h2>AI回應視窗 (設計者  何帥)</h2>
-                    <p>輸入任何問題、請它整理內容、寫草稿、翻譯或協助解題。</p>
                 </div>
                 <div id="statusPill" class="status-pill">尚未設定 API Key</div>
             </header>
@@ -583,7 +582,6 @@
                 <textarea id="promptInput" placeholder="輸入你的問題，按 Enter 送出；Shift + Enter 換行。"></textarea>
                 <div class="composer-bar">
                     <div class="composer-info">
-                        <span id="composerHint">尚未連線，請先輸入 API Key 並套用設定。</span>
                         <span>目前模型：<strong id="activeModelLabel">Gemini 2.5 Flash</strong></span>
                     </div>
                     <div class="composer-actions">
@@ -619,7 +617,6 @@
             messages: document.getElementById('messages'),
             composerForm: document.getElementById('composerForm'),
             promptInput: document.getElementById('promptInput'),
-            composerHint: document.getElementById('composerHint'),
             activeModelLabel: document.getElementById('activeModelLabel'),
             sendButton: document.getElementById('sendButton'),
             stopButton: document.getElementById('stopButton')
@@ -707,9 +704,6 @@
             elements.statusPill.textContent = ready
                 ? `直接 API 已就緒 · ${getModelLabel(state.model)}`
                 : '尚未設定 API Key';
-            elements.composerHint.textContent = ready
-                ? '可以開始提問，將直接呼叫 Gemini API。'
-                : '尚未連線，請先輸入 API Key 並套用設定。';
             elements.activeModelLabel.textContent = getModelLabel(state.model);
             elements.sendButton.disabled = !ready || state.isLoading;
             elements.stopButton.disabled = !state.isLoading;
