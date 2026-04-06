@@ -99,8 +99,7 @@
             animation: slideUp 0.7s ease-out;
         }
 
-        .settings-card,
-        .tip-card {
+        .settings-card {
             background: var(--paper-strong);
             border: 1px solid var(--line);
             border-radius: 24px;
@@ -118,7 +117,6 @@
         }
 
         .field label,
-        .tips-title,
         .history-title {
             font-size: 0.9rem;
             font-weight: 800;
@@ -126,7 +124,6 @@
         }
 
         .field small,
-        .tip-card li,
         .status-note,
         .history-empty {
             color: var(--muted);
@@ -208,17 +205,6 @@
             background: rgba(255, 255, 255, 0.78);
             color: var(--ink);
             border: 1px solid rgba(63, 55, 46, 0.14);
-        }
-
-        .tip-card {
-            display: grid;
-            gap: 12px;
-        }
-
-        .tip-card ul {
-            padding-left: 18px;
-            display: grid;
-            gap: 8px;
         }
 
         .history-list {
@@ -545,16 +531,6 @@
                     <button id="saveSettingsButton" class="primary-btn" type="button">套用設定</button>
                     <button id="clearChatButton" class="secondary-btn" type="button">清除對話</button>
                 </div>
-            </section>
-
-            <section class="tip-card" aria-labelledby="tip-title">
-                <div class="tips-title" id="tip-title">使用方式</div>
-                <ul>
-                    <li>先貼上你的 Gemini API Key，再按「套用設定」。</li>
-                    <li>確認模型後即可直接提問。</li>
-                    <li>在右側輸入問題，按 Enter 送出，Shift + Enter 換行。</li>
-                    <li>頁面會把先前對話一起送出，讓 AI 回答更連貫。</li>
-                </ul>
             </section>
 
             <section class="settings-card" aria-labelledby="history-title">
