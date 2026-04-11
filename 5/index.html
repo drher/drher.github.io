@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT 快速發送台</title>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+        :root {
+            --bg-1: #fff9ec;
+            --bg-2: #e7f1f3;
+            --panel: rgba(255, 255, 255, 0.86);
+            --panel-strong: #ffffff;
+            --line: rgba(21, 28, 34, 0.16);
+            --text: #162126;
+            --muted: #5a6770;
+            --brand: #0f766e;
+            --brand-2: #115e59;
+            --warn: #b45309;
+            --danger: #b42318;
+            --ok: #0a7a49;
+            --shadow: 0 24px 60px rgba(28, 38, 49, 0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 18px;
+            font-family: 'Noto Sans TC', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 10% 12%, rgba(15, 118, 110, 0.18), transparent 22%),
+                radial-gradient(circle at 88% 22%, rgba(180, 83, 9, 0.12), transparent 24%),
+                linear-gradient(140deg, var(--bg-1), var(--bg-2));
+            display: grid;
+            place-items: center;
+        }
+
+        .app {
+            width: min(980px, 100%);
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: in 420ms ease-out;
+        }
+
+        .head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--line);
+            background: var(--panel-strong);
+        }
+
+        .title {
+            font-size: clamp(1.15rem, 2.6vw, 1.45rem);
+            font-weight: 900;
+            letter-spacing: 0.02em;
+        }
+
+        .status {
+            font-size: 0.84rem;
+            font-weight: 700;
+            border: 1px solid var(--line);
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #fff;
+            color: var(--muted);
+        }
+
+        .status.ok {
+            color: var(--ok);
+            border-color: rgba(10, 122, 73, 0.42);
+        }
+
+        .status.warn {
+            color: var(--warn);
+            border-color: rgba(180, 83, 9, 0.38);
+        }
+
+        .status.err {
+            color: var(--danger);
+            border-color: rgba(180, 35, 24, 0.38);
+        }
+
+        .chat-wrap {
+            margin: 16px;
+            margin-bottom: 0;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.88);
+            overflow: hidden;
+        }
+
+        .chat-head {
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            font-weight: 800;
+            border-bottom: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .chat-thread {
+            min-height: 170px;
+            max-height: 240px;
+            overflow: auto;
+            padding: 10px;
+            display: grid;
+            gap: 8px;
+            background:
+                linear-gradient(180deg, #f8fcff, #f3faf8),
+                repeating-linear-gradient(0deg, transparent 0 26px, rgba(15, 118, 110, 0.03) 26px 27px);
+        }
+
+        .msg-row {
+            display: flex;
+        }
+
+        .msg-row.left {
+            justify-content: flex-start;
+        }
+
+        .msg-row.right {
+            justify-content: flex-end;
+        }
+
+        .bubble {
+            max-width: min(80%, 600px);
+            padding: 8px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.45;
+            border: 1px solid var(--line);
+            word-break: break-word;
+            box-shadow: 0 4px 12px rgba(21, 28, 34, 0.08);
+        }
+
+        .bubble.left {
+            background: #ffffff;
+        }
+
+        .bubble.right {
+            background: linear-gradient(135deg, #d7f3ef, #ecfffa);
+            border-color: rgba(15, 118, 110, 0.32);
+        }
+
+        .bubble-meta {
+            margin-top: 4px;
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.86);
+            padding: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .card h2 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+
+        .field.row {
+            grid-template-columns: 1fr 110px;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid rgba(32, 45, 58, 0.2);
+            border-radius: 12px;
+            background: #fff;
+            color: var(--text);
+            padding: 10px 12px;
+            font: inherit;
+            transition: border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: rgba(15, 118, 110, 0.62);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+        }
+
+        textarea {
+            min-height: 96px;
+            resize: vertical;
+        }
+
+        .hint {
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0 16px 16px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            min-width: 112px;
+            font: inherit;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.12s ease, filter 0.2s ease;
+        }
+
+        button:hover {
+            filter: brightness(0.98);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .btn-main {
+            color: #fff;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+        }
+
+        .btn-lite {
+            background: #eef2f3;
+            color: #1d2a34;
+        }
+
+        .log {
+            margin: 0 16px 16px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #0f172a;
+            color: #d7e3ff;
+            padding: 12px;
+            min-height: 140px;
+            max-height: 250px;
+            overflow: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        @keyframes in {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 780px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app">
+        <header class="head">
+            <div class="title">MQTT 快速發送台</div>
+            <div id="status" class="status">未連線</div>
+        </header>
+
+        <section class="chat-wrap">
+            <div class="chat-head">對話視窗（右：我送出｜左：同頻道收到）</div>
+            <div id="chatThread" class="chat-thread"></div>
+        </section>
+
+        <section class="layout">
+            <article class="card">
+                <h2>Broker 設定</h2>
+                <div class="field">
+                    <label for="preset">免費 Broker（推薦）</label>
+                    <select id="preset">
+                        <option value="emqx_ws" selected>EMQX Public (WS)</option>
+                        <option value="emqx_wss">EMQX Public (WSS)</option>
+                        <option value="mosquitto_ws">Mosquitto Test (WS)</option>
+                        <option value="hivemq_ws">HiveMQ Public (WS)</option>
+                        <option value="custom">自訂</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="broker">Broker Host</label>
+                    <input id="broker" value="broker.emqx.io" autocomplete="off">
+                </div>
+                <div class="field row">
+                    <div>
+                        <label for="protocol">協定</label>
+                        <select id="protocol">
+                            <option value="ws" selected>WS</option>
+                            <option value="wss">WSS</option>
+                            <option value="tcp">TCP</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="port">Port</label>
+                        <input id="port" type="number" min="1" max="65535" value="8083">
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="path">WebSocket Path</label>
+                    <input id="path" value="/mqtt" autocomplete="off">
+                </div>
+                <div class="field row">
+                    <div>
+                        <label for="username">Username</label>
+                        <input id="username" placeholder="可留空" autocomplete="off">
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input id="password" type="password" placeholder="可留空" autocomplete="off">
+                    </div>
+                </div>
+                <div class="hint">瀏覽器無法直接用 TCP；若選 TCP，會自動轉成 WS 嘗試連線。</div>
+            </article>
+
+            <article class="card">
+                <h2>訊息設定</h2>
+                <div class="field">
+                    <label for="topic">Topic</label>
+                    <input id="topic" value="drher" class="mono" autocomplete="off">
+                </div>
+                <div class="field row">
+                    <div>
+                        <label for="qos">QoS</label>
+                        <select id="qos">
+                            <option value="0" selected>0</option>
+                            <option value="1">1</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="retain">Retain</label>
+                        <select id="retain">
+                            <option value="false" selected>false</option>
+                            <option value="true">true</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="payload">Payload</label>
+                    <textarea id="payload" class="mono">testOK</textarea>
+                </div>
+                <div class="field">
+                    <label for="autoSub">連線後自動訂閱同 Topic（建議開啟）</label>
+                    <select id="autoSub">
+                        <option value="true" selected>開啟</option>
+                        <option value="false">關閉</option>
+                    </select>
+                </div>
+                <div class="hint">開啟自動訂閱後，自己送的訊息也會回顯，最適合做快速驗證。</div>
+            </article>
+        </section>
+
+        <section class="actions">
+            <button id="connectBtn" class="btn-main" type="button">連線</button>
+            <button id="disconnectBtn" class="btn-lite" type="button">中斷</button>
+            <button id="subBtn" class="btn-lite" type="button">訂閱 Topic</button>
+            <button id="sendBtn" class="btn-main" type="button">發送</button>
+            <button id="clearBtn" class="btn-lite" type="button">清空 Log</button>
+        </section>
+
+        <pre id="log" class="log">[INIT] 請先選 Broker，按「連線」。</pre>
+    </main>
+
+    <script>
+        const presets = {
+            emqx_ws: {
+                broker: 'broker.emqx.io',
+                protocol: 'ws',
+                port: 8083,
+                path: '/mqtt'
+            },
+            emqx_wss: {
+                broker: 'broker.emqx.io',
+                protocol: 'wss',
+                port: 8084,
+                path: '/mqtt'
+            },
+            mosquitto_ws: {
+                broker: 'test.mosquitto.org',
+                protocol: 'ws',
+                port: 8080,
+                path: '/'
+            },
+            hivemq_ws: {
+                broker: 'broker.hivemq.com',
+                protocol: 'ws',
+                port: 8000,
+                path: '/mqtt'
+            }
+        };
+
+        const el = {
+            preset: document.getElementById('preset'),
+            broker: document.getElementById('broker'),
+            protocol: document.getElementById('protocol'),
+            port: document.getElementById('port'),
+            path: document.getElementById('path'),
+            username: document.getElementById('username'),
+            password: document.getElementById('password'),
+            topic: document.getElementById('topic'),
+            qos: document.getElementById('qos'),
+            retain: document.getElementById('retain'),
+            payload: document.getElementById('payload'),
+            autoSub: document.getElementById('autoSub'),
+            connectBtn: document.getElementById('connectBtn'),
+            disconnectBtn: document.getElementById('disconnectBtn'),
+            subBtn: document.getElementById('subBtn'),
+            sendBtn: document.getElementById('sendBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            status: document.getElementById('status'),
+            log: document.getElementById('log'),
+            chatThread: document.getElementById('chatThread')
+        };
+
+        let client = null;
+
+        function log(message) {
+            const t = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+            el.log.textContent += `\n[${t}] ${message}`;
+            el.log.scrollTop = el.log.scrollHeight;
+        }
+
+        function setStatus(text, cls) {
+            el.status.textContent = text;
+            el.status.classList.remove('ok', 'warn', 'err');
+            if (cls) {
+                el.status.classList.add(cls);
+            }
+        }
+
+        function renderChatMessage(text, side, topic) {
+            const row = document.createElement('div');
+            row.className = `msg-row ${side}`;
+
+            const bubble = document.createElement('div');
+            bubble.className = `bubble ${side}`;
+
+            const content = document.createElement('div');
+            content.textContent = text;
+
+            const meta = document.createElement('div');
+            meta.className = 'bubble-meta';
+            meta.textContent = `${new Date().toLocaleTimeString('zh-TW', { hour12: false })} | ${topic}`;
+
+            bubble.appendChild(content);
+            bubble.appendChild(meta);
+            row.appendChild(bubble);
+            el.chatThread.appendChild(row);
+            el.chatThread.scrollTop = el.chatThread.scrollHeight;
+        }
+
+        function applyPreset(key) {
+            if (key === 'custom' || !presets[key]) {
+                return;
+            }
+            const p = presets[key];
+            el.broker.value = p.broker;
+            el.protocol.value = p.protocol;
+            el.port.value = p.port;
+            el.path.value = p.path;
+            log(`已套用預設：${el.preset.options[el.preset.selectedIndex].text}`);
+        }
+
+        function buildUrl() {
+            let protocol = (el.protocol.value || 'ws').toLowerCase();
+            const broker = el.broker.value.trim();
+            const port = Number(el.port.value);
+            let path = el.path.value.trim() || '/mqtt';
+
+            if (!path.startsWith('/')) {
+                path = `/${path}`;
+            }
+
+            if (protocol === 'tcp') {
+                protocol = 'ws';
+                setStatus('TCP 已轉 WS', 'warn');
+                log('瀏覽器不支援 MQTT TCP，已自動改為 WS');
+            }
+
+            return `${protocol}://${broker}:${port}${path}`;
+        }
+
+        function connect() {
+            const broker = el.broker.value.trim();
+            const port = Number(el.port.value);
+
+            if (!broker) {
+                setStatus('Broker 空白', 'err');
+                log('連線失敗：Broker 不可空白');
+                return;
+            }
+            if (!Number.isInteger(port) || port < 1 || port > 65535) {
+                setStatus('Port 錯誤', 'err');
+                log('連線失敗：Port 必須 1-65535');
+                return;
+            }
+
+            if (client) {
+                client.end(true);
+                client = null;
+            }
+
+            const url = buildUrl();
+            const clientId = `web-${Math.random().toString(16).slice(2, 10)}`;
+            log(`嘗試連線：${url}`);
+            setStatus('連線中...', 'warn');
+
+            client = mqtt.connect(url, {
+                clientId,
+                username: el.username.value || undefined,
+                password: el.password.value || undefined,
+                clean: true,
+                reconnectPeriod: 0,
+                connectTimeout: 8000
+            });
+
+            client.on('connect', () => {
+                setStatus('已連線', 'ok');
+                log(`連線成功，Client ID: ${clientId}`);
+                if (el.autoSub.value === 'true') {
+                    subscribeTopic();
+                }
+            });
+
+            client.on('message', (topic, payload) => {
+                const text = payload.toString();
+                log(`收到訊息 topic=${topic} payload=${text}`);
+                renderChatMessage(text, 'left', topic);
+            });
+
+            client.on('error', (err) => {
+                setStatus('連線錯誤', 'err');
+                log(`錯誤：${err.message}`);
+            });
+
+            client.on('close', () => {
+                setStatus('已中斷');
+                log('連線已關閉');
+            });
+        }
+
+        function disconnect() {
+            if (!client) {
+                log('目前沒有可中斷的連線');
+                return;
+            }
+            client.end();
+            client = null;
+            setStatus('已中斷');
+            log('手動中斷連線');
+        }
+
+        function subscribeTopic() {
+            const topic = el.topic.value.trim();
+            if (!topic) {
+                setStatus('Topic 空白', 'err');
+                log('訂閱失敗：Topic 不可空白');
+                return;
+            }
+            if (!client || !client.connected) {
+                setStatus('尚未連線', 'err');
+                log('訂閱失敗：請先連線');
+                return;
+            }
+
+            client.subscribe(topic, { qos: Number(el.qos.value) }, (err, granted) => {
+                if (err) {
+                    setStatus('訂閱失敗', 'err');
+                    log(`訂閱失敗：${err.message}`);
+                    return;
+                }
+                const g = Array.isArray(granted) && granted.length > 0 ? granted[0].qos : Number(el.qos.value);
+                setStatus('已連線', 'ok');
+                log(`訂閱成功：${topic} (QoS ${g})`);
+            });
+        }
+
+        function sendMessage() {
+            const topic = el.topic.value.trim();
+            const rawPayload = el.payload.value;
+            const qos = Number(el.qos.value);
+            const retain = el.retain.value === 'true';
+            const payload = rawPayload.startsWith('何帥:') ? rawPayload : `何帥:${rawPayload}`;
+
+            if (!topic) {
+                setStatus('Topic 空白', 'err');
+                log('發送失敗：Topic 不可空白');
+                return;
+            }
+            if (!client || !client.connected) {
+                setStatus('尚未連線', 'err');
+                log('發送失敗：請先連線');
+                return;
+            }
+
+            client.publish(topic, payload, { qos, retain }, (err) => {
+                if (err) {
+                    setStatus('發送失敗', 'err');
+                    log(`發送失敗：${err.message}`);
+                    return;
+                }
+                setStatus('已連線', 'ok');
+                log(`已發送 topic=${topic} qos=${qos} retain=${retain} payload=${payload}`);
+                renderChatMessage(payload, 'right', topic);
+            });
+        }
+
+        el.preset.addEventListener('change', () => applyPreset(el.preset.value));
+        el.connectBtn.addEventListener('click', connect);
+        el.disconnectBtn.addEventListener('click', disconnect);
+        el.subBtn.addEventListener('click', subscribeTopic);
+        el.sendBtn.addEventListener('click', sendMessage);
+        el.clearBtn.addEventListener('click', () => {
+            el.log.textContent = '[LOG] 已清空';
+            el.chatThread.textContent = '';
+        });
+    </script>
+</body>
+</html>
