@@ -227,6 +227,10 @@
             background: radial-gradient(circle, rgba(50, 70, 118, 0.25), rgba(50, 70, 118, 0));
         }
 
+        .project-card.gemini::before {
+            background: radial-gradient(circle, rgba(191, 91, 57, 0.22), rgba(191, 91, 57, 0));
+        }
+
         .project-card h3 {
             font-size: 1.8rem;
             margin-bottom: 12px;
@@ -298,6 +302,51 @@
             background:
                 radial-gradient(circle at 16% 14%, rgba(255, 255, 255, 0.2), transparent 24%),
                 linear-gradient(155deg, #3f5267 0%, #2a3647 48%, #1d2735 100%);
+        }
+
+        .project-thumb.gemini-thumb {
+            background:
+                radial-gradient(circle at 12% 18%, rgba(191, 91, 57, 0.16), transparent 24%),
+                radial-gradient(circle at 88% 16%, rgba(37, 89, 74, 0.18), transparent 18%),
+                linear-gradient(145deg, #f4ede2 0%, #dfe9e2 100%);
+        }
+
+        .gemini-bubble {
+            position: absolute;
+            padding: 10px 14px;
+            border-radius: 18px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            line-height: 1.5;
+            max-width: 210px;
+        }
+
+        .gemini-bubble.user {
+            right: 18px;
+            top: 28px;
+            background: #1f2926;
+            color: #f6f4ef;
+            border-bottom-right-radius: 5px;
+        }
+
+        .gemini-bubble.ai {
+            left: 18px;
+            top: 100px;
+            background: #f7efe5;
+            color: #1d1c1a;
+            border: 1px solid rgba(63, 55, 46, 0.14);
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 4px 12px rgba(56, 44, 36, 0.08);
+        }
+
+        .gemini-avatar {
+            position: absolute;
+            left: 18px;
+            top: 72px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #bf5b39, #25594a);
         }
 
         .thumb-label {
@@ -513,7 +562,7 @@
                 <p class="lead">
                     我正在持續累積前端與互動設計作品，透過簡單直接的遊戲機制，練習
                     <strong>版面設計、操作手感、邏輯實作</strong>
-                    與使用者體驗。下面收錄了目前完成的三個互動作品。
+                    與使用者體驗。下面收錄了目前完成的四個互動作品。
                 </p>
             </article>
         </section>
@@ -585,6 +634,24 @@
                                 <span class="calc-key"></span>
                                 <span class="calc-key accent"></span>
                             </div>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="project-card gemini">
+                    <h3>Gemini Chat</h3>
+                    <p>串接 Google Gemini API，提供可自訂金鑰、模型與系統提示詞的對話介面，並保留完整對話紀錄，練習 AI 互動與 API 整合設計。</p>
+                    <div class="tag-row">
+                        <span class="tag">AI 對話</span>
+                        <span class="tag">API 整合</span>
+                        <span class="tag">介面設計</span>
+                    </div>
+                    <a class="project-link" href="4/index.html" aria-label="前往 Gemini Chat 作品">
+                        <div class="project-thumb gemini-thumb">
+                            <span class="thumb-label">Gemini Chat</span>
+                            <div class="gemini-bubble user">請問台灣最高的山是哪座？</div>
+                            <div class="gemini-avatar"></div>
+                            <div class="gemini-bubble ai">台灣最高的山是玉山，海拔 3,952 公尺。</div>
                         </div>
                     </a>
                 </article>
