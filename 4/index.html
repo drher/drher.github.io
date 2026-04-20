@@ -656,13 +656,11 @@
 
         function persistHistory() {
             const raw = localStorage.getItem(STORAGE_KEY);
-            let saved = { model: state.model, promptHistory: [] };
-
             if (raw) {
                 try {
-                    saved = JSON.parse(raw);
+                    JSON.parse(raw);
                 } catch (error) {
-                    saved = { endpoint: DEFAULT_ENDPOINT, model: state.model, promptHistory: [] };
+                    localStorage.removeItem(STORAGE_KEY);
                 }
             }
 
@@ -836,6 +834,41 @@
                 }));
         }
 
+        function buildGeminiErrorMessage(status, apiStatus, apiMessage, model) {
+            const normalizedMessage = typeof apiMessage === 'string' ? apiMessage.trim() : '';
+            const normalizedStatus = typeof apiStatus === 'string' ? apiStatus.toUpperCase() : '';
+            const isHighDemand =
+                status === 429 ||
+                normalizedStatus === 'RESOURCE_EXHAUSTED' ||
+                /high demand|rate limit|resource exhausted|quota/i.test(normalizedMessage);
+
+            if (isHighDemand) {
+                if (model === 'gemini-2.5-flash') {
+                    return 'Gemini 目前流量較高（伺服器繁忙）。建議稍後重試，或先切換到 Gemini 2.0 Flash。';
+                }
+
+                return 'Gemini 目前流量較高（伺服器繁忙），請稍後再試。';
+            }
+
+            if (status === 401 || normalizedStatus === 'UNAUTHENTICATED') {
+                return 'API Key 驗證失敗，請確認金鑰是否正確、是否有多餘空白。';
+            }
+
+            if (status === 403 || normalizedStatus === 'PERMISSION_DENIED') {
+                return '目前帳號或 API Key 沒有此模型權限，請檢查專案權限或改用 Gemini 2.0 Flash。';
+            }
+
+            if (status === 404 || normalizedStatus === 'NOT_FOUND') {
+                return '找不到指定模型，請確認模型名稱是否可用。';
+            }
+
+            if (!normalizedMessage) {
+                return `Gemini API 回傳錯誤（HTTP ${status}）。請檢查 API Key、配額、模型名稱與網路連線。`;
+            }
+
+            return normalizedMessage;
+        }
+
         async function sendPrompt(prompt) {
             const trimmedPrompt = prompt.trim();
 
@@ -888,9 +921,12 @@
                 }
 
                 if (!response.ok) {
-                    const message = data && data.error && data.error.message
-                        ? data.error.message
-                        : `Gemini API 回傳錯誤（HTTP ${response.status}）。請檢查 API Key、配額、模型名稱與網路連線。`;
+                    const message = buildGeminiErrorMessage(
+                        response.status,
+                        data && data.error ? data.error.status : '',
+                        data && data.error ? data.error.message : '',
+                        state.model
+                    );
                     throw new Error(message);
                 }
 
