@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MQTT 快速發送台</title>
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <title>訊息快速發送台（ntfy.sh）</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
 
@@ -308,7 +307,7 @@
 <body>
     <main class="app">
         <header class="head">
-            <div class="title">MQTT 快速發送台</div>
+            <div class="title">訊息快速發送台（ntfy.sh）</div>
             <div id="status" class="status">未連線</div>
         </header>
 
@@ -319,76 +318,25 @@
 
         <section class="layout">
             <article class="card">
-                <h2>Broker 設定</h2>
+                <h2>ntfy.sh 設定</h2>
                 <div class="field">
-                    <label for="preset">免費 Broker（推薦）</label>
-                    <select id="preset">
-                        <option value="emqx_ws" selected>EMQX Public (WS)</option>
-                        <option value="emqx_wss">EMQX Public (WSS)</option>
-                        <option value="mosquitto_ws">Mosquitto Test (WS)</option>
-                        <option value="hivemq_ws">HiveMQ Public (WS)</option>
-                        <option value="custom">自訂</option>
-                    </select>
+                    <label for="server">Server</label>
+                    <input id="server" value="https://ntfy.sh" autocomplete="off">
                 </div>
                 <div class="field">
-                    <label for="broker">Broker Host</label>
-                    <input id="broker" value="broker.emqx.io" autocomplete="off">
+                    <label for="topic">Topic（頻道名稱）</label>
+                    <input id="topic" value="drher" class="mono" autocomplete="off">
                 </div>
-                <div class="field row">
-                    <div>
-                        <label for="protocol">協定</label>
-                        <select id="protocol">
-                            <option value="ws" selected>WS</option>
-                            <option value="wss">WSS</option>
-                            <option value="tcp">TCP</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="port">Port</label>
-                        <input id="port" type="number" min="1" max="65535" value="8083">
-                    </div>
+                <div class="hint">
+                    ntfy.sh 透過標準 HTTPS（port 443）運作，不使用 WebSocket，學校網路通常不會封鎖。<br>
+                    Topic 名稱即為頻道，同一 Topic 的人可互相收訊。建議使用不容易猜到的字串。
                 </div>
-                <div class="field">
-                    <label for="path">WebSocket Path</label>
-                    <input id="path" value="/mqtt" autocomplete="off">
-                </div>
-                <div class="field row">
-                    <div>
-                        <label for="username">Username</label>
-                        <input id="username" placeholder="可留空" autocomplete="off">
-                    </div>
-                    <div>
-                        <label for="password">Password</label>
-                        <input id="password" type="password" placeholder="可留空" autocomplete="off">
-                    </div>
-                </div>
-                <div class="hint">瀏覽器無法直接用 TCP；若選 TCP，會自動轉成 WS 嘗試連線。</div>
             </article>
 
             <article class="card">
                 <h2>訊息設定</h2>
                 <div class="field">
-                    <label for="topic">Topic</label>
-                    <input id="topic" value="drher" class="mono" autocomplete="off">
-                </div>
-                <div class="field row">
-                    <div>
-                        <label for="qos">QoS</label>
-                        <select id="qos">
-                            <option value="0" selected>0</option>
-                            <option value="1">1</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="retain">Retain</label>
-                        <select id="retain">
-                            <option value="false" selected>false</option>
-                            <option value="true">true</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="field">
-                    <label for="payload">Payload</label>
+                    <label for="payload">訊息內容（Payload）</label>
                     <textarea id="payload" class="mono">testOK</textarea>
                 </div>
                 <div class="field">
@@ -403,60 +351,23 @@
         </section>
 
         <section class="actions">
-            <button id="connectBtn" class="btn-main" type="button">連線</button>
+            <button id="connectBtn" class="btn-main" type="button">連線 / 訂閱</button>
             <button id="disconnectBtn" class="btn-lite" type="button">中斷</button>
-            <button id="subBtn" class="btn-lite" type="button">訂閱 Topic</button>
             <button id="sendBtn" class="btn-main" type="button">發送</button>
             <button id="clearBtn" class="btn-lite" type="button">清空 Log</button>
         </section>
 
-        <pre id="log" class="log">[INIT] 請先選 Broker，按「連線」。</pre>
+        <pre id="log" class="log">[INIT] 輸入 Topic，按「連線 / 訂閱」即可開始。</pre>
     </main>
 
     <script>
-        const presets = {
-            emqx_ws: {
-                broker: 'broker.emqx.io',
-                protocol: 'ws',
-                port: 8083,
-                path: '/mqtt'
-            },
-            emqx_wss: {
-                broker: 'broker.emqx.io',
-                protocol: 'wss',
-                port: 8084,
-                path: '/mqtt'
-            },
-            mosquitto_ws: {
-                broker: 'test.mosquitto.org',
-                protocol: 'ws',
-                port: 8080,
-                path: '/'
-            },
-            hivemq_ws: {
-                broker: 'broker.hivemq.com',
-                protocol: 'ws',
-                port: 8000,
-                path: '/mqtt'
-            }
-        };
-
         const el = {
-            preset: document.getElementById('preset'),
-            broker: document.getElementById('broker'),
-            protocol: document.getElementById('protocol'),
-            port: document.getElementById('port'),
-            path: document.getElementById('path'),
-            username: document.getElementById('username'),
-            password: document.getElementById('password'),
+            server: document.getElementById('server'),
             topic: document.getElementById('topic'),
-            qos: document.getElementById('qos'),
-            retain: document.getElementById('retain'),
             payload: document.getElementById('payload'),
             autoSub: document.getElementById('autoSub'),
             connectBtn: document.getElementById('connectBtn'),
             disconnectBtn: document.getElementById('disconnectBtn'),
-            subBtn: document.getElementById('subBtn'),
             sendBtn: document.getElementById('sendBtn'),
             clearBtn: document.getElementById('clearBtn'),
             status: document.getElementById('status'),
@@ -464,7 +375,7 @@
             chatThread: document.getElementById('chatThread')
         };
 
-        let client = null;
+        let eventSource = null;
 
         function log(message) {
             const t = new Date().toLocaleTimeString('zh-TW', { hour12: false });
@@ -501,137 +412,66 @@
             el.chatThread.scrollTop = el.chatThread.scrollHeight;
         }
 
-        function applyPreset(key) {
-            if (key === 'custom' || !presets[key]) {
-                return;
-            }
-            const p = presets[key];
-            el.broker.value = p.broker;
-            el.protocol.value = p.protocol;
-            el.port.value = p.port;
-            el.path.value = p.path;
-            log(`已套用預設：${el.preset.options[el.preset.selectedIndex].text}`);
-        }
-
-        function buildUrl() {
-            let protocol = (el.protocol.value || 'ws').toLowerCase();
-            const broker = el.broker.value.trim();
-            const port = Number(el.port.value);
-            let path = el.path.value.trim() || '/mqtt';
-
-            if (!path.startsWith('/')) {
-                path = `/${path}`;
-            }
-
-            if (protocol === 'tcp') {
-                protocol = 'ws';
-                setStatus('TCP 已轉 WS', 'warn');
-                log('瀏覽器不支援 MQTT TCP，已自動改為 WS');
-            }
-
-            return `${protocol}://${broker}:${port}${path}`;
-        }
-
         function connect() {
-            const broker = el.broker.value.trim();
-            const port = Number(el.port.value);
+            const topic = el.topic.value.trim();
+            const server = el.server.value.trim().replace(/\/$/, '');
 
-            if (!broker) {
-                setStatus('Broker 空白', 'err');
-                log('連線失敗：Broker 不可空白');
-                return;
-            }
-            if (!Number.isInteger(port) || port < 1 || port > 65535) {
-                setStatus('Port 錯誤', 'err');
-                log('連線失敗：Port 必須 1-65535');
+            if (!topic) {
+                setStatus('Topic 空白', 'err');
+                log('連線失敗：Topic 不可空白');
                 return;
             }
 
-            if (client) {
-                client.end(true);
-                client = null;
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
             }
 
-            const url = buildUrl();
-            const clientId = `web-${Math.random().toString(16).slice(2, 10)}`;
-            log(`嘗試連線：${url}`);
+            const url = `${server}/${encodeURIComponent(topic)}/sse`;
             setStatus('連線中...', 'warn');
+            log(`嘗試訂閱（SSE）：${url}`);
 
-            client = mqtt.connect(url, {
-                clientId,
-                username: el.username.value || undefined,
-                password: el.password.value || undefined,
-                clean: true,
-                reconnectPeriod: 0,
-                connectTimeout: 8000
-            });
+            eventSource = new EventSource(url);
 
-            client.on('connect', () => {
+            eventSource.onopen = () => {
                 setStatus('已連線', 'ok');
-                log(`連線成功，Client ID: ${clientId}`);
-                if (el.autoSub.value === 'true') {
-                    subscribeTopic();
+                log(`訂閱成功：${topic}（ntfy.sh SSE，HTTPS，無 WebSocket）`);
+            };
+
+            eventSource.addEventListener('message', (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    if (data.event === 'message') {
+                        const text = data.message || '';
+                        log(`收到訊息 topic=${data.topic} message=${text}`);
+                        renderChatMessage(text, 'left', data.topic);
+                    }
+                } catch (_) {
+                    // ignore parse errors
                 }
             });
 
-            client.on('message', (topic, payload) => {
-                const text = payload.toString();
-                log(`收到訊息 topic=${topic} payload=${text}`);
-                renderChatMessage(text, 'left', topic);
-            });
-
-            client.on('error', (err) => {
+            eventSource.onerror = () => {
                 setStatus('連線錯誤', 'err');
-                log(`錯誤：${err.message}`);
-            });
-
-            client.on('close', () => {
-                setStatus('已中斷');
-                log('連線已關閉');
-            });
+                log('SSE 連線發生錯誤，瀏覽器將自動重試；若持續失敗請確認 Server / Topic 是否正確');
+            };
         }
 
         function disconnect() {
-            if (!client) {
+            if (!eventSource) {
                 log('目前沒有可中斷的連線');
                 return;
             }
-            client.end();
-            client = null;
+            eventSource.close();
+            eventSource = null;
             setStatus('已中斷');
             log('手動中斷連線');
         }
 
-        function subscribeTopic() {
+        async function sendMessage() {
             const topic = el.topic.value.trim();
-            if (!topic) {
-                setStatus('Topic 空白', 'err');
-                log('訂閱失敗：Topic 不可空白');
-                return;
-            }
-            if (!client || !client.connected) {
-                setStatus('尚未連線', 'err');
-                log('訂閱失敗：請先連線');
-                return;
-            }
-
-            client.subscribe(topic, { qos: Number(el.qos.value) }, (err, granted) => {
-                if (err) {
-                    setStatus('訂閱失敗', 'err');
-                    log(`訂閱失敗：${err.message}`);
-                    return;
-                }
-                const g = Array.isArray(granted) && granted.length > 0 ? granted[0].qos : Number(el.qos.value);
-                setStatus('已連線', 'ok');
-                log(`訂閱成功：${topic} (QoS ${g})`);
-            });
-        }
-
-        function sendMessage() {
-            const topic = el.topic.value.trim();
+            const server = el.server.value.trim().replace(/\/$/, '');
             const rawPayload = el.payload.value;
-            const qos = Number(el.qos.value);
-            const retain = el.retain.value === 'true';
             const payload = rawPayload.startsWith('何帥:') ? rawPayload : `何帥:${rawPayload}`;
 
             if (!topic) {
@@ -639,28 +479,30 @@
                 log('發送失敗：Topic 不可空白');
                 return;
             }
-            if (!client || !client.connected) {
-                setStatus('尚未連線', 'err');
-                log('發送失敗：請先連線');
-                return;
-            }
 
-            client.publish(topic, payload, { qos, retain }, (err) => {
-                if (err) {
+            log(`發送中 topic=${topic} payload=${payload}`);
+
+            try {
+                const response = await fetch(`${server}/${encodeURIComponent(topic)}`, {
+                    method: 'POST',
+                    body: payload
+                });
+
+                if (response.ok) {
+                    log(`已發送 topic=${topic} payload=${payload}`);
+                    renderChatMessage(payload, 'right', topic);
+                } else {
                     setStatus('發送失敗', 'err');
-                    log(`發送失敗：${err.message}`);
-                    return;
+                    log(`發送失敗：HTTP ${response.status}`);
                 }
-                setStatus('已連線', 'ok');
-                log(`已發送 topic=${topic} qos=${qos} retain=${retain} payload=${payload}`);
-                renderChatMessage(payload, 'right', topic);
-            });
+            } catch (err) {
+                setStatus('發送失敗', 'err');
+                log(`發送失敗：${err.message}`);
+            }
         }
 
-        el.preset.addEventListener('change', () => applyPreset(el.preset.value));
         el.connectBtn.addEventListener('click', connect);
         el.disconnectBtn.addEventListener('click', disconnect);
-        el.subBtn.addEventListener('click', subscribeTopic);
         el.sendBtn.addEventListener('click', sendMessage);
         el.clearBtn.addEventListener('click', () => {
             el.log.textContent = '[LOG] 已清空';
