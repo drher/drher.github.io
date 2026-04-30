@@ -3,659 +3,467 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>打地鼠遊戲</title>
+    <title>貪吃蛇小遊戲</title>
     <style>
+        :root {
+            --bg: #f7efe2;
+            --panel: #fffaf2;
+            --line: rgba(45, 36, 26, 0.16);
+            --text: #2d241a;
+            --brand: #0f766e;
+            --accent: #b45309;
+            --danger: #b42318;
+            --board-bg: #1b2a31;
+            --board-grid: rgba(255, 255, 255, 0.06);
+            --snake: #7dd3fc;
+            --snake-head: #38bdf8;
+            --food: #f97316;
+        }
+
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
+            font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 12% 14%, rgba(15, 118, 110, 0.22), transparent 30%),
+                radial-gradient(circle at 88% 18%, rgba(180, 83, 9, 0.2), transparent 30%),
+                linear-gradient(135deg, var(--bg), #e9f3ff);
+            display: grid;
+            place-items: center;
+            padding: 18px;
         }
 
-        .game-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 500px;
-            width: 100%;
+        .app {
+            width: min(760px, 100%);
+            background: rgba(255, 250, 242, 0.92);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.16);
+            padding: 16px;
+        }
+
+        .head {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
         }
 
         h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 2em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 0;
+            font-size: clamp(1.35rem, 4vw, 1.9rem);
+            font-weight: 900;
+            letter-spacing: 0.02em;
         }
 
-        .game-info {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-            background: #f0f0f0;
-            padding: 12px;
-            border-radius: 10px;
+        .status {
+            padding: 6px 10px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            font-size: 0.86rem;
+            background: #fff;
+            color: #5a6770;
+            font-weight: 700;
         }
 
-        .info-item {
-            text-align: center;
+        .status.playing {
+            color: var(--brand);
+            border-color: rgba(15, 118, 110, 0.4);
         }
 
-        .info-label {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 5px;
+        .status.over {
+            color: var(--danger);
+            border-color: rgba(180, 35, 24, 0.4);
         }
 
-        .info-value {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .game-board {
+        .info {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
-        .hole {
-            aspect-ratio: 1;
-            background: radial-gradient(circle at 30% 30%, #8B4513, #654321);
-            border-radius: 50%;
-            position: relative;
-            cursor: pointer;
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            background: #fff;
+        }
+
+        .label {
+            font-size: 0.8rem;
+            color: #5a6770;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .value {
+            font-size: 1.35rem;
+            font-weight: 900;
+        }
+
+        .board-wrap {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.5);
-            border: 3px solid #654321;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            background: var(--board-bg);
         }
 
-        .mole {
-            position: absolute;
-            bottom: -100%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70%;
-            height: 70%;
-            background: #8B6914;
-            border-radius: 50% 50% 40% 40%;
-            transition: bottom 0.2s;
-            cursor: pointer;
-        }
-
-        .mole.show {
-            bottom: 10%;
-        }
-
-        .mole::before {
-            content: '';
-            position: absolute;
-            top: 20%;
-            left: 25%;
-            width: 15px;
-            height: 15px;
-            background: #000;
-            border-radius: 50%;
-            box-shadow: 25px 0 0 #000;
-        }
-
-        .mole::after {
-            content: '';
-            position: absolute;
-            bottom: 35%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 25px;
-            height: 15px;
-            background: #D2691E;
-            border-radius: 50%;
-        }
-
-        .mole.whacked {
-            animation: whack 0.3s ease-out;
-        }
-
-        @keyframes whack {
-            0% {
-                bottom: 10%;
-                transform: translateX(-50%) scale(1);
-            }
-            50% {
-                transform: translateX(-50%) scale(0.8) rotate(10deg);
-            }
-            100% {
-                bottom: -100%;
-                transform: translateX(-50%) scale(1) rotate(0deg);
-            }
-        }
-
-        .hit-effect {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2em;
-            font-weight: bold;
-            color: #ff6b6b;
-            animation: hitPop 0.5s ease-out;
-            pointer-events: none;
-        }
-
-        @keyframes hitPop {
-            0% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(0.5);
-            }
-            50% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(1.2);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -80%) scale(1);
-            }
+        canvas {
+            width: 100%;
+            aspect-ratio: 1;
+            display: block;
+            background:
+                linear-gradient(var(--board-grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--board-grid) 1px, transparent 1px),
+                var(--board-bg);
+            background-size: 24px 24px;
         }
 
         .controls {
             display: flex;
             gap: 10px;
-            justify-content: center;
+            margin-top: 12px;
+            flex-wrap: wrap;
         }
 
         button {
-            padding: 12px 24px;
-            font-size: 1em;
-            border: none;
+            border: 0;
             border-radius: 10px;
+            font: inherit;
+            padding: 10px 14px;
+            font-weight: 800;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .start-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .btn-main {
+            background: linear-gradient(135deg, var(--brand), #0ea5a3);
+            color: #fff;
         }
 
-        .start-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        .btn-lite {
+            background: #eceff1;
+            color: #22303b;
         }
 
-        .start-btn:active {
-            transform: translateY(0);
+        .tip {
+            margin-top: 10px;
+            font-size: 0.86rem;
+            color: #4f5b64;
+            line-height: 1.5;
         }
 
-        .start-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
+        .mobile-pad {
+            margin-top: 12px;
+            display: grid;
+            place-items: center;
+            gap: 8px;
+            user-select: none;
         }
 
-        .reset-btn {
-            background: #ff6b6b;
-            color: white;
+        .pad-row {
+            display: flex;
+            gap: 8px;
         }
 
-        .reset-btn:hover {
-            background: #ff5252;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        .pad-btn {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: #fff;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #2c3f4f;
         }
 
-        .game-over {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #667eea;
-            display: none;
-        }
-
-        .game-over.show {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+        @media (min-width: 800px) {
+            .mobile-pad {
+                display: none;
             }
         }
 
-        @media (max-width: 480px) {
-            body {
-                padding: 5px;
-            }
-            
-            .game-container {
-                padding: 15px;
-                border-radius: 10px;
-            }
-            
-            h1 {
-                font-size: 1.5em;
-                margin-bottom: 10px;
-            }
-            
-            .game-info {
-                padding: 10px 5px;
-                margin-bottom: 15px;
-            }
-            
-            .info-label {
-                font-size: 0.75em;
-            }
-            
-            .info-value {
-                font-size: 1.4em;
-            }
-            
-            .game-board {
-                gap: 8px;
-                margin-bottom: 12px;
-            }
-            
-            button {
-                padding: 10px 18px;
-                font-size: 0.9em;
-            }
-            
-            .controls {
-                gap: 8px;
-            }
-            
-            .game-over {
-                font-size: 1.2em;
-                margin-top: 15px;
-            }
-        }
-        
-        @media (max-width: 360px) {
-            h1 {
-                font-size: 1.3em;
-            }
-            
-            .info-value {
-                font-size: 1.2em;
-            }
-            
-            .game-board {
-                gap: 6px;
-            }
-            
-            button {
-                padding: 8px 14px;
-                font-size: 0.85em;
+        @media (max-width: 520px) {
+            .info {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>🔨 打地鼠遊戲 🔨</h1>
-        
-        <div class="game-info">
-            <div class="info-item">
-                <div class="info-label">分數</div>
-                <div class="info-value" id="score">0</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">剩餘時間</div>
-                <div class="info-value" id="time">30</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">最高分</div>
-                <div class="info-value" id="highScore">0</div>
-            </div>
+    <main class="app">
+        <div class="head">
+            <h1>貪吃蛇小遊戲</h1>
+            <div id="status" class="status">待機中</div>
         </div>
 
-        <div class="game-board" id="gameBoard">
-            <div class="hole" data-index="0">
-                <div class="mole"></div>
+        <section class="info">
+            <div class="card">
+                <div class="label">目前分數</div>
+                <div id="score" class="value">0</div>
             </div>
-            <div class="hole" data-index="1">
-                <div class="mole"></div>
+            <div class="card">
+                <div class="label">最高分</div>
+                <div id="highScore" class="value">0</div>
             </div>
-            <div class="hole" data-index="2">
-                <div class="mole"></div>
+            <div class="card">
+                <div class="label">速度</div>
+                <div id="speed" class="value">1x</div>
             </div>
-            <div class="hole" data-index="3">
-                <div class="mole"></div>
-            </div>
-            <div class="hole" data-index="4">
-                <div class="mole"></div>
-            </div>
-            <div class="hole" data-index="5">
-                <div class="mole"></div>
-            </div>
-            <div class="hole" data-index="6">
-                <div class="mole"></div>
-            </div>
-            <div class="hole" data-index="7">
-                <div class="mole"></div>
-            </div>
-            <div class="hole" data-index="8">
-                <div class="mole"></div>
-            </div>
+        </section>
+
+        <div class="board-wrap">
+            <canvas id="board" width="600" height="600" aria-label="snake board"></canvas>
         </div>
 
         <div class="controls">
-            <button class="start-btn" id="startBtn">開始遊戲</button>
-            <button class="reset-btn" id="resetBtn">重置</button>
+            <button id="startBtn" class="btn-main" type="button">開始</button>
+            <button id="pauseBtn" class="btn-lite" type="button">暫停</button>
+            <button id="restartBtn" class="btn-lite" type="button">重來</button>
         </div>
 
-        <div class="game-over" id="gameOver">
-            遊戲結束！您的分數：<span id="finalScore">0</span>
+        <div class="tip">
+            操作方式：方向鍵或 WASD。按空白鍵可暫停/繼續。<br>
+            規則：吃到食物 +1，撞牆或撞到自己就結束。
         </div>
-    </div>
+
+        <div class="mobile-pad" aria-label="mobile controls">
+            <div class="pad-row">
+                <button class="pad-btn" data-dir="up" type="button">▲</button>
+            </div>
+            <div class="pad-row">
+                <button class="pad-btn" data-dir="left" type="button">◀</button>
+                <button class="pad-btn" data-dir="down" type="button">▼</button>
+                <button class="pad-btn" data-dir="right" type="button">▶</button>
+            </div>
+        </div>
+    </main>
 
     <script>
-        // 遊戲狀態
-        let score = 0;
-        let timeLeft = 30;
-        let highScore = localStorage.getItem('whackAMoleHighScore') || 0;
-        let isPlaying = false;
-        let moleTimer = null;
-        let countdownTimer = null;
-        let currentMole = null;
-        let audioContext = null;
+        const GRID = 20;
+        const CELL = 30;
+        const BASE_INTERVAL = 140;
 
-        // DOM 元素
-        const scoreDisplay = document.getElementById('score');
-        const timeDisplay = document.getElementById('time');
-        const highScoreDisplay = document.getElementById('highScore');
+        const board = document.getElementById('board');
+        const ctx = board.getContext('2d');
+        const statusEl = document.getElementById('status');
+        const scoreEl = document.getElementById('score');
+        const highScoreEl = document.getElementById('highScore');
+        const speedEl = document.getElementById('speed');
         const startBtn = document.getElementById('startBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const gameOver = document.getElementById('gameOver');
-        const finalScoreDisplay = document.getElementById('finalScore');
-        const holes = document.querySelectorAll('.hole');
-        const moles = document.querySelectorAll('.mole');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const restartBtn = document.getElementById('restartBtn');
 
-        // 初始化音頻上下文
-        function initAudioContext() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
+        let snake = [];
+        let direction = { x: 1, y: 0 };
+        let nextDirection = { x: 1, y: 0 };
+        let food = { x: 10, y: 10 };
+        let score = 0;
+        let running = false;
+        let paused = false;
+        let timer = null;
 
-        // 播放打擊聲音 - 快速上升的音調
-        function playWhackSound() {
-            initAudioContext();
-            const now = audioContext.currentTime;
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
+        const highScoreKey = 'snakeHighScore';
+        let highScore = Number(localStorage.getItem(highScoreKey) || 0);
+        highScoreEl.textContent = String(highScore);
 
-            osc.frequency.setValueAtTime(400, now);
-            osc.frequency.exponentialRampToValueAtTime(200, now + 0.1);
-            gain.gain.setValueAtTime(0.5, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-
-            osc.start(now);
-            osc.stop(now + 0.1);
-        }
-
-        // 播放遊戲開始聲音 - 兩個"beep"
-        function playStartSound() {
-            initAudioContext();
-            const now = audioContext.currentTime;
-            
-            // 第一個beep
-            const osc1 = audioContext.createOscillator();
-            const gain1 = audioContext.createGain();
-            osc1.connect(gain1);
-            gain1.connect(audioContext.destination);
-            osc1.frequency.value = 523.25; // C5
-            gain1.gain.setValueAtTime(0.3, now);
-            gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-            osc1.start(now);
-            osc1.stop(now + 0.15);
-            
-            // 第二個beep
-            const osc2 = audioContext.createOscillator();
-            const gain2 = audioContext.createGain();
-            osc2.connect(gain2);
-            gain2.connect(audioContext.destination);
-            osc2.frequency.value = 659.25; // E5
-            gain2.gain.setValueAtTime(0.3, now + 0.2);
-            gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-            osc2.start(now + 0.2);
-            osc2.stop(now + 0.35);
-        }
-
-        // 播放遊戲結束聲音 - 向下的音調
-        function playGameOverSound() {
-            initAudioContext();
-            const now = audioContext.currentTime;
-            
-            const frequencies = [523.25, 440, 392, 349.23]; // C5, A4, G4, F4
-            frequencies.forEach((freq, index) => {
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
-                osc.connect(gain);
-                gain.connect(audioContext.destination);
-                
-                const startTime = now + index * 0.1;
-                osc.frequency.value = freq;
-                gain.gain.setValueAtTime(0.2, startTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.08);
-                osc.start(startTime);
-                osc.stop(startTime + 0.08);
-            });
-        }
-
-        // 播放時間壓力聲音 - 快速beep（時間少于5秒時）
-        function playWarningSound() {
-            initAudioContext();
-            const now = audioContext.currentTime;
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            
-            osc.frequency.value = 800;
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-            osc.start(now);
-            osc.stop(now + 0.08);
-        }
-
-        // 初始化
-        highScoreDisplay.textContent = highScore;
-
-        // 隨機選擇一個洞
-        function randomHole() {
-            const index = Math.floor(Math.random() * holes.length);
-            return holes[index];
-        }
-
-        // 隨機時間（地鼠出現的時間）
-        function randomTime(min, max) {
-            return Math.round(Math.random() * (max - min) + min);
-        }
-
-        // 顯示地鼠
-        function popUp() {
-            if (!isPlaying) return;
-
-            const hole = randomHole();
-            const mole = hole.querySelector('.mole');
-            const time = randomTime(500, 1500);
-
-            // 移除之前的地鼠
-            if (currentMole) {
-                currentMole.classList.remove('show');
-            }
-
-            // 顯示新地鼠
-            mole.classList.add('show');
-            currentMole = mole;
-
-            // 設定地鼠消失時間
-            setTimeout(() => {
-                if (mole.classList.contains('show')) {
-                    mole.classList.remove('show');
-                }
-            }, time);
-
-            // 繼續遊戲
-            moleTimer = setTimeout(popUp, time);
-        }
-
-        // 打地鼠
-        function whackMole(e) {
-            if (!isPlaying) return;
-            
-            const mole = e.target;
-            if (!mole.classList.contains('show')) return;
-            if (mole.classList.contains('whacked')) return;
-
-            // 增加分數
-            score++;
-            scoreDisplay.textContent = score;
-
-            // 播放打擊聲音
-            playWhackSound();
-
-            // 播放打擊動畫
-            mole.classList.add('whacked');
-            mole.classList.remove('show');
-
-            // 顯示打擊效果
-            showHitEffect(mole.parentElement);
-
-            // 移除動畫類
-            setTimeout(() => {
-                mole.classList.remove('whacked');
-            }, 300);
-        }
-
-        // 顯示打擊效果
-        function showHitEffect(hole) {
-            const effect = document.createElement('div');
-            effect.className = 'hit-effect';
-            effect.textContent = '+1';
-            hole.appendChild(effect);
-
-            setTimeout(() => {
-                effect.remove();
-            }, 500);
-        }
-
-        // 倒數計時
-        function startCountdown() {
-            countdownTimer = setInterval(() => {
-                timeLeft--;
-                timeDisplay.textContent = timeLeft;
-
-                // 時間少于5秒時播放警告聲
-                if (timeLeft <= 5 && timeLeft > 0) {
-                    playWarningSound();
-                }
-
-                if (timeLeft <= 0) {
-                    endGame();
-                }
-            }, 1000);
-        }
-
-        // 開始遊戲
-        function startGame() {
-            // 重置狀態
+        function resetState() {
+            snake = [
+                { x: 5, y: 10 },
+                { x: 4, y: 10 },
+                { x: 3, y: 10 }
+            ];
+            direction = { x: 1, y: 0 };
+            nextDirection = { x: 1, y: 0 };
             score = 0;
-            timeLeft = 30;
-            isPlaying = true;
-            
-            scoreDisplay.textContent = score;
-            timeDisplay.textContent = timeLeft;
-            gameOver.classList.remove('show');
-            
-            startBtn.disabled = true;
-            startBtn.textContent = '遊戲進行中...';
-
-            // 播放開始聲音
-            playStartSound();
-
-            // 開始遊戲
-            popUp();
-            startCountdown();
+            paused = false;
+            scoreEl.textContent = '0';
+            speedEl.textContent = '1x';
+            placeFood();
+            render();
+            setStatus('待機中', '');
         }
 
-        // 結束遊戲
+        function setStatus(text, mode) {
+            statusEl.textContent = text;
+            statusEl.classList.remove('playing', 'over');
+            if (mode) {
+                statusEl.classList.add(mode);
+            }
+        }
+
+        function placeFood() {
+            let x;
+            let y;
+            do {
+                x = Math.floor(Math.random() * GRID);
+                y = Math.floor(Math.random() * GRID);
+            } while (snake.some((s) => s.x === x && s.y === y));
+            food = { x, y };
+        }
+
+        function getSpeedInterval() {
+            const level = Math.min(7, Math.floor(score / 4));
+            const speedText = (1 + level * 0.2).toFixed(1).replace('.0', '');
+            speedEl.textContent = speedText + 'x';
+            return Math.max(70, BASE_INTERVAL - level * 10);
+        }
+
+        function startGame() {
+            if (running && paused) {
+                togglePause();
+                return;
+            }
+            if (running) {
+                return;
+            }
+
+            running = true;
+            paused = false;
+            setStatus('進行中', 'playing');
+            clearInterval(timer);
+            timer = setInterval(step, getSpeedInterval());
+        }
+
+        function restartGame() {
+            clearInterval(timer);
+            running = false;
+            resetState();
+            startGame();
+        }
+
+        function togglePause() {
+            if (!running) {
+                return;
+            }
+            paused = !paused;
+            setStatus(paused ? '已暫停' : '進行中', paused ? '' : 'playing');
+        }
+
+        function updateDirection(dir) {
+            const map = {
+                up: { x: 0, y: -1 },
+                down: { x: 0, y: 1 },
+                left: { x: -1, y: 0 },
+                right: { x: 1, y: 0 }
+            };
+            const d = map[dir];
+            if (!d) {
+                return;
+            }
+            // 禁止直接反向，避免瞬間撞到自己。
+            if (d.x === -direction.x && d.y === -direction.y) {
+                return;
+            }
+            nextDirection = d;
+        }
+
+        function step() {
+            if (!running || paused) {
+                return;
+            }
+
+            direction = nextDirection;
+            const head = snake[0];
+            const newHead = {
+                x: head.x + direction.x,
+                y: head.y + direction.y
+            };
+
+            const hitWall = newHead.x < 0 || newHead.x >= GRID || newHead.y < 0 || newHead.y >= GRID;
+            const hitSelf = snake.some((part) => part.x === newHead.x && part.y === newHead.y);
+
+            if (hitWall || hitSelf) {
+                endGame();
+                return;
+            }
+
+            snake.unshift(newHead);
+
+            if (newHead.x === food.x && newHead.y === food.y) {
+                score += 1;
+                scoreEl.textContent = String(score);
+                placeFood();
+
+                const newInterval = getSpeedInterval();
+                clearInterval(timer);
+                timer = setInterval(step, newInterval);
+            } else {
+                snake.pop();
+            }
+
+            render();
+        }
+
         function endGame() {
-            isPlaying = false;
-            clearTimeout(moleTimer);
-            clearInterval(countdownTimer);
+            running = false;
+            clearInterval(timer);
+            setStatus('遊戲結束', 'over');
 
-            // 移除所有顯示的地鼠
-            moles.forEach(mole => {
-                mole.classList.remove('show');
-            });
-
-            // 播放遊戲結束聲音
-            playGameOverSound();
-
-            // 更新最高分
             if (score > highScore) {
                 highScore = score;
-                highScoreDisplay.textContent = highScore;
-                localStorage.setItem('whackAMoleHighScore', highScore);
+                localStorage.setItem(highScoreKey, String(highScore));
+                highScoreEl.textContent = String(highScore);
             }
-
-            // 顯示結束畫面
-            finalScoreDisplay.textContent = score;
-            gameOver.classList.add('show');
-
-            startBtn.disabled = false;
-            startBtn.textContent = '再玩一次';
         }
 
-        // 重置遊戲
-        function resetGame() {
-            isPlaying = false;
-            clearTimeout(moleTimer);
-            clearInterval(countdownTimer);
+        function drawCell(x, y, color, radius) {
+            const px = x * CELL;
+            const py = y * CELL;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.roundRect(px + 2, py + 2, CELL - 4, CELL - 4, radius);
+            ctx.fill();
+        }
 
-            score = 0;
-            timeLeft = 30;
-            
-            scoreDisplay.textContent = score;
-            timeDisplay.textContent = timeLeft;
-            gameOver.classList.remove('show');
+        function render() {
+            ctx.clearRect(0, 0, board.width, board.height);
 
-            moles.forEach(mole => {
-                mole.classList.remove('show', 'whacked');
+            drawCell(food.x, food.y, getComputedStyle(document.documentElement).getPropertyValue('--food').trim(), 10);
+
+            snake.forEach((part, idx) => {
+                const color = idx === 0
+                    ? getComputedStyle(document.documentElement).getPropertyValue('--snake-head').trim()
+                    : getComputedStyle(document.documentElement).getPropertyValue('--snake').trim();
+                drawCell(part.x, part.y, color, idx === 0 ? 9 : 7);
             });
-
-            startBtn.disabled = false;
-            startBtn.textContent = '開始遊戲';
         }
 
-        // 事件監聽
-        startBtn.addEventListener('click', startGame);
-        resetBtn.addEventListener('click', resetGame);
-        moles.forEach(mole => {
-            mole.addEventListener('click', whackMole);
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'arrowup' || key === 'w') {
+                updateDirection('up');
+            } else if (key === 'arrowdown' || key === 's') {
+                updateDirection('down');
+            } else if (key === 'arrowleft' || key === 'a') {
+                updateDirection('left');
+            } else if (key === 'arrowright' || key === 'd') {
+                updateDirection('right');
+            } else if (key === ' ') {
+                e.preventDefault();
+                togglePause();
+            }
         });
+
+        document.querySelectorAll('.pad-btn').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                updateDirection(btn.dataset.dir);
+            });
+        });
+
+        startBtn.addEventListener('click', startGame);
+        pauseBtn.addEventListener('click', togglePause);
+        restartBtn.addEventListener('click', restartGame);
+
+        resetState();
     </script>
 </body>
 </html>

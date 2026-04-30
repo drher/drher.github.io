@@ -205,6 +205,14 @@
             animation-delay: 0.2s;
         }
 
+        .project-card:nth-child(4) {
+            animation-delay: 0.28s;
+        }
+
+        .project-card:nth-child(5) {
+            animation-delay: 0.36s;
+        }
+
         .project-card::before {
             content: "";
             position: absolute;
@@ -229,6 +237,10 @@
 
         .project-card.gemini::before {
             background: radial-gradient(circle, rgba(191, 91, 57, 0.22), rgba(191, 91, 57, 0));
+        }
+
+        .project-card.ntfy::before {
+            background: radial-gradient(circle, rgba(20, 117, 136, 0.24), rgba(20, 117, 136, 0));
         }
 
         .project-card h3 {
@@ -311,6 +323,13 @@
                 linear-gradient(145deg, #f4ede2 0%, #dfe9e2 100%);
         }
 
+        .project-thumb.ntfy-thumb {
+            background:
+                radial-gradient(circle at 10% 16%, rgba(15, 118, 110, 0.16), transparent 26%),
+                radial-gradient(circle at 88% 18%, rgba(180, 83, 9, 0.16), transparent 24%),
+                linear-gradient(145deg, #eef6f7 0%, #f6efe2 100%);
+        }
+
         .gemini-bubble {
             position: absolute;
             padding: 10px 14px;
@@ -347,6 +366,46 @@
             height: 22px;
             border-radius: 50%;
             background: linear-gradient(135deg, #bf5b39, #25594a);
+        }
+
+        .ntfy-bubble {
+            position: absolute;
+            max-width: 220px;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            line-height: 1.5;
+            border: 1px solid rgba(31, 26, 23, 0.1);
+        }
+
+        .ntfy-bubble.left {
+            left: 16px;
+            top: 70px;
+            background: #ffffff;
+            border-bottom-left-radius: 5px;
+        }
+
+        .ntfy-bubble.right {
+            right: 16px;
+            top: 132px;
+            background: linear-gradient(135deg, #d8f2ed, #e9fffa);
+            border-color: rgba(15, 118, 110, 0.28);
+            border-bottom-right-radius: 5px;
+        }
+
+        .ntfy-chip {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            color: #0f766e;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(15, 118, 110, 0.22);
         }
 
         .thumb-label {
@@ -562,7 +621,7 @@
                 <p class="lead">
                     我正在持續累積前端與互動設計作品，透過簡單直接的遊戲機制，練習
                     <strong>版面設計、操作手感、邏輯實作</strong>
-                    與使用者體驗。下面收錄了目前完成的四個互動作品。
+                    與使用者體驗。下面收錄了目前完成的五個互動作品。
                 </p>
             </article>
         </section>
@@ -652,6 +711,24 @@
                             <div class="gemini-bubble user">請問台灣最高的山是哪座？</div>
                             <div class="gemini-avatar"></div>
                             <div class="gemini-bubble ai">台灣最高的山是玉山，海拔 3,952 公尺。</div>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="project-card ntfy">
+                    <h3>訊息快速發送台</h3>
+                    <p>改用 ntfy.sh 的 HTTPS + SSE 架構，避開校園網路常見的 WebSocket 封鎖情境，維持即時收發與雙邊對話顯示體驗。</p>
+                    <div class="tag-row">
+                        <span class="tag">即時訊息</span>
+                        <span class="tag">SSE</span>
+                        <span class="tag">HTTP API</span>
+                    </div>
+                    <a class="project-link" href="5/index.html" aria-label="前往訊息快速發送台作品">
+                        <div class="project-thumb ntfy-thumb">
+                            <span class="thumb-label">ntfy.sh Messenger</span>
+                            <div class="ntfy-chip">Connected</div>
+                            <div class="ntfy-bubble left">何帥:你好，聽得到嗎？</div>
+                            <div class="ntfy-bubble right">我這邊收到，連線正常。</div>
                         </div>
                     </a>
                 </article>
