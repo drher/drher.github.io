@@ -1,514 +1,357 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>訊息快速發送台（ntfy.sh）</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ntfy 聊天對話窗</title>
+  <style>
+    :root {
+      --bg: #f2f5f8;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --line: #d8e1ea;
+      --left: #eef2f7;
+      --right: #0f766e;
+      --right-text: #ffffff;
+      --accent: #0ea5a3;
+      --danger: #b91c1c;
+    }
 
-        :root {
-            --bg-1: #fff9ec;
-            --bg-2: #e7f1f3;
-            --panel: rgba(255, 255, 255, 0.86);
-            --panel-strong: #ffffff;
-            --line: rgba(21, 28, 34, 0.16);
-            --text: #162126;
-            --muted: #5a6770;
-            --brand: #0f766e;
-            --brand-2: #115e59;
-            --warn: #b45309;
-            --danger: #b42318;
-            --ok: #0a7a49;
-            --shadow: 0 24px 60px rgba(28, 38, 49, 0.18);
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        * {
-            box-sizing: border-box;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, #dff7f5 0%, transparent 40%),
+        radial-gradient(circle at 80% 10%, #eaf1ff 0%, transparent 35%),
+        var(--bg);
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            padding: 18px;
-            font-family: 'Noto Sans TC', sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at 10% 12%, rgba(15, 118, 110, 0.18), transparent 22%),
-                radial-gradient(circle at 88% 22%, rgba(180, 83, 9, 0.12), transparent 24%),
-                linear-gradient(140deg, var(--bg-1), var(--bg-2));
-            display: grid;
-            place-items: center;
-        }
+    .chat-app {
+      width: min(900px, 100%);
+      height: min(85vh, 760px);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+    }
 
-        .app {
-            width: min(980px, 100%);
-            background: var(--panel);
-            border: 1px solid var(--line);
-            border-radius: 24px;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            animation: in 420ms ease-out;
-        }
+    .topbar {
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 10px;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fcff 100%);
+    }
 
-        .head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 14px;
-            padding: 18px 20px;
-            border-bottom: 1px solid var(--line);
-            background: var(--panel-strong);
-        }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 10px;
+      align-items: center;
+    }
 
-        .title {
-            font-size: clamp(1.15rem, 2.6vw, 1.45rem);
-            font-weight: 900;
-            letter-spacing: 0.02em;
-        }
+    .topic-input,
+    .msg-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      outline: none;
+      font-size: 15px;
+      transition: border-color 0.15s ease;
+    }
 
-        .status {
-            font-size: 0.84rem;
-            font-weight: 700;
-            border: 1px solid var(--line);
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: #fff;
-            color: var(--muted);
-        }
+    .topic-input:focus,
+    .msg-input:focus {
+      border-color: var(--accent);
+    }
 
-        .status.ok {
-            color: var(--ok);
-            border-color: rgba(10, 122, 73, 0.42);
-        }
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.08s ease, filter 0.15s ease;
+    }
 
-        .status.warn {
-            color: var(--warn);
-            border-color: rgba(180, 83, 9, 0.38);
-        }
+    .btn:active {
+      transform: translateY(1px);
+    }
 
-        .status.err {
-            color: var(--danger);
-            border-color: rgba(180, 35, 24, 0.38);
-        }
+    .btn-connect {
+      background: #0f766e;
+      color: #fff;
+      font-weight: 700;
+    }
 
-        .chat-wrap {
-            margin: 16px;
-            margin-bottom: 0;
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.88);
-            overflow: hidden;
-        }
+    .btn-send {
+      background: #0ea5a3;
+      color: #fff;
+      font-weight: 700;
+      min-width: 90px;
+    }
 
-        .chat-head {
-            padding: 10px 12px;
-            font-size: 0.88rem;
-            font-weight: 800;
-            border-bottom: 1px solid var(--line);
-            background: rgba(255, 255, 255, 0.95);
-        }
+    .btn:hover {
+      filter: brightness(1.05);
+    }
 
-        .chat-thread {
-            min-height: 170px;
-            max-height: 240px;
-            overflow: auto;
-            padding: 10px;
-            display: grid;
-            gap: 8px;
-            background:
-                linear-gradient(180deg, #f8fcff, #f3faf8),
-                repeating-linear-gradient(0deg, transparent 0 26px, rgba(15, 118, 110, 0.03) 26px 27px);
-        }
+    .status {
+      font-size: 13px;
+      color: var(--muted);
+    }
 
-        .msg-row {
-            display: flex;
-        }
+    .status.connected {
+      color: #047857;
+      font-weight: 700;
+    }
 
-        .msg-row.left {
-            justify-content: flex-start;
-        }
+    .status.error {
+      color: var(--danger);
+      font-weight: 700;
+    }
 
-        .msg-row.right {
-            justify-content: flex-end;
-        }
+    .messages {
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: linear-gradient(180deg, #f9fcff 0%, #f4f8fb 100%);
+    }
 
-        .bubble {
-            max-width: min(80%, 600px);
-            padding: 8px 10px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            line-height: 1.45;
-            border: 1px solid var(--line);
-            word-break: break-word;
-            box-shadow: 0 4px 12px rgba(21, 28, 34, 0.08);
-        }
+    .message {
+      max-width: min(72ch, 80%);
+      padding: 10px 12px;
+      border-radius: 14px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      animation: rise 0.18s ease;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+    }
 
-        .bubble.left {
-            background: #ffffff;
-        }
+    .message.left {
+      align-self: flex-start;
+      background: var(--left);
+      border-top-left-radius: 4px;
+    }
 
-        .bubble.right {
-            background: linear-gradient(135deg, #d7f3ef, #ecfffa);
-            border-color: rgba(15, 118, 110, 0.32);
-        }
+    .message.right {
+      align-self: flex-end;
+      background: var(--right);
+      color: var(--right-text);
+      border-top-right-radius: 4px;
+    }
 
-        .bubble-meta {
-            margin-top: 4px;
-            font-size: 0.72rem;
-            color: var(--muted);
-        }
+    .meta {
+      margin-top: 5px;
+      font-size: 11px;
+      opacity: 0.75;
+    }
 
-        .layout {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-            padding: 16px;
-        }
+    .composer {
+      border-top: 1px solid var(--line);
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      background: #fff;
+    }
 
-        .card {
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.86);
-            padding: 14px;
-            display: grid;
-            gap: 10px;
-        }
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-        .card h2 {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 800;
-        }
+    @media (max-width: 700px) {
+      body {
+        padding: 10px;
+      }
 
-        .field {
-            display: grid;
-            gap: 6px;
-        }
+      .chat-app {
+        height: 92vh;
+      }
 
-        .field.row {
-            grid-template-columns: 1fr 110px;
-            gap: 10px;
-        }
+      .controls {
+        grid-template-columns: 1fr;
+      }
 
-        label {
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: var(--muted);
-        }
+      .btn-connect {
+        width: 100%;
+      }
 
-        input,
-        select,
-        textarea {
-            width: 100%;
-            border: 1px solid rgba(32, 45, 58, 0.2);
-            border-radius: 12px;
-            background: #fff;
-            color: var(--text);
-            padding: 10px 12px;
-            font: inherit;
-            transition: border-color 180ms ease, box-shadow 180ms ease;
-        }
+      .composer {
+        grid-template-columns: 1fr;
+      }
 
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: rgba(15, 118, 110, 0.62);
-            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
-        }
+      .btn-send {
+        width: 100%;
+      }
 
-        textarea {
-            min-height: 96px;
-            resize: vertical;
-        }
-
-        .hint {
-            font-size: 0.78rem;
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
-        .actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            padding: 0 16px 16px;
-        }
-
-        button {
-            border: 0;
-            border-radius: 12px;
-            padding: 10px 14px;
-            min-width: 112px;
-            font: inherit;
-            font-weight: 800;
-            cursor: pointer;
-            transition: transform 0.12s ease, filter 0.2s ease;
-        }
-
-        button:hover {
-            filter: brightness(0.98);
-        }
-
-        button:active {
-            transform: translateY(1px);
-        }
-
-        .btn-main {
-            color: #fff;
-            background: linear-gradient(135deg, var(--brand), var(--brand-2));
-        }
-
-        .btn-lite {
-            background: #eef2f3;
-            color: #1d2a34;
-        }
-
-        .log {
-            margin: 0 16px 16px;
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            background: #0f172a;
-            color: #d7e3ff;
-            padding: 12px;
-            min-height: 140px;
-            max-height: 250px;
-            overflow: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        @keyframes in {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 780px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+      .message {
+        max-width: 92%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <main class="app">
-        <header class="head">
-            <div class="title">訊息快速發送台（ntfy.sh）</div>
-            <div id="status" class="status">未連線</div>
-        </header>
+  <main class="chat-app" aria-label="聊天對話窗">
+    <section class="topbar">
+      <div class="controls">
+        <input id="topicInput" class="topic-input" type="text" value="drher" placeholder="輸入 Topic，例如 drher" />
+        <input id="usernameInput" class="topic-input" type="text" value="何帥" placeholder="使用者名稱" style="max-width:120px" />
+        <button id="connectBtn" class="btn btn-connect" type="button">連線 / 訂閱</button>
+        <span id="status" class="status" role="status" aria-live="polite">未連線</span>
+      </div>
+    </section>
 
-        <section class="chat-wrap">
-            <div class="chat-head">對話視窗（右：我送出｜左：同頻道收到）</div>
-            <div id="chatThread" class="chat-thread"></div>
-        </section>
+    <section id="messages" class="messages" aria-label="聊天訊息視窗"></section>
 
-        <section class="layout">
-            <article class="card">
-                <h2>ntfy.sh 設定</h2>
-                <div class="field">
-                    <label for="server">Server</label>
-                    <input id="server" value="https://ntfy.sh" autocomplete="off">
-                </div>
-                <div class="field">
-                    <label for="topic">Topic（頻道名稱）</label>
-                    <input id="topic" value="drher" class="mono" autocomplete="off">
-                </div>
-                <div class="hint">
-                    ntfy.sh 透過標準 HTTPS（port 443）運作，不使用 WebSocket，學校網路通常不會封鎖。<br>
-                    Topic 名稱即為頻道，同一 Topic 的人可互相收訊。建議使用不容易猜到的字串。
-                </div>
-            </article>
+    <section class="composer">
+      <input id="messageInput" class="msg-input" type="text" placeholder="輸入訊息後按 Enter 送出" autocomplete="off" />
+      <button id="sendBtn" class="btn btn-send" type="button">送出</button>
+    </section>
+  </main>
 
-            <article class="card">
-                <h2>訊息設定</h2>
-                <div class="field">
-                    <label for="payload">訊息內容（Payload）</label>
-                    <textarea id="payload" class="mono">testOK</textarea>
-                </div>
-                <div class="field">
-                    <label for="autoSub">連線後自動訂閱同 Topic（建議開啟）</label>
-                    <select id="autoSub">
-                        <option value="true" selected>開啟</option>
-                        <option value="false">關閉</option>
-                    </select>
-                </div>
-                <div class="hint">開啟自動訂閱後，自己送的訊息也會回顯，最適合做快速驗證。</div>
-            </article>
-        </section>
+  <script>
+    const topicInput = document.getElementById("topicInput");
+    const usernameInput = document.getElementById("usernameInput");
+    const connectBtn = document.getElementById("connectBtn");
+    const statusEl = document.getElementById("status");
+    const messagesEl = document.getElementById("messages");
+    const messageInput = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
 
-        <section class="actions">
-            <button id="connectBtn" class="btn-main" type="button">連線 / 訂閱</button>
-            <button id="disconnectBtn" class="btn-lite" type="button">中斷</button>
-            <button id="sendBtn" class="btn-main" type="button">發送</button>
-            <button id="clearBtn" class="btn-lite" type="button">清空 Log</button>
-        </section>
+    let eventSource = null;
+    let currentTopic = "drher";
 
-        <pre id="log" class="log">[INIT] 輸入 Topic，按「連線 / 訂閱」即可開始。</pre>
-    </main>
+    function setStatus(text, mode = "") {
+      statusEl.textContent = text;
+      statusEl.className = "status";
+      if (mode) statusEl.classList.add(mode);
+    }
 
-    <script>
-        const el = {
-            server: document.getElementById('server'),
-            topic: document.getElementById('topic'),
-            payload: document.getElementById('payload'),
-            autoSub: document.getElementById('autoSub'),
-            connectBtn: document.getElementById('connectBtn'),
-            disconnectBtn: document.getElementById('disconnectBtn'),
-            sendBtn: document.getElementById('sendBtn'),
-            clearBtn: document.getElementById('clearBtn'),
-            status: document.getElementById('status'),
-            log: document.getElementById('log'),
-            chatThread: document.getElementById('chatThread')
-        };
+    function addMessage(text, side, meta = "") {
+      const item = document.createElement("article");
+      item.className = `message ${side}`;
+      item.textContent = text;
 
-        let eventSource = null;
+      if (meta) {
+        const metaEl = document.createElement("div");
+        metaEl.className = "meta";
+        metaEl.textContent = meta;
+        item.appendChild(metaEl);
+      }
 
-        function log(message) {
-            const t = new Date().toLocaleTimeString('zh-TW', { hour12: false });
-            el.log.textContent += `\n[${t}] ${message}`;
-            el.log.scrollTop = el.log.scrollHeight;
-        }
+      messagesEl.appendChild(item);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
 
-        function setStatus(text, cls) {
-            el.status.textContent = text;
-            el.status.classList.remove('ok', 'warn', 'err');
-            if (cls) {
-                el.status.classList.add(cls);
-            }
-        }
+    function parseNtfyEvent(rawData) {
+      try {
+        return JSON.parse(rawData);
+      } catch {
+        return null;
+      }
+    }
 
-        function renderChatMessage(text, side, topic) {
-            const row = document.createElement('div');
-            row.className = `msg-row ${side}`;
+    function subscribeTopic() {
+      const topic = topicInput.value.trim() || "drher";
+      currentTopic = topic;
 
-            const bubble = document.createElement('div');
-            bubble.className = `bubble ${side}`;
+      if (eventSource) {
+        eventSource.close();
+      }
 
-            const content = document.createElement('div');
-            content.textContent = text;
+      const url = `https://ntfy.sh/${encodeURIComponent(topic)}/sse`;
+      setStatus("連線中...");
+      addMessage(`正在訂閱 Topic：${topic}`, "left", "系統");
 
-            const meta = document.createElement('div');
-            meta.className = 'bubble-meta';
-            meta.textContent = `${new Date().toLocaleTimeString('zh-TW', { hour12: false })} | ${topic}`;
+      eventSource = new EventSource(url);
 
-            bubble.appendChild(content);
-            bubble.appendChild(meta);
-            row.appendChild(bubble);
-            el.chatThread.appendChild(row);
-            el.chatThread.scrollTop = el.chatThread.scrollHeight;
-        }
+      eventSource.onopen = () => {
+        setStatus("已連線", "connected");
+      };
 
-        function connect() {
-            const topic = el.topic.value.trim();
-            const server = el.server.value.trim().replace(/\/$/, '');
+      eventSource.onerror = () => {
+        setStatus("連線異常，將嘗試維持訂閱", "error");
+      };
 
-            if (!topic) {
-                setStatus('Topic 空白', 'err');
-                log('連線失敗：Topic 不可空白');
-                return;
-            }
+      eventSource.onmessage = (evt) => {
+        const data = parseNtfyEvent(evt.data);
+        if (!data) return;
+        if (data.event !== "message") return;
 
-            if (eventSource) {
-                eventSource.close();
-                eventSource = null;
-            }
+        const text = data.message || "(空訊息)";
+        const ts = data.time ? new Date(data.time * 1000).toLocaleTimeString() : "";
+        addMessage(text, "left", ts || topic);
+      };
+    }
 
-            const url = `${server}/${encodeURIComponent(topic)}/sse`;
-            setStatus('連線中...', 'warn');
-            log(`嘗試訂閱（SSE）：${url}`);
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
 
-            eventSource = new EventSource(url);
+      if (!eventSource) {
+        setStatus("請先連線 / 訂閱", "error");
+        return;
+      }
 
-            eventSource.onopen = () => {
-                setStatus('已連線', 'ok');
-                log(`訂閱成功：${topic}（ntfy.sh SSE，HTTPS，無 WebSocket）`);
-            };
+      const url = `https://ntfy.sh/${encodeURIComponent(currentTopic)}`;
+      const now = new Date().toLocaleTimeString();
+      const username = usernameInput.value.trim() || "匿名";
+      const body = `${username}: ${text}`;
 
-            eventSource.addEventListener('message', (e) => {
-                try {
-                    const data = JSON.parse(e.data);
-                    if (data.event === 'message') {
-                        const text = data.message || '';
-                        log(`收到訊息 topic=${data.topic} message=${text}`);
-                        renderChatMessage(text, 'left', data.topic);
-                    }
-                } catch (_) {
-                    // ignore parse errors
-                }
-            });
-
-            eventSource.onerror = () => {
-                setStatus('連線錯誤', 'err');
-                log('SSE 連線發生錯誤，瀏覽器將自動重試；若持續失敗請確認 Server / Topic 是否正確');
-            };
-        }
-
-        function disconnect() {
-            if (!eventSource) {
-                log('目前沒有可中斷的連線');
-                return;
-            }
-            eventSource.close();
-            eventSource = null;
-            setStatus('已中斷');
-            log('手動中斷連線');
-        }
-
-        async function sendMessage() {
-            const topic = el.topic.value.trim();
-            const server = el.server.value.trim().replace(/\/$/, '');
-            const rawPayload = el.payload.value;
-            const payload = rawPayload.startsWith('何帥:') ? rawPayload : `何帥:${rawPayload}`;
-
-            if (!topic) {
-                setStatus('Topic 空白', 'err');
-                log('發送失敗：Topic 不可空白');
-                return;
-            }
-
-            // 先顯示自己送出的訊息，確保右側會早於左側回顯。
-            renderChatMessage(payload, 'right', topic);
-            log(`發送中 topic=${topic} payload=${payload}`);
-
-            try {
-                const response = await fetch(`${server}/${encodeURIComponent(topic)}`, {
-                    method: 'POST',
-                    body: payload
-                });
-
-                if (response.ok) {
-                    log(`已發送 topic=${topic} payload=${payload}`);
-                } else {
-                    setStatus('發送失敗', 'err');
-                    log(`發送失敗：HTTP ${response.status}`);
-                }
-            } catch (err) {
-                setStatus('發送失敗', 'err');
-                log(`發送失敗：${err.message}`);
-            }
-        }
-
-        el.connectBtn.addEventListener('click', connect);
-        el.disconnectBtn.addEventListener('click', disconnect);
-        el.sendBtn.addEventListener('click', sendMessage);
-        el.clearBtn.addEventListener('click', () => {
-            el.log.textContent = '[LOG] 已清空';
-            el.chatThread.textContent = '';
+      try {
+        const resp = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8"
+          },
+          body
         });
-    </script>
+
+        if (!resp.ok) {
+          throw new Error(`HTTP ${resp.status}`);
+        }
+
+        addMessage(body, "right", now);
+        messageInput.value = "";
+        messageInput.focus();
+      } catch (err) {
+        setStatus(`送出失敗：${err.message}`, "error");
+      }
+    }
+
+    connectBtn.addEventListener("click", subscribeTopic);
+    sendBtn.addEventListener("click", sendMessage);
+
+    messageInput.addEventListener("keydown", (evt) => {
+      if (evt.key === "Enter") {
+        evt.preventDefault();
+        sendMessage();
+      }
+    });
+  </script>
 </body>
 </html>
