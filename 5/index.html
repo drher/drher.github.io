@@ -480,6 +480,8 @@
                 return;
             }
 
+            // 先顯示自己送出的訊息，確保右側會早於左側回顯。
+            renderChatMessage(payload, 'right', topic);
             log(`發送中 topic=${topic} payload=${payload}`);
 
             try {
@@ -490,7 +492,6 @@
 
                 if (response.ok) {
                     log(`已發送 topic=${topic} payload=${payload}`);
-                    renderChatMessage(payload, 'right', topic);
                 } else {
                     setStatus('發送失敗', 'err');
                     log(`發送失敗：HTTP ${response.status}`);
