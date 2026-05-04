@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>簡易記事本</title>
+  <style>
+    :root {
+      --bg-a: #f7f4ec;
+      --bg-b: #efe3c9;
+      --card: #fffdf7;
+      --text: #2f2a20;
+      --muted: #6e6554;
+      --line: #d7cdb8;
+      --accent: #8e5f2f;
+      --accent-2: #5f3e1d;
+      --ok: #246a3e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, #ffffffb3 0 18%, transparent 19%),
+        radial-gradient(circle at 90% 90%, #ffffff99 0 20%, transparent 21%),
+        linear-gradient(135deg, var(--bg-a), var(--bg-b));
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(920px, 100%);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 14px 40px #6b5a3f33;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #faf4e8);
+    }
+
+    button {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform .15s ease, filter .2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.03);
+    }
+
+    .btn-open {
+      background: #f0e3ca;
+      border-color: #d8c2a0;
+      color: #493018;
+    }
+
+    .btn-save {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-save:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
+
+    .meta {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 68dvh;
+      border: 0;
+      resize: vertical;
+      outline: none;
+      padding: 20px;
+      font: 16px/1.65 "Consolas", "Courier New", monospace;
+      color: var(--text);
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          #fffefb,
+          #fffefb 30px,
+          #efe6d5 30px,
+          #efe6d5 31px
+        );
+      tab-size: 2;
+    }
+
+    .status {
+      padding: 10px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .status.ok {
+      color: var(--ok);
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="toolbar">
+      <button class="btn-open" id="openBtn" type="button">開啟 文件.txt</button>
+      <button class="btn-save" id="saveBtn" type="button" disabled>儲存</button>
+      <span class="meta" id="fileName">目前檔案：未開啟</span>
+    </div>
+    <textarea id="editor" placeholder="請先按「開啟 文件.txt」載入內容..." spellcheck="false"></textarea>
+    <div class="status" id="status">準備就緒</div>
+  </main>
+
+  <script>
+    const openBtn = document.getElementById("openBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const editor = document.getElementById("editor");
+    const fileName = document.getElementById("fileName");
+    const statusBar = document.getElementById("status");
+
+    const DB_NAME = "simple-notepad-db";
+    const STORE_NAME = "handles";
+    const HANDLE_KEY = "last-file";
+
+    let fileHandle = null;
+    let dirty = false;
+
+    function setStatus(message, ok = false) {
+      statusBar.textContent = message;
+      statusBar.classList.toggle("ok", ok);
+    }
+
+    function updateUI() {
+      saveBtn.disabled = !fileHandle;
+      fileName.textContent = `目前檔案：${fileHandle ? fileHandle.name : "未開啟"}${dirty ? " (未儲存)" : ""}`;
+    }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = () => {
+          req.result.createObjectStore(STORE_NAME);
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveHandle(handle) {
+      const db = await openDB();
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readwrite");
+        tx.objectStore(STORE_NAME).put(handle, HANDLE_KEY);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+    }
+
+    async function getSavedHandle() {
+      const db = await openDB();
+      const handle = await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, "readonly");
+        const req = tx.objectStore(STORE_NAME).get(HANDLE_KEY);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+      db.close();
+      return handle;
+    }
+
+    async function readCurrentFile() {
+      if (!fileHandle) return;
+      const file = await fileHandle.getFile();
+      editor.value = await file.text();
+      dirty = false;
+      updateUI();
+      setStatus(`已載入 ${fileHandle.name}`, true);
+    }
+
+    async function ensureWritePermission(handle) {
+      const options = { mode: "readwrite" };
+      if ((await handle.queryPermission(options)) === "granted") return true;
+      if ((await handle.requestPermission(options)) === "granted") return true;
+      return false;
+    }
+
+    async function pickDefaultFile() {
+      if (!window.showOpenFilePicker) {
+        throw new Error("目前瀏覽器不支援檔案系統 API，請使用最新版 Chrome 或 Edge。");
+      }
+
+      const [handle] = await window.showOpenFilePicker({
+        multiple: false,
+        suggestedName: "文件.txt",
+        types: [{
+          description: "文字檔",
+          accept: { "text/plain": [".txt"] }
+        }]
+      });
+
+      return handle;
+    }
+
+    async function openFileFlow() {
+      try {
+        const handle = await pickDefaultFile();
+        if (!handle) return;
+        fileHandle = handle;
+        await saveHandle(fileHandle);
+        await readCurrentFile();
+      } catch (error) {
+        if (error && error.name === "AbortError") {
+          setStatus("已取消開啟檔案");
+          return;
+        }
+        setStatus(`開啟失敗：${error.message || error}`);
+      } finally {
+        updateUI();
+      }
+    }
+
+    async function saveFileFlow() {
+      if (!fileHandle) {
+        setStatus("請先開啟 文件.txt");
+        return;
+      }
+
+      try {
+        const granted = await ensureWritePermission(fileHandle);
+        if (!granted) {
+          setStatus("沒有寫入權限，無法儲存");
+          return;
+        }
+
+        const writable = await fileHandle.createWritable();
+        await writable.write(editor.value);
+        await writable.close();
+
+        dirty = false;
+        updateUI();
+        setStatus("儲存完成", true);
+      } catch (error) {
+        setStatus(`儲存失敗：${error.message || error}`);
+      }
+    }
+
+    editor.addEventListener("input", () => {
+      dirty = true;
+      updateUI();
+    });
+
+    openBtn.addEventListener("click", openFileFlow);
+    saveBtn.addEventListener("click", saveFileFlow);
+
+    window.addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        saveFileFlow();
+      }
+    });
+
+    (async () => {
+      updateUI();
+      try {
+        const lastHandle = await getSavedHandle();
+        if (!lastHandle) {
+          setStatus("請先按「開啟 文件.txt」指定檔案一次");
+          return;
+        }
+
+        fileHandle = lastHandle;
+        const granted = await lastHandle.queryPermission({ mode: "read" });
+        if (granted === "granted") {
+          await readCurrentFile();
+          return;
+        }
+
+        setStatus("偵測到上次檔案，按「開啟 文件.txt」即可重新授權");
+      } catch (error) {
+        setStatus(`初始化失敗：${error.message || error}`);
+      } finally {
+        updateUI();
+      }
+    })();
+  </script>
+</body>
+</html>
