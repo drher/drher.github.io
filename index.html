@@ -213,6 +213,10 @@
             animation-delay: 0.36s;
         }
 
+        .project-card:nth-child(6) {
+            animation-delay: 0.44s;
+        }
+
         .project-card::before {
             content: "";
             position: absolute;
@@ -241,6 +245,10 @@
 
         .project-card.ntfy::before {
             background: radial-gradient(circle, rgba(20, 117, 136, 0.24), rgba(20, 117, 136, 0));
+        }
+
+        .project-card.notepad::before {
+            background: radial-gradient(circle, rgba(142, 95, 47, 0.24), rgba(142, 95, 47, 0));
         }
 
         .project-card h3 {
@@ -330,6 +338,12 @@
                 linear-gradient(145deg, #eef6f7 0%, #f6efe2 100%);
         }
 
+        .project-thumb.notepad-thumb {
+            background:
+                radial-gradient(circle at 16% 14%, rgba(173, 118, 64, 0.2), transparent 24%),
+                linear-gradient(150deg, #fbf8ef 0%, #efe2c6 100%);
+        }
+
         .gemini-bubble {
             position: absolute;
             padding: 10px 14px;
@@ -406,6 +420,37 @@
             color: #0f766e;
             background: rgba(255, 255, 255, 0.88);
             border: 1px solid rgba(15, 118, 110, 0.22);
+        }
+
+        .notepad-lines {
+            position: absolute;
+            inset: 54px 16px 16px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(94, 75, 61, 0.12);
+            background:
+                repeating-linear-gradient(
+                    to bottom,
+                    rgba(255, 255, 255, 0.84),
+                    rgba(255, 255, 255, 0.84) 24px,
+                    rgba(180, 162, 129, 0.42) 24px,
+                    rgba(180, 162, 129, 0.42) 25px
+                );
+            padding: 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #5c4831;
+            line-height: 1.85;
+        }
+
+        .notepad-pin {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #fff, #c87844 60%, #9b4f20 100%);
+            box-shadow: 0 2px 6px rgba(89, 54, 27, 0.28);
         }
 
         .thumb-label {
@@ -621,7 +666,7 @@
                 <p class="lead">
                     我正在持續累積前端與互動設計作品，透過簡單直接的遊戲機制，練習
                     <strong>版面設計、操作手感、邏輯實作</strong>
-                    與使用者體驗。下面收錄了目前完成的五個互動作品。
+                    與使用者體驗。下面收錄了目前完成的六個互動作品。
                 </p>
             </article>
         </section>
@@ -729,6 +774,23 @@
                             <div class="ntfy-chip">Connected</div>
                             <div class="ntfy-bubble left">何帥:你好，聽得到嗎？</div>
                             <div class="ntfy-bubble right">我這邊收到，連線正常。</div>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="project-card notepad">
+                    <h3>簡易記事本</h3>
+                    <p>在瀏覽器中編輯並回存到 文件.txt，整合檔案連結、權限請求與快捷鍵儲存流程，讓文字紀錄更直覺快速。</p>
+                    <div class="tag-row">
+                        <span class="tag">文字編輯</span>
+                        <span class="tag">檔案回存</span>
+                        <span class="tag">File System API</span>
+                    </div>
+                    <a class="project-link" href="6/index.html" aria-label="前往簡易記事本作品">
+                        <div class="project-thumb notepad-thumb">
+                            <span class="thumb-label">Simple Notepad</span>
+                            <div class="notepad-pin"></div>
+                            <div class="notepad-lines">- 今日待辦<br>- 作品集第6部分完成<br>- 記得按 Ctrl + S 儲存</div>
                         </div>
                     </a>
                 </article>

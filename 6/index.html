@@ -132,7 +132,7 @@
 <body>
   <main class="app">
     <div class="toolbar">
-      <button class="btn-open" id="openBtn" type="button">重新連結 文件.txt</button>
+      <button class="btn-open" id="openBtn" type="button">重新載入網站文件</button>
       <button class="btn-save" id="saveBtn" type="button">儲存</button>
       <span class="meta" id="fileName">目前檔案：未開啟</span>
     </div>
@@ -256,17 +256,15 @@
 
     async function openFileFlow() {
       try {
-        const handle = await pickTargetFile();
-        if (!handle) return;
-        fileHandle = handle;
-        await saveHandle(fileHandle);
-        await readCurrentFile();
+        fileHandle = null;
+        await loadDefaultTextByFetch();
+        setStatus(`已從網站重新載入 ${TARGET_FILE_NAME}`, true);
       } catch (error) {
         if (error && error.name === "AbortError") {
-          setStatus("已取消開啟檔案");
+          setStatus("已取消重新載入");
           return;
         }
-        setStatus(`開啟失敗：${error.message || error}`);
+        setStatus(`重新載入失敗：${error.message || error}`);
       } finally {
         updateUI();
       }
