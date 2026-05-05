@@ -127,220 +127,132 @@
     .status.ok {
       color: var(--ok);
     }
+
+    .btn-save:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+      filter: none;
+    }
   </style>
 </head>
 <body>
   <main class="app">
     <div class="toolbar">
-      <button class="btn-open" id="openBtn" type="button">重新載入網站文件</button>
-      <button class="btn-save" id="saveBtn" type="button">儲存</button>
-      <span class="meta" id="fileName">目前檔案：未開啟</span>
+      <button class="btn-open" id="openBtn" type="button">從 Drive 載入</button>
+      <button class="btn-save" id="saveBtn" type="button" disabled>儲存至 Drive</button>
+      <span class="meta" id="fileName">目前檔案：文件.txt</span>
     </div>
-    <textarea id="editor" placeholder="正在自動載入 文件.txt..." spellcheck="false"></textarea>
-    <div class="status" id="status">準備就緒</div>
+    <textarea id="editor" placeholder="正在載入 Google Drive 中的 文件.txt…" spellcheck="false"></textarea>
+    <div class="status" id="status">正在初始化…</div>
   </main>
 
   <script>
-    const openBtn = document.getElementById("openBtn");
-    const saveBtn = document.getElementById("saveBtn");
-    const editor = document.getElementById("editor");
-    const fileName = document.getElementById("fileName");
+    /*
+     * ★ 使用方式：
+     *   1. 開啟 https://script.google.com，建立新專案，貼上下方 Apps Script 程式碼後儲存
+     *   2. 點選「部署 → 新增部署」，類型選「網頁應用程式」
+     *      - 執行身分：我（您的 Google 帳號）
+     *      - 存取權限：所有人
+     *   3. 複製部署後的 URL，填入下方 SCRIPT_URL
+     *
+     * ── Apps Script 程式碼（貼到 script.google.com）──────────────────────────
+     *
+     * const FOLDER_ID = "181DHXaslc6lOcRtz2ohfzQw864Zglppd";
+     * const FILE_NAME = "文件.txt";
+     *
+     * function getOrCreateFile() {
+     *   const folder = DriveApp.getFolderById(FOLDER_ID);
+     *   const files = folder.getFilesByName(FILE_NAME);
+     *   if (files.hasNext()) return files.next();
+     *   return folder.createFile(FILE_NAME, "", MimeType.PLAIN_TEXT);
+     * }
+     *
+     * function doGet(e) {
+     *   const content = getOrCreateFile().getBlob().getDataAsString("UTF-8");
+     *   return ContentService.createTextOutput(content)
+     *     .setMimeType(ContentService.MimeType.TEXT);
+     * }
+     *
+     * function doPost(e) {
+     *   getOrCreateFile().setContent(e.postData.contents);
+     *   return ContentService.createTextOutput("OK")
+     *     .setMimeType(ContentService.MimeType.TEXT);
+     * }
+     *
+     * ────────────────────────────────────────────────────────────────────────
+     */
+
+    // ★ 將 Apps Script 部署後的 URL 填入此處
+    const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+
+    const openBtn   = document.getElementById("openBtn");
+    const saveBtn   = document.getElementById("saveBtn");
+    const editor    = document.getElementById("editor");
     const statusBar = document.getElementById("status");
 
-    const DB_NAME = "simple-notepad-db";
-    const STORE_NAME = "handles";
-    const HANDLE_KEY = "last-file";
-    const TARGET_FILE_NAME = "文件.txt";
-
-    let fileHandle = null;
     let dirty = false;
-    let usingFallbackText = false;
 
-    function setStatus(message, ok = false) {
-      statusBar.textContent = message;
+    function setStatus(msg, ok = false) {
+      statusBar.textContent = msg;
       statusBar.classList.toggle("ok", ok);
     }
 
-    function updateUI() {
-      const mode = usingFallbackText && !fileHandle ? " (僅載入內容，尚未連結寫入)" : "";
-      fileName.textContent = `目前檔案：${fileHandle ? fileHandle.name : TARGET_FILE_NAME}${mode}${dirty ? " (未儲存)" : ""}`;
+    function markDirty(val) {
+      dirty = val;
+      saveBtn.disabled = !val;
     }
 
-    function isTargetFileHandle(handle) {
-      return !!handle && handle.name === TARGET_FILE_NAME;
-    }
-
-    function openDB() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = () => {
-          req.result.createObjectStore(STORE_NAME);
-        };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    async function saveHandle(handle) {
-      const db = await openDB();
-      await new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, "readwrite");
-        tx.objectStore(STORE_NAME).put(handle, HANDLE_KEY);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error);
-      });
-      db.close();
-    }
-
-    async function getSavedHandle() {
-      const db = await openDB();
-      const handle = await new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, "readonly");
-        const req = tx.objectStore(STORE_NAME).get(HANDLE_KEY);
-        req.onsuccess = () => resolve(req.result || null);
-        req.onerror = () => reject(req.error);
-      });
-      db.close();
-      return handle;
-    }
-
-    async function readCurrentFile() {
-      if (!fileHandle) return;
-      const file = await fileHandle.getFile();
-      editor.value = await file.text();
-      dirty = false;
-      usingFallbackText = false;
-      updateUI();
-      setStatus(`已載入 ${fileHandle.name}`, true);
-    }
-
-    async function loadDefaultTextByFetch() {
-      const response = await fetch(`./${TARGET_FILE_NAME}`, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error(`找不到 ${TARGET_FILE_NAME}`);
-      }
-      editor.value = await response.text();
-      dirty = false;
-      usingFallbackText = true;
-      updateUI();
-      setStatus(`已自動載入 ${TARGET_FILE_NAME}，可直接編輯`, true);
-    }
-
-    async function ensureWritePermission(handle) {
-      const options = { mode: "readwrite" };
-      if ((await handle.queryPermission(options)) === "granted") return true;
-      if ((await handle.requestPermission(options)) === "granted") return true;
-      return false;
-    }
-
-    async function pickTargetFile() {
-      if (!window.showOpenFilePicker) {
-        throw new Error("目前瀏覽器不支援檔案系統 API，請使用最新版 Chrome 或 Edge。");
-      }
-
-      const [handle] = await window.showOpenFilePicker({
-        multiple: false,
-        suggestedName: TARGET_FILE_NAME,
-        types: [{
-          description: "文字檔",
-          accept: { "text/plain": [".txt"] }
-        }]
-      });
-
-      if (!isTargetFileHandle(handle)) {
-        throw new Error(`請選擇 ${TARGET_FILE_NAME}，不可選其他檔案`);
-      }
-
-      return handle;
-    }
-
-    async function openFileFlow() {
+    /* ── 從 Drive 載入 ── */
+    async function loadFromDrive() {
+      setStatus("正在從 Google Drive 載入…");
+      openBtn.disabled = true;
       try {
-        fileHandle = null;
-        await loadDefaultTextByFetch();
-        setStatus(`已從網站重新載入 ${TARGET_FILE_NAME}`, true);
-      } catch (error) {
-        if (error && error.name === "AbortError") {
-          setStatus("已取消重新載入");
-          return;
-        }
-        setStatus(`重新載入失敗：${error.message || error}`);
+        const res = await fetch(SCRIPT_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        editor.value = await res.text();
+        markDirty(false);
+        setStatus("已載入 文件.txt", true);
+      } catch (err) {
+        setStatus(`載入失敗：${err.message || err}`);
       } finally {
-        updateUI();
+        openBtn.disabled = false;
       }
     }
 
-    async function saveFileFlow() {
+    /* ── 儲存至 Drive ── */
+    async function saveToDrive() {
+      setStatus("正在儲存至 Google Drive…");
+      saveBtn.disabled = true;
       try {
-        if (!isTargetFileHandle(fileHandle)) {
-          setStatus(`第一次儲存需連結 ${TARGET_FILE_NAME}，請在彈窗中選取它`);
-          const handle = await pickTargetFile();
-          if (!handle) return;
-          fileHandle = handle;
-          await saveHandle(fileHandle);
-        }
-
-        const granted = await ensureWritePermission(fileHandle);
-        if (!granted) {
-          setStatus("沒有寫入權限，無法儲存");
-          return;
-        }
-
-        const writable = await fileHandle.createWritable();
-        await writable.write(editor.value);
-        await writable.close();
-
-        dirty = false;
-        usingFallbackText = false;
-        updateUI();
-        setStatus("儲存完成", true);
-      } catch (error) {
-        if (error && error.name === "AbortError") {
-          setStatus("已取消儲存");
-          return;
-        }
-        setStatus(`儲存失敗：${error.message || error}`);
+        /* Apps Script 重定向後 fetch 可能無法讀取 CORS 回應，故用 no-cors 靜默送出 */
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          body: editor.value,
+        });
+        markDirty(false);
+        setStatus("已儲存至 Google Drive", true);
+      } catch (err) {
+        setStatus(`儲存失敗：${err.message || err}`);
+        saveBtn.disabled = false;
       }
     }
 
-    editor.addEventListener("input", () => {
-      dirty = true;
-      updateUI();
-    });
+    openBtn.addEventListener("click", loadFromDrive);
+    saveBtn.addEventListener("click", saveToDrive);
 
-    openBtn.addEventListener("click", openFileFlow);
-    saveBtn.addEventListener("click", saveFileFlow);
+    editor.addEventListener("input", () => markDirty(true));
 
-    window.addEventListener("keydown", (event) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
-        event.preventDefault();
-        saveFileFlow();
+    window.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        if (dirty) saveToDrive();
       }
     });
 
-    (async () => {
-      updateUI();
-      try {
-        const lastHandle = await getSavedHandle();
-        if (lastHandle) {
-          if (isTargetFileHandle(lastHandle)) {
-            fileHandle = lastHandle;
-            const granted = lastHandle.queryPermission ? await lastHandle.queryPermission({ mode: "read" }) : "prompt";
-            if (granted === "granted") {
-              await readCurrentFile();
-              return;
-            }
-          }
-        }
-
-        fileHandle = null;
-        await loadDefaultTextByFetch();
-      } catch (error) {
-        setStatus(`初始化失敗：${error.message || error}`);
-      } finally {
-        updateUI();
-      }
-    })();
+    /* 頁面開啟後自動載入 */
+    loadFromDrive();
   </script>
 </body>
 </html>
