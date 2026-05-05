@@ -150,6 +150,7 @@
     const DB_NAME = "simple-notepad-db";
     const STORE_NAME = "handles";
     const HANDLE_KEY = "last-file";
+    const TARGET_FILE_NAME = "文件.txt";
 
     let fileHandle = null;
     let dirty = false;
@@ -162,7 +163,11 @@
 
     function updateUI() {
       const mode = usingFallbackText && !fileHandle ? " (僅載入內容，尚未連結寫入)" : "";
-      fileName.textContent = `目前檔案：${fileHandle ? fileHandle.name : "文件.txt"}${mode}${dirty ? " (未儲存)" : ""}`;
+      fileName.textContent = `目前檔案：${fileHandle ? fileHandle.name : TARGET_FILE_NAME}${mode}${dirty ? " (未儲存)" : ""}`;
+    }
+
+    function isTargetFileHandle(handle) {
+      return !!handle && handle.name === TARGET_FILE_NAME;
     }
 
     function openDB() {
@@ -210,15 +215,15 @@
     }
 
     async function loadDefaultTextByFetch() {
-      const response = await fetch("./文件.txt", { cache: "no-store" });
+      const response = await fetch(`./${TARGET_FILE_NAME}`, { cache: "no-store" });
       if (!response.ok) {
-        throw new Error("找不到 文件.txt");
+        throw new Error(`找不到 ${TARGET_FILE_NAME}`);
       }
       editor.value = await response.text();
       dirty = false;
       usingFallbackText = true;
       updateUI();
-      setStatus("已自動載入 文件.txt，可直接編輯", true);
+      setStatus(`已自動載入 ${TARGET_FILE_NAME}，可直接編輯`, true);
     }
 
     async function ensureWritePermission(handle) {
@@ -228,26 +233,30 @@
       return false;
     }
 
-    async function pickDefaultFile() {
+    async function pickTargetFile() {
       if (!window.showOpenFilePicker) {
         throw new Error("目前瀏覽器不支援檔案系統 API，請使用最新版 Chrome 或 Edge。");
       }
 
       const [handle] = await window.showOpenFilePicker({
         multiple: false,
-        suggestedName: "文件.txt",
+        suggestedName: TARGET_FILE_NAME,
         types: [{
           description: "文字檔",
           accept: { "text/plain": [".txt"] }
         }]
       });
 
+      if (!isTargetFileHandle(handle)) {
+        throw new Error(`請選擇 ${TARGET_FILE_NAME}，不可選其他檔案`);
+      }
+
       return handle;
     }
 
     async function openFileFlow() {
       try {
-        const handle = await pickDefaultFile();
+        const handle = await pickTargetFile();
         if (!handle) return;
         fileHandle = handle;
         await saveHandle(fileHandle);
@@ -265,9 +274,9 @@
 
     async function saveFileFlow() {
       try {
-        if (!fileHandle) {
-          setStatus("第一次儲存需連結 文件.txt，請在彈窗中選取它");
-          const handle = await pickDefaultFile();
+        if (!isTargetFileHandle(fileHandle)) {
+          setStatus(`第一次儲存需連結 ${TARGET_FILE_NAME}，請在彈窗中選取它`);
+          const handle = await pickTargetFile();
           if (!handle) return;
           fileHandle = handle;
           await saveHandle(fileHandle);
@@ -316,11 +325,13 @@
       try {
         const lastHandle = await getSavedHandle();
         if (lastHandle) {
-          fileHandle = lastHandle;
-          const granted = await lastHandle.queryPermission({ mode: "read" });
-          if (granted === "granted") {
-            await readCurrentFile();
-            return;
+          if (isTargetFileHandle(lastHandle)) {
+            fileHandle = lastHandle;
+            const granted = lastHandle.queryPermission ? await lastHandle.queryPermission({ mode: "read" }) : "prompt";
+            if (granted === "granted") {
+              await readCurrentFile();
+              return;
+            }
           }
         }
 
