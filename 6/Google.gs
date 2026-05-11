@@ -1,159 +1,266 @@
+// Google Apps Script for Cloud Notepad
+// 此 GAS 程式作為前端 index.html 的後端媒介
+
+// 雲端資料夾 ID
 const FOLDER_ID = '181DHXaslc6lOcRtz2ohfzQw864Zglppd';
 
-function doGet(e) {
-  const action = (e && e.parameter && e.parameter.action) || 'list';
-  const fileId = e && e.parameter && e.parameter.fileId;
-
-  try {
-    if (action === 'list') {
-      return jsonOutput({ ok: true, notes: listFiles_() });
-    }
-
-    if (action === 'load' && fileId) {
-      return jsonOutput({ ok: true, ...loadFile_(fileId) });
-    }
-
-    return jsonOutput({ ok: false, error: 'Unsupported GET action.' });
-  } catch (error) {
-    return jsonOutput({ ok: false, error: String(error && error.message ? error.message : error) });
-  }
-}
-
+/**
+ * 主要執行函數 - 處理來自前端的請求
+ * @param {Object} e - 來自 doGet/doPost 的 event 參數
+ */
 function doPost(e) {
   try {
-    const payload = parsePayload_(e);
-    const action = payload.action;
-
-    if (action === 'saveAs') {
-      return jsonOutput({ ok: true, ...saveAs_(payload) });
+    const action = e.parameter.action;
+    const filename = e.parameter.filename;
+    const content = e.parameter.content;
+    
+    let result = {};
+    
+    switch (action) {
+      case 'readFile':
+        result = readFile(filename);
+        break;
+      case 'writeFile':
+        result = writeFile(filename, content);
+        break;
+      case 'fileExists':
+        result = fileExists(filename);
+        break;
+      case 'createFile':
+        result = createFile(filename);
+        break;
+      default:
+        result = { success: false, message: '未知的操作' };
     }
-
-    if (action === 'save') {
-      return jsonOutput({ ok: true, ...save_(payload) });
-    }
-
-    if (action === 'delete') {
-      return jsonOutput({ ok: true, ...deleteFile_(payload.fileId) });
-    }
-
-    return jsonOutput({ ok: false, error: 'Unsupported POST action.' });
+    
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    return jsonOutput({ ok: false, error: String(error && error.message ? error.message : error) });
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
-function listFiles_() {
-  const folder = getTargetFolder_();
-  const files = folder.getFiles();
-  const notes = [];
-
-  while (files.hasNext()) {
-    const file = files.next();
-    notes.push({
-      fileId: file.getId(),
-      title: file.getName(),
-      updatedAt: file.getLastUpdated().toISOString(),
-      content: file.getMimeType() === MimeType.PLAIN_TEXT ? file.getBlob().getDataAsString() : ''
-    });
-  }
-
-  notes.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-  return notes;
+/**
+ * doGet 支持，允許 GET 請求
+ */
+function doGet(e) {
+  return doPost(e);
 }
 
-function loadFile_(fileId) {
-  const file = DriveApp.getFileById(fileId);
-  validateFolderAccess_(file);
-
-  return {
-    fileId: file.getId(),
-    title: file.getName(),
-    content: file.getBlob().getDataAsString(),
-    updatedAt: file.getLastUpdated().toISOString()
-  };
-}
-
-function save_(payload) {
-  if (!payload.fileId) {
-    return saveAs_(payload);
-  }
-
-  const file = DriveApp.getFileById(payload.fileId);
-  validateFolderAccess_(file);
-  file.setContent(payload.content || '');
-
-  if (payload.title && payload.title !== file.getName()) {
-    file.setName(payload.title);
-  }
-
-  return {
-    fileId: file.getId(),
-    title: file.getName(),
-    updatedAt: file.getLastUpdated().toISOString(),
-    message: 'Saved.'
-  };
-}
-
-function saveAs_(payload) {
-  const folder = getTargetFolder_();
-  const title = normalizeTitle_(payload.title || 'untitled.txt');
-  const file = folder.createFile(title, payload.content || '', MimeType.PLAIN_TEXT);
-
-  return {
-    fileId: file.getId(),
-    title: file.getName(),
-    updatedAt: file.getLastUpdated().toISOString(),
-    message: 'Saved as new file.'
-  };
-}
-
-function deleteFile_(fileId) {
-  const file = DriveApp.getFileById(fileId);
-  validateFolderAccess_(file);
-  file.setTrashed(true);
-
-  return {
-    fileId: fileId,
-    message: 'Deleted.'
-  };
-}
-
-function parsePayload_(e) {
-  if (!e || !e.postData || !e.postData.contents) {
-    return e && e.parameter ? e.parameter : {};
-  }
-
+/**
+ * 讀取指定檔案的內容
+ * @param {string} filename - 檔案名稱（例：記事本.txt）
+ * @returns {Object} { success: boolean, content: string, message: string }
+ */
+function readFile(filename) {
   try {
-    return JSON.parse(e.postData.contents);
-  } catch (error) {
-    throw new Error('Invalid JSON payload.');
-  }
-}
-
-function getTargetFolder_() {
-  return DriveApp.getFolderById(FOLDER_ID);
-}
-
-function validateFolderAccess_(file) {
-  const parents = file.getParents();
-  while (parents.hasNext()) {
-    if (parents.next().getId() === FOLDER_ID) {
-      return;
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    const files = folder.getFilesByName(filename);
+    
+    if (!files.hasNext()) {
+      // 檔案不存在，創建新檔案
+      return createFile(filename);
     }
+    
+    const file = files.next();
+    const content = file.getBlob().getDataAsString('UTF-8');
+    
+    return {
+      success: true,
+      content: content,
+      filename: filename,
+      lastModified: file.getLastUpdated().toISOString()
+    };
+  } catch (error) {
+    Logger.log('readFile 錯誤: ' + error.toString());
+    return {
+      success: false,
+      message: 'readFile 失敗: ' + error.toString(),
+      content: ''
+    };
   }
-  throw new Error('The selected file is not inside the configured folder.');
 }
 
-function normalizeTitle_(title) {
-  const clean = String(title || '').trim();
-  if (!clean) {
-    return 'untitled.txt';
+/**
+ * 寫入內容到指定檔案
+ * @param {string} filename - 檔案名稱
+ * @param {string} content - 要寫入的內容
+ * @returns {Object} { success: boolean, message: string }
+ */
+function writeFile(filename, content) {
+  try {
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    const files = folder.getFilesByName(filename);
+    
+    let file;
+    if (files.hasNext()) {
+      // 檔案存在，更新內容
+      file = files.next();
+      // 刪除舊檔案，創建新檔案（因為 GAS 不支持直接覆蓋）
+      const newFile = folder.createFile(filename, content, MimeType.PLAIN_TEXT);
+      file.setTrashed(true);
+      file = newFile;
+    } else {
+      // 檔案不存在，創建新檔案
+      file = folder.createFile(filename, content, MimeType.PLAIN_TEXT);
+    }
+    
+    return {
+      success: true,
+      message: '檔案已保存',
+      filename: filename,
+      size: file.getSize(),
+      lastModified: file.getLastUpdated().toISOString()
+    };
+  } catch (error) {
+    Logger.log('writeFile 錯誤: ' + error.toString());
+    return {
+      success: false,
+      message: 'writeFile 失敗: ' + error.toString()
+    };
   }
-  return clean;
 }
 
-function jsonOutput(payload) {
-  return ContentService
-    .createTextOutput(JSON.stringify(payload))
-    .setMimeType(ContentService.MimeType.JSON);
+/**
+ * 檢查檔案是否存在
+ * @param {string} filename - 檔案名稱
+ * @returns {Object} { success: boolean, exists: boolean }
+ */
+function fileExists(filename) {
+  try {
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    const files = folder.getFilesByName(filename);
+    
+    return {
+      success: true,
+      exists: files.hasNext()
+    };
+  } catch (error) {
+    Logger.log('fileExists 錯誤: ' + error.toString());
+    return {
+      success: false,
+      message: 'fileExists 失敗: ' + error.toString(),
+      exists: false
+    };
+  }
+}
+
+/**
+ * 創建新檔案
+ * @param {string} filename - 檔案名稱
+ * @returns {Object} { success: boolean, content: string, message: string }
+ */
+function createFile(filename) {
+  try {
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    const file = folder.createFile(filename, '', MimeType.PLAIN_TEXT);
+    
+    return {
+      success: true,
+      content: '',
+      filename: filename,
+      message: '檔案已創建',
+      created: true,
+      lastModified: file.getLastUpdated().toISOString()
+    };
+  } catch (error) {
+    Logger.log('createFile 錯誤: ' + error.toString());
+    return {
+      success: false,
+      message: 'createFile 失敗: ' + error.toString(),
+      content: ''
+    };
+  }
+}
+
+/**
+ * 列出資料夾中的所有 .txt 檔案
+ * @returns {Object} { success: boolean, files: Array }
+ */
+function listFiles() {
+  try {
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    const files = folder.getFiles();
+    const fileList = [];
+    
+    while (files.hasNext()) {
+      const file = files.next();
+      fileList.push({
+        name: file.getName(),
+        size: file.getSize(),
+        lastModified: file.getLastUpdated().toISOString()
+      });
+    }
+    
+    return {
+      success: true,
+      files: fileList,
+      count: fileList.length
+    };
+  } catch (error) {
+    Logger.log('listFiles 錯誤: ' + error.toString());
+    return {
+      success: false,
+      message: 'listFiles 失敗: ' + error.toString(),
+      files: []
+    };
+  }
+}
+
+/**
+ * 刪除指定檔案
+ * @param {string} filename - 要刪除的檔案名稱
+ * @returns {Object} { success: boolean, message: string }
+ */
+function deleteFile(filename) {
+  try {
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    const files = folder.getFilesByName(filename);
+    
+    if (!files.hasNext()) {
+      return {
+        success: false,
+        message: '檔案不存在'
+      };
+    }
+    
+    const file = files.next();
+    file.setTrashed(true);
+    
+    return {
+      success: true,
+      message: '檔案已刪除'
+    };
+  } catch (error) {
+    Logger.log('deleteFile 錯誤: ' + error.toString());
+    return {
+      success: false,
+      message: 'deleteFile 失敗: ' + error.toString()
+    };
+  }
+}
+
+/**
+ * 測試函數 - 驗證連接是否正常
+ * @returns {Object} { success: boolean, folder: string, folderName: string }
+ */
+function testConnection() {
+  try {
+    const folder = DriveApp.getFolderById(FOLDER_ID);
+    return {
+      success: true,
+      folder: FOLDER_ID,
+      folderName: folder.getName(),
+      message: '連接成功'
+    };
+  } catch (error) {
+    Logger.log('testConnection 錯誤: ' + error.toString());
+    return {
+      success: false,
+      message: 'testConnection 失敗: ' + error.toString()
+    };
+  }
 }
