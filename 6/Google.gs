@@ -65,14 +65,30 @@ function readFile(filename) {
       return createFile(filename);
     }
     
-    const file = files.next();
-    const content = file.getBlob().getDataAsString('UTF-8');
+    // 如果有多個同名檔案，選擇最新修改的
+    let latestFile = null;
+    let latestTime = new Date(0);
+    
+    while (files.hasNext()) {
+      const file = files.next();
+      const fileTime = file.getLastUpdated();
+      if (fileTime > latestTime) {
+        latestTime = fileTime;
+        latestFile = file;
+      }
+    }
+    
+    if (!latestFile) {
+      return createFile(filename);
+    }
+    
+    const content = latestFile.getBlob().getDataAsString('UTF-8');
     
     return {
       success: true,
       content: content,
       filename: filename,
-      lastModified: file.getLastUpdated().toISOString()
+      lastModified: latestFile.getLastUpdated().toISOString()
     };
   } catch (error) {
     Logger.log('readFile 錯誤: ' + error.toString());
@@ -96,13 +112,19 @@ function writeFile(filename, content) {
     const files = folder.getFilesByName(filename);
     
     let file;
+    
+    // 清理重複檔案
     if (files.hasNext()) {
-      // 檔案存在，更新內容
       file = files.next();
-      // 刪除舊檔案，創建新檔案（因為 GAS 不支持直接覆蓋）
-      const newFile = folder.createFile(filename, content, MimeType.PLAIN_TEXT);
-      file.setTrashed(true);
-      file = newFile;
+      
+      // 將其他同名檔案移到回收站
+      while (files.hasNext()) {
+        const duplicateFile = files.next();
+        duplicateFile.setTrashed(true);
+      }
+      
+      // 直接更新檔案內容而非刪除重建
+      file.setContent(content);
     } else {
       // 檔案不存在，創建新檔案
       file = folder.createFile(filename, content, MimeType.PLAIN_TEXT);
