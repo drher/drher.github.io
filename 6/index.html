@@ -1,258 +1,706 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>簡易記事本</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>簡單記事本</title>
   <style>
     :root {
-      --bg-a: #f7f4ec;
-      --bg-b: #efe3c9;
-      --card: #fffdf7;
-      --text: #2f2a20;
-      --muted: #6e6554;
-      --line: #d7cdb8;
-      --accent: #8e5f2f;
-      --accent-2: #5f3e1d;
-      --ok: #246a3e;
+      color-scheme: light;
+      --bg: #f3efe7;
+      --panel: #fffaf1;
+      --panel-strong: #fff4df;
+      --ink: #2b241c;
+      --muted: #786958;
+      --accent: #7a4f2b;
+      --accent-2: #a56b37;
+      --border: rgba(84, 62, 38, 0.18);
+      --shadow: 0 18px 48px rgba(73, 50, 26, 0.16);
+      --danger: #a14632;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
+    * { box-sizing: border-box; }
+    html, body {
       margin: 0;
-      min-height: 100dvh;
-      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-      color: var(--text);
+      min-height: 100%;
       background:
-        radial-gradient(circle at 10% 10%, #ffffffb3 0 18%, transparent 19%),
-        radial-gradient(circle at 90% 90%, #ffffff99 0 20%, transparent 21%),
-        linear-gradient(135deg, var(--bg-a), var(--bg-b));
-      display: grid;
-      place-items: center;
-      padding: 24px;
+        radial-gradient(circle at top left, rgba(255, 245, 221, 0.95), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(233, 214, 187, 0.7), transparent 28%),
+        linear-gradient(180deg, #fbf7ef 0%, #efe3cf 100%);
+      color: var(--ink);
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
     }
+
+    body { padding: 24px; }
 
     .app {
-      width: min(920px, 100%);
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: 0 14px 40px #6b5a3f33;
+      max-width: 1120px;
+      margin: 0 auto;
+      background: rgba(255, 250, 241, 0.78);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
       overflow: hidden;
+      backdrop-filter: blur(10px);
     }
 
-    .toolbar {
+    .header {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
       align-items: center;
-      padding: 14px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(180deg, #fff, #faf4e8);
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.42), rgba(255,255,255,0));
     }
 
-    button {
-      border: 1px solid transparent;
-      border-radius: 10px;
-      padding: 9px 14px;
-      font-size: 15px;
-      cursor: pointer;
-      transition: transform .15s ease, filter .2s ease;
+    .title-wrap h1 {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 34px);
+      letter-spacing: 0.04em;
     }
 
-    button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.03);
-    }
-
-    .btn-open {
-      background: #f0e3ca;
-      border-color: #d8c2a0;
-      color: #493018;
-    }
-
-    .btn-save {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .btn-save:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-      transform: none;
-      filter: none;
-    }
-
-    .meta {
-      margin-left: auto;
+    .title-wrap p {
+      margin: 6px 0 0;
       color: var(--muted);
       font-size: 14px;
-      white-space: nowrap;
+    }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 10px; }
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #fffdf7, #f4e7cf);
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(86, 56, 29, 0.12); }
+    button.primary { background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: #fff9f2; border-color: rgba(0, 0, 0, 0.06); }
+    button.danger { background: linear-gradient(180deg, #d16f58, var(--danger)); color: #fff8f6; border-color: rgba(0, 0, 0, 0.06); }
+
+    .content {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: min(78vh, 900px);
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: rgba(255, 247, 233, 0.65);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .status-row { display: flex; flex-direction: column; gap: 4px; }
+    .status-row strong, .status-row span, .status-row small { display: block; }
+    .status-row strong { font-size: 14px; }
+    .status-row span, .status-row small { color: var(--muted); font-size: 12px; word-break: break-all; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .field label { font-size: 12px; color: var(--muted); }
+    input[type="text"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: rgba(255,255,255,0.82);
+      color: var(--ink);
+      outline: none;
+    }
+    input[type="text"]:focus, textarea:focus {
+      border-color: rgba(122, 79, 43, 0.45);
+      box-shadow: 0 0 0 3px rgba(122, 79, 43, 0.12);
+    }
+
+    .note-list { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow: auto; }
+    .note-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      text-align: left;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.6);
+    }
+    .note-item.active { border-color: rgba(122, 79, 43, 0.35); background: rgba(255, 243, 218, 0.95); }
+    .note-item .meta { min-width: 0; }
+    .note-item .meta strong, .note-item .meta span {
+      display: block;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 100%;
+      white-space: nowrap;
     }
+    .note-item .meta span { font-size: 12px; color: var(--muted); margin-top: 4px; }
 
+    .editor { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+    .editor-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .editor-top .doc-title { display: flex; flex-direction: column; gap: 6px; min-width: 240px; flex: 1; }
+    .editor-top .doc-title small { color: var(--muted); }
     textarea {
       width: 100%;
-      min-height: 68dvh;
-      border: 0;
+      min-height: calc(100vh - 250px);
       resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(255,255,255,0.85);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.75;
       outline: none;
-      padding: 20px;
-      font: 16px/1.65 "Consolas", "Courier New", monospace;
-      color: var(--text);
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          #fffefb,
-          #fffefb 30px,
-          #efe6d5 30px,
-          #efe6d5 31px
-        );
-      tab-size: 2;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
     }
 
-    .status {
-      padding: 10px 14px;
-      border-top: 1px solid var(--line);
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
       color: var(--muted);
-      font-size: 14px;
-      background: #fff;
+      font-size: 12px;
+      padding: 0 2px;
     }
 
-    .status.ok {
-      color: var(--ok);
+    .dialog-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(31, 21, 13, 0.42);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+    .dialog-backdrop.show { display: flex; }
+    .dialog {
+      width: min(560px, 100%);
+      background: #fffaf0;
+      border-radius: 22px;
+      border: 1px solid rgba(84, 62, 38, 0.18);
+      box-shadow: 0 30px 80px rgba(27, 18, 8, 0.26);
+      padding: 20px;
+    }
+    .dialog h2 { margin: 0 0 8px; font-size: 20px; }
+    .dialog p { margin: 0 0 14px; color: var(--muted); line-height: 1.6; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .hidden-file-input { display: none; }
+    .notice {
+      background: rgba(255, 246, 228, 0.9);
+      border: 1px solid rgba(122, 79, 43, 0.16);
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
     }
 
-    .btn-save:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-      transform: none;
-      filter: none;
+    @media (max-width: 900px) {
+      body { padding: 10px; }
+      .content { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+      textarea { min-height: 58vh; }
     }
   </style>
 </head>
 <body>
-  <main class="app">
-    <div class="toolbar">
-      <button class="btn-open" id="openBtn" type="button">從 Drive 載入</button>
-      <button class="btn-save" id="saveBtn" type="button" disabled>儲存至 Drive</button>
-      <span class="meta" id="fileName">目前檔案：文件.txt</span>
+  <div class="app">
+    <header class="header">
+      <div class="title-wrap">
+        <h1>簡單記事本</h1>
+        <p>支援 New、Open、Save、Save As。可直接離線使用，也可接上 Apps Script 儲存到 Google 雲端硬碟。</p>
+      </div>
+      <div class="toolbar">
+        <button id="newBtn" class="primary">New</button>
+        <button id="openBtn">Open</button>
+        <button id="saveBtn" class="primary">Save</button>
+        <button id="saveAsBtn">Save As</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <aside class="sidebar">
+        <div class="card status-row">
+          <strong id="currentName">未命名記事</strong>
+          <span id="currentSource">儲存位置：本機</span>
+          <small id="currentId">文件 ID：-</small>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <label for="titleInput">記事標題</label>
+            <input id="titleInput" type="text" placeholder="輸入標題">
+          </div>
+          <div class="field">
+            <label for="urlInput">GAS Web App 網址</label>
+            <input id="urlInput" type="text" placeholder="請貼上你部署後的 GAS 網址">
+          </div>
+        </div>
+
+        <div class="card">
+          <strong style="display:block;margin-bottom:10px;">最近開啟</strong>
+          <div id="noteList" class="note-list"></div>
+        </div>
+
+        <div class="notice">
+          如果你把 index.html 放在非 Apps Script 網域，瀏覽器可能會因跨來源限制而無法直接呼叫 GAS。這時可改用同網域部署，或讓 GAS 做成頁面入口。
+        </div>
+      </aside>
+
+      <section class="editor">
+        <div class="editor-top">
+          <div class="doc-title">
+            <input id="docTitle" type="text" placeholder="文件標題">
+            <small id="docMeta">尚未儲存</small>
+          </div>
+          <div class="toolbar">
+            <button id="reloadListBtn">重新整理清單</button>
+            <button id="deleteBtn" class="danger">刪除目前文件</button>
+          </div>
+        </div>
+
+        <textarea id="editor" placeholder="在這裡輸入內容..."></textarea>
+
+        <div class="footer">
+          <div id="statusText">準備就緒</div>
+          <div id="savedAt">尚未同步</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <input id="fileInput" class="hidden-file-input" type="file" accept=".txt,.md,.json,.html,.csv,.log,.js,.gs,text/plain,application/json,text/markdown">
+
+  <div id="promptBackdrop" class="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
+    <div class="dialog">
+      <h2 id="promptTitle">Save As</h2>
+      <p id="promptDescription">請輸入新文件名稱。</p>
+      <div class="field">
+        <label for="promptInput">文件名稱</label>
+        <input id="promptInput" type="text" placeholder="例如：meeting-notes.txt">
+      </div>
+      <div class="dialog-actions">
+        <button id="cancelPromptBtn">取消</button>
+        <button id="confirmPromptBtn" class="primary">確認</button>
+      </div>
     </div>
-    <textarea id="editor" placeholder="正在載入 Google Drive 中的 文件.txt…" spellcheck="false"></textarea>
-    <div class="status" id="status">正在初始化…</div>
-  </main>
+  </div>
 
   <script>
-    /*
-     * ★ 使用方式：
-     *   1. 開啟 https://script.google.com，建立新專案，貼上下方 Apps Script 程式碼後儲存
-     *   2. 點選「部署 → 新增部署」，類型選「網頁應用程式」
-     *      - 執行身分：我（您的 Google 帳號）
-     *      - 存取權限：所有人
-     *   3. 複製部署後的 URL，填入下方 SCRIPT_URL
-     *
-     * ── Apps Script 程式碼（貼到 script.google.com）──────────────────────────
-     *
-     * const FOLDER_ID = "181DHXaslc6lOcRtz2ohfzQw864Zglppd";
-     * const FILE_NAME = "文件.txt";
-     *
-     * function getOrCreateFile() {
-     *   const folder = DriveApp.getFolderById(FOLDER_ID);
-     *   const files = folder.getFilesByName(FILE_NAME);
-     *   if (files.hasNext()) return files.next();
-     *   return folder.createFile(FILE_NAME, "", MimeType.PLAIN_TEXT);
-     * }
-     *
-     * function doGet(e) {
-     *   const content = getOrCreateFile().getBlob().getDataAsString("UTF-8");
-     *   return ContentService.createTextOutput(content)
-     *     .setMimeType(ContentService.MimeType.TEXT);
-     * }
-     *
-     * function doPost(e) {
-     *   getOrCreateFile().setContent(e.postData.contents);
-     *   return ContentService.createTextOutput("OK")
-     *     .setMimeType(ContentService.MimeType.TEXT);
-     * }
-     *
-     * ────────────────────────────────────────────────────────────────────────
-     */
+    const STORAGE_KEY = 'simple-notepad-state-v1';
+    const GAS_URL_KEY = 'simple-notepad-gas-url-v1';
 
-    // ★ 將 Apps Script 部署後的 URL 填入此處
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFQHpqQWpLDoc77DeI_nLT_9preAL2PiqA7_Izs3eLCYD4reXxMNru23w5U703dp5-FA/exec";
+    const state = {
+      title: '未命名記事',
+      content: '',
+      fileId: '',
+      lastSavedAt: '',
+      recentNotes: [],
+      gasUrl: localStorage.getItem(GAS_URL_KEY) || '',
+      mode: 'local'
+    };
 
-    const openBtn   = document.getElementById("openBtn");
-    const saveBtn   = document.getElementById("saveBtn");
-    const editor    = document.getElementById("editor");
-    const statusBar = document.getElementById("status");
+    const elements = {
+      newBtn: document.getElementById('newBtn'),
+      openBtn: document.getElementById('openBtn'),
+      saveBtn: document.getElementById('saveBtn'),
+      saveAsBtn: document.getElementById('saveAsBtn'),
+      reloadListBtn: document.getElementById('reloadListBtn'),
+      deleteBtn: document.getElementById('deleteBtn'),
+      titleInput: document.getElementById('titleInput'),
+      urlInput: document.getElementById('urlInput'),
+      docTitle: document.getElementById('docTitle'),
+      editor: document.getElementById('editor'),
+      noteList: document.getElementById('noteList'),
+      currentName: document.getElementById('currentName'),
+      currentSource: document.getElementById('currentSource'),
+      currentId: document.getElementById('currentId'),
+      docMeta: document.getElementById('docMeta'),
+      statusText: document.getElementById('statusText'),
+      savedAt: document.getElementById('savedAt'),
+      fileInput: document.getElementById('fileInput'),
+      promptBackdrop: document.getElementById('promptBackdrop'),
+      promptTitle: document.getElementById('promptTitle'),
+      promptDescription: document.getElementById('promptDescription'),
+      promptInput: document.getElementById('promptInput'),
+      cancelPromptBtn: document.getElementById('cancelPromptBtn'),
+      confirmPromptBtn: document.getElementById('confirmPromptBtn')
+    };
 
-    let dirty = false;
+    let promptResolve = null;
+    let suppressSync = false;
 
-    function setStatus(msg, ok = false) {
-      statusBar.textContent = msg;
-      statusBar.classList.toggle("ok", ok);
+    function setStatus(message) { elements.statusText.textContent = message; }
+    function setSavedAt(message) { elements.savedAt.textContent = message; }
+    function nowIso() { return new Date().toISOString(); }
+    function formatDate(value) { if (!value) return '尚未儲存'; try { return new Date(value).toLocaleString('zh-TW'); } catch { return value; } }
+    function normalizeTitle(value) { const title = (value || '').trim(); return title || '未命名記事'; }
+
+    function getLocalState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch { localStorage.removeItem(STORAGE_KEY); return null; }
     }
 
-    function markDirty(val) {
-      dirty = val;
-      saveBtn.disabled = !val;
+    function persistLocalState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        title: state.title,
+        content: state.content,
+        fileId: state.fileId,
+        lastSavedAt: state.lastSavedAt,
+        recentNotes: state.recentNotes,
+        gasUrl: state.gasUrl,
+        mode: state.mode
+      }));
     }
 
-    /* ── 從 Drive 載入 ── */
-    async function loadFromDrive() {
-      setStatus("正在從 Google Drive 載入…");
-      openBtn.disabled = true;
-      try {
-        const res = await fetch(SCRIPT_URL, { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        editor.value = await res.text();
-        markDirty(false);
-        setStatus("已載入 文件.txt", true);
-      } catch (err) {
-        setStatus(`載入失敗：${err.message || err}`);
-      } finally {
-        openBtn.disabled = false;
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderRecentNotes() {
+      elements.noteList.innerHTML = '';
+      if (!state.recentNotes.length) {
+        const empty = document.createElement('div');
+        empty.className = 'notice';
+        empty.textContent = '目前沒有最近文件。';
+        elements.noteList.appendChild(empty);
+        return;
       }
+
+      state.recentNotes.forEach((note) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'note-item' + (note.fileId === state.fileId ? ' active' : '');
+        button.innerHTML = `
+          <div class="meta">
+            <strong>${escapeHtml(note.title || '未命名記事')}</strong>
+            <span>${escapeHtml(formatDate(note.updatedAt))}</span>
+          </div>
+          <div aria-hidden="true">›</div>
+        `;
+        button.addEventListener('click', () => loadRecentNote(note));
+        elements.noteList.appendChild(button);
+      });
     }
 
-    /* ── 儲存至 Drive ── */
-    async function saveToDrive() {
-      setStatus("正在儲存至 Google Drive…");
-      saveBtn.disabled = true;
-      try {
-        /* Apps Script 重定向後 fetch 可能無法讀取 CORS 回應，故用 no-cors 靜默送出 */
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          body: editor.value,
+    function updateHeader() {
+      elements.titleInput.value = state.title;
+      elements.docTitle.value = state.title === '未命名記事' ? '' : state.title;
+      elements.editor.value = state.content;
+      elements.urlInput.value = state.gasUrl;
+      elements.currentName.textContent = state.title;
+      elements.currentSource.textContent = state.mode === 'gas' ? '儲存位置：Google 雲端硬碟' : '儲存位置：本機';
+      elements.currentId.textContent = `文件 ID：${state.fileId || '-'}`;
+      elements.docMeta.textContent = state.fileId ? `已開啟：${state.fileId}` : '尚未儲存';
+      setSavedAt(state.lastSavedAt ? `最後儲存：${formatDate(state.lastSavedAt)}` : '尚未同步');
+      renderRecentNotes();
+    }
+
+    function pushRecentNote(note) {
+      const filtered = state.recentNotes.filter((item) => item.fileId !== note.fileId);
+      filtered.unshift({ fileId: note.fileId, title: note.title, updatedAt: note.updatedAt || nowIso(), content: note.content || '' });
+      state.recentNotes = filtered.slice(0, 8);
+      persistLocalState();
+    }
+
+    function openPrompt(title, description, initialValue = '') {
+      elements.promptTitle.textContent = title;
+      elements.promptDescription.textContent = description;
+      elements.promptInput.value = initialValue;
+      elements.promptBackdrop.classList.add('show');
+      elements.promptInput.focus();
+      return new Promise((resolve) => { promptResolve = resolve; });
+    }
+
+    function closePrompt(result) {
+      elements.promptBackdrop.classList.remove('show');
+      if (promptResolve) { promptResolve(result); promptResolve = null; }
+    }
+
+    async function askForFilename(defaultName = 'untitled.txt') {
+      return openPrompt('Save As', '請輸入要儲存的新檔名。', defaultName);
+    }
+
+    function currentNotePayload() {
+      return {
+        fileId: state.fileId,
+        title: normalizeTitle(elements.docTitle.value || elements.titleInput.value),
+        content: elements.editor.value,
+        updatedAt: nowIso()
+      };
+    }
+
+    function syncFromInputs() {
+      if (suppressSync) return;
+      state.title = normalizeTitle(elements.docTitle.value || elements.titleInput.value);
+      state.content = elements.editor.value;
+      state.gasUrl = elements.urlInput.value.trim();
+      persistLocalState();
+      updateHeader();
+    }
+
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, { method: options.method || 'GET', headers: { 'Content-Type': 'application/json' }, ...options });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    }
+
+    async function callGAS(action, payload = {}) {
+      if (!state.gasUrl) throw new Error('尚未設定 GAS 網址');
+      const url = new URL(state.gasUrl);
+      url.searchParams.set('action', action);
+
+      if (action === 'list' || action === 'load') {
+        Object.entries(payload).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') url.searchParams.set(key, value);
         });
-        markDirty(false);
-        setStatus("已儲存至 Google Drive", true);
-      } catch (err) {
-        setStatus(`儲存失敗：${err.message || err}`);
-        saveBtn.disabled = false;
+        const result = await fetchJson(url.toString());
+        if (!result.ok) throw new Error(result.error || 'GAS 回傳失敗');
+        return result;
+      }
+
+      const result = await fetchJson(url.toString(), { method: 'POST', body: JSON.stringify(payload) });
+      if (!result.ok) throw new Error(result.error || 'GAS 回傳失敗');
+      return result;
+    }
+
+    function setCurrentNote(note, source = 'local') {
+      state.title = normalizeTitle(note.title);
+      state.content = note.content || '';
+      state.fileId = note.fileId || '';
+      state.lastSavedAt = note.updatedAt || nowIso();
+      state.mode = source;
+      suppressSync = true;
+      elements.titleInput.value = state.title;
+      elements.docTitle.value = state.title === '未命名記事' ? '' : state.title;
+      elements.editor.value = state.content;
+      suppressSync = false;
+      persistLocalState();
+      updateHeader();
+      setStatus(`已開啟：${state.title}`);
+    }
+
+    async function createNewNote() {
+      const shouldClear = state.content.trim() || state.fileId || state.title !== '未命名記事';
+      if (shouldClear) {
+        const confirmed = confirm('目前內容尚未儲存或已關聯文件，是否建立新記事？');
+        if (!confirmed) return;
+      }
+      setCurrentNote({ title: '未命名記事', content: '', fileId: '', updatedAt: '' }, state.gasUrl ? 'gas' : 'local');
+      setStatus('已建立新記事');
+    }
+
+    async function loadRecentNote(note) {
+      if (note.fileId && state.gasUrl) {
+        try {
+          setStatus('正在從 GAS 讀取文件...');
+          const result = await callGAS('load', { fileId: note.fileId });
+          setCurrentNote({ fileId: result.fileId, title: result.title, content: result.content, updatedAt: result.updatedAt }, 'gas');
+          pushRecentNote({ fileId: result.fileId, title: result.title, content: result.content, updatedAt: result.updatedAt });
+          setStatus('已從 Google 雲端硬碟載入');
+          return;
+        } catch (error) {
+          setStatus(`GAS 讀取失敗：${error.message}`);
+        }
+      }
+
+      setCurrentNote(note, 'local');
+      setStatus('已從最近清單載入本機內容');
+    }
+
+    async function openFileFromDisk() {
+      elements.fileInput.value = '';
+      elements.fileInput.click();
+    }
+
+    async function handleFileSelection(file) {
+      const content = await file.text();
+      setCurrentNote({ title: file.name, content, fileId: '', updatedAt: nowIso() }, 'local');
+      setStatus(`已開啟本機檔案：${file.name}`);
+    }
+
+    async function saveToLocalFile(name, content) {
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = name;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    }
+
+    async function saveCurrentNote(asNew = false) {
+      const payload = currentNotePayload();
+      if (asNew || !payload.fileId) {
+        const desiredName = await askForFilename(payload.title.endsWith('.txt') ? payload.title : `${payload.title}.txt`);
+        if (!desiredName) { setStatus('已取消 Save As'); return; }
+        payload.title = normalizeTitle(desiredName);
+        payload.fileId = '';
+      }
+
+      if (!state.gasUrl) {
+        await saveToLocalFile(payload.title || 'untitled.txt', payload.content);
+        state.title = payload.title;
+        state.content = payload.content;
+        state.lastSavedAt = nowIso();
+        state.mode = 'local';
+        persistLocalState();
+        updateHeader();
+        setStatus('已下載為本機檔案');
+        return;
+      }
+
+      try {
+        setStatus('正在儲存到 Google 雲端硬碟...');
+        const action = payload.fileId ? 'save' : 'saveAs';
+        const result = await callGAS(action, payload);
+        state.title = result.title || payload.title;
+        state.content = payload.content;
+        state.fileId = result.fileId;
+        state.lastSavedAt = result.updatedAt || nowIso();
+        state.mode = 'gas';
+        pushRecentNote({ fileId: state.fileId, title: state.title, content: state.content, updatedAt: state.lastSavedAt });
+        updateHeader();
+        setStatus('已儲存到 Google 雲端硬碟');
+      } catch (error) {
+        setStatus(`儲存失敗：${error.message}`);
       }
     }
 
-    openBtn.addEventListener("click", loadFromDrive);
-    saveBtn.addEventListener("click", saveToDrive);
-
-    editor.addEventListener("input", () => markDirty(true));
-
-    window.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        if (dirty) saveToDrive();
+    async function openNoteFromGAS() {
+      if (!state.gasUrl) {
+        elements.fileInput.click();
+        return;
       }
+
+      try {
+        setStatus('正在讀取雲端文件清單...');
+        const result = await callGAS('list');
+        const notes = Array.isArray(result.notes) ? result.notes : [];
+        if (!notes.length) { setStatus('雲端沒有文件，請先建立或儲存一份記事。'); return; }
+
+        const selected = await openPrompt('Open', '請輸入要開啟的文件 ID。你也可以先按取消，再改用本機檔案開啟。', notes[0].fileId);
+        if (!selected) { setStatus('已取消 Open'); return; }
+
+        const loaded = await callGAS('load', { fileId: selected.trim() });
+        setCurrentNote({ fileId: loaded.fileId, title: loaded.title, content: loaded.content, updatedAt: loaded.updatedAt }, 'gas');
+        pushRecentNote({ fileId: loaded.fileId, title: loaded.title, content: loaded.content, updatedAt: loaded.updatedAt });
+        setStatus('已開啟雲端文件');
+      } catch (error) {
+        setStatus(`Open 失敗：${error.message}`);
+      }
+    }
+
+    async function deleteCurrentNote() {
+      if (!state.fileId) { setStatus('目前沒有可刪除的雲端文件'); return; }
+      if (!confirm(`確定刪除目前文件「${state.title}」嗎？`)) return;
+
+      try {
+        setStatus('正在刪除文件...');
+        const result = await callGAS('delete', { fileId: state.fileId });
+        state.recentNotes = state.recentNotes.filter((note) => note.fileId !== state.fileId);
+        setCurrentNote({ title: '未命名記事', content: '', fileId: '', updatedAt: '' }, 'gas');
+        persistLocalState();
+        updateHeader();
+        setStatus(result.message || '已刪除文件');
+      } catch (error) {
+        setStatus(`刪除失敗：${error.message}`);
+      }
+    }
+
+    async function refreshList() {
+      if (!state.gasUrl) { setStatus('未設定 GAS 網址，只能使用本機模式'); return; }
+      try {
+        setStatus('正在更新文件清單...');
+        const result = await callGAS('list');
+        const notes = Array.isArray(result.notes) ? result.notes : [];
+        state.recentNotes = notes.map((item) => ({ fileId: item.fileId, title: item.title, updatedAt: item.updatedAt, content: item.content || '' }));
+        persistLocalState();
+        updateHeader();
+        setStatus(`已更新清單，共 ${notes.length} 筆`);
+      } catch (error) {
+        setStatus(`更新清單失敗：${error.message}`);
+      }
+    }
+
+    elements.newBtn.addEventListener('click', createNewNote);
+    elements.openBtn.addEventListener('click', openNoteFromGAS);
+    elements.saveBtn.addEventListener('click', () => saveCurrentNote(false));
+    elements.saveAsBtn.addEventListener('click', () => saveCurrentNote(true));
+    elements.reloadListBtn.addEventListener('click', refreshList);
+    elements.deleteBtn.addEventListener('click', deleteCurrentNote);
+
+    elements.titleInput.addEventListener('input', () => { elements.docTitle.value = elements.titleInput.value; syncFromInputs(); });
+    elements.docTitle.addEventListener('input', () => { elements.titleInput.value = elements.docTitle.value; syncFromInputs(); });
+    elements.editor.addEventListener('input', syncFromInputs);
+    elements.urlInput.addEventListener('change', () => {
+      state.gasUrl = elements.urlInput.value.trim();
+      localStorage.setItem(GAS_URL_KEY, state.gasUrl);
+      persistLocalState();
+      updateHeader();
+      setStatus(state.gasUrl ? '已更新 GAS 網址' : '已切回本機模式');
     });
 
-    /* 頁面開啟後自動載入 */
-    loadFromDrive();
+    elements.fileInput.addEventListener('change', async () => {
+      const [file] = elements.fileInput.files || [];
+      if (!file) return;
+      try { await handleFileSelection(file); } catch (error) { setStatus(`開啟本機檔案失敗：${error.message}`); }
+    });
+
+    elements.cancelPromptBtn.addEventListener('click', () => closePrompt(''));
+    elements.confirmPromptBtn.addEventListener('click', () => closePrompt(elements.promptInput.value.trim()));
+    elements.promptInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') { event.preventDefault(); closePrompt(elements.promptInput.value.trim()); }
+      else if (event.key === 'Escape') { event.preventDefault(); closePrompt(''); }
+    });
+    elements.promptBackdrop.addEventListener('click', (event) => { if (event.target === elements.promptBackdrop) closePrompt(''); });
+
+    document.addEventListener('keydown', (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); saveCurrentNote(false); }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'o') { event.preventDefault(); openFileFromDisk(); }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'n') { event.preventDefault(); createNewNote(); }
+    });
+
+    const saved = getLocalState();
+    if (saved) {
+      state.title = normalizeTitle(saved.title);
+      state.content = saved.content || '';
+      state.fileId = saved.fileId || '';
+      state.lastSavedAt = saved.lastSavedAt || '';
+      state.recentNotes = Array.isArray(saved.recentNotes) ? saved.recentNotes : [];
+      state.gasUrl = saved.gasUrl || state.gasUrl;
+      state.mode = saved.mode === 'gas' ? 'gas' : 'local';
+    }
+
+    updateHeader();
+    setStatus('已載入本機狀態');
+    if (state.gasUrl) { refreshList().catch(() => {}); }
   </script>
 </body>
 </html>
