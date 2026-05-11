@@ -234,15 +234,25 @@
         async function initializeNote() {
             try {
                 updateStatus('loading', '載入中...');
-                const content = await callGAS('readFile', { filename: '記事本.txt' });
-                editor.value = content;
-                isModified = false;
-                updateStatus('saved', '已就緒');
-                infoText.textContent = '最後修改時間：' + new Date().toLocaleString('zh-TW');
+                const result = await callGAS('readFile', { filename: '記事本.txt' });
+                
+                if (result.success) {
+                    editor.value = result.content || '';
+                    isModified = false;
+                    updateStatus('saved', '已就緒');
+                    
+                    if (result.lastModified) {
+                        infoText.textContent = '最後修改時間：' + new Date(result.lastModified).toLocaleString('zh-TW');
+                    } else {
+                        infoText.textContent = '✨ 已自動創建新檔案';
+                    }
+                } else {
+                    throw new Error(result.message || '載入失敗');
+                }
             } catch (error) {
                 console.error('初始化失敗:', error);
                 updateStatus('error', '載入失敗');
-                infoText.textContent = '無法載入檔案。確保雲端資料夾中有記事本.txt';
+                infoText.textContent = '❌ ' + error.message;
             }
         }
         
