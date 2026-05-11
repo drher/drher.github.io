@@ -202,6 +202,18 @@
     }
     .dialog h2 { margin: 0 0 8px; font-size: 20px; }
     .dialog p { margin: 0 0 14px; color: var(--muted); line-height: 1.6; }
+    .dialog-list {
+      margin-top: 10px;
+      max-height: 280px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .dialog-list .note-item {
+      border-color: rgba(122, 79, 43, 0.14);
+      background: rgba(255, 255, 255, 0.8);
+    }
     .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
     .hidden-file-input { display: none; }
     .notice {
@@ -227,13 +239,13 @@
     <header class="header">
       <div class="title-wrap">
         <h1>簡單記事本</h1>
-        <p>支援 New、Open、Save、Save As。可直接離線使用，也可接上 Apps Script 儲存到 Google 雲端硬碟。</p>
+        <p>支援 New、Open、Save、Save As。所有操作皆透過 Apps Script 直接處理 Google 雲端硬碟資料夾。</p>
       </div>
       <div class="toolbar">
-        <button id="newBtn" class="primary">New</button>
-        <button id="openBtn">Open</button>
-        <button id="saveBtn" class="primary">Save</button>
-        <button id="saveAsBtn">Save As</button>
+        <button id="newBtn" class="primary" type="button">New</button>
+        <button id="openBtn" type="button">Open</button>
+        <button id="saveBtn" class="primary" type="button">Save</button>
+        <button id="saveAsBtn" type="button">Save As</button>
       </div>
     </header>
 
@@ -241,18 +253,12 @@
       <aside class="sidebar">
         <div class="card status-row">
           <strong id="currentName">未命名記事</strong>
-          <span id="currentSource">儲存位置：本機</span>
-          <small id="currentId">文件 ID：-</small>
         </div>
 
         <div class="card">
           <div class="field">
             <label for="titleInput">記事標題</label>
             <input id="titleInput" type="text" placeholder="輸入標題">
-          </div>
-          <div class="field">
-            <label for="urlInput">https://script.google.com/macros/s/AKfycbyFQHpqQWpLDoc77DeI_nLT_9preAL2PiqA7_Izs3eLCYD4reXxMNru23w5U703dp5-FA/exec</label>
-            <input id="urlInput" type="text" placeholder="請貼上你部署後的 GAS 網址">
           </div>
         </div>
 
@@ -273,8 +279,8 @@
             <small id="docMeta">尚未儲存</small>
           </div>
           <div class="toolbar">
-            <button id="reloadListBtn">重新整理清單</button>
-            <button id="deleteBtn" class="danger">刪除目前文件</button>
+            <button id="reloadListBtn" type="button">重新整理清單</button>
+            <button id="deleteBtn" class="danger" type="button">刪除目前文件</button>
           </div>
         </div>
 
@@ -288,26 +294,25 @@
     </main>
   </div>
 
-  <input id="fileInput" class="hidden-file-input" type="file" accept=".txt,.md,.json,.html,.csv,.log,.js,.gs,text/plain,application/json,text/markdown">
-
   <div id="promptBackdrop" class="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="promptTitle">
     <div class="dialog">
       <h2 id="promptTitle">Save As</h2>
       <p id="promptDescription">請輸入新文件名稱。</p>
-      <div class="field">
+      <div id="promptInputField" class="field">
         <label for="promptInput">文件名稱</label>
         <input id="promptInput" type="text" placeholder="例如：meeting-notes.txt">
       </div>
+      <div id="promptList" class="dialog-list" style="display:none;"></div>
       <div class="dialog-actions">
-        <button id="cancelPromptBtn">取消</button>
-        <button id="confirmPromptBtn" class="primary">確認</button>
+        <button id="cancelPromptBtn" type="button">取消</button>
+        <button id="confirmPromptBtn" class="primary" type="button">確認</button>
       </div>
     </div>
   </div>
 
   <script>
     const STORAGE_KEY = 'simple-notepad-state-v1';
-    const GAS_URL_KEY = 'simple-notepad-gas-url-v1';
+    const FIXED_GAS_URL = 'https://script.google.com/macros/s/AKfycbyFQHpqQWpLDoc77DeI_nLT_9preAL2PiqA7_Izs3eLCYD4reXxMNru23w5U703dp5-FA/exec';
 
     const state = {
       title: '未命名記事',
@@ -315,8 +320,8 @@
       fileId: '',
       lastSavedAt: '',
       recentNotes: [],
-      gasUrl: localStorage.getItem(GAS_URL_KEY) || '',
-      mode: 'local'
+      gasUrl: FIXED_GAS_URL,
+      mode: 'gas'
     };
 
     const elements = {
@@ -327,21 +332,19 @@
       reloadListBtn: document.getElementById('reloadListBtn'),
       deleteBtn: document.getElementById('deleteBtn'),
       titleInput: document.getElementById('titleInput'),
-      urlInput: document.getElementById('urlInput'),
       docTitle: document.getElementById('docTitle'),
       editor: document.getElementById('editor'),
       noteList: document.getElementById('noteList'),
       currentName: document.getElementById('currentName'),
-      currentSource: document.getElementById('currentSource'),
-      currentId: document.getElementById('currentId'),
       docMeta: document.getElementById('docMeta'),
       statusText: document.getElementById('statusText'),
       savedAt: document.getElementById('savedAt'),
-      fileInput: document.getElementById('fileInput'),
       promptBackdrop: document.getElementById('promptBackdrop'),
       promptTitle: document.getElementById('promptTitle'),
       promptDescription: document.getElementById('promptDescription'),
+      promptInputField: document.getElementById('promptInputField'),
       promptInput: document.getElementById('promptInput'),
+      promptList: document.getElementById('promptList'),
       cancelPromptBtn: document.getElementById('cancelPromptBtn'),
       confirmPromptBtn: document.getElementById('confirmPromptBtn')
     };
@@ -354,6 +357,13 @@
     function nowIso() { return new Date().toISOString(); }
     function formatDate(value) { if (!value) return '尚未儲存'; try { return new Date(value).toLocaleString('zh-TW'); } catch { return value; } }
     function normalizeTitle(value) { const title = (value || '').trim(); return title || '未命名記事'; }
+    function safeConfirm(message) {
+      try {
+        return confirm(message);
+      } catch {
+        return true;
+      }
+    }
 
     function getLocalState() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -368,7 +378,6 @@
         fileId: state.fileId,
         lastSavedAt: state.lastSavedAt,
         recentNotes: state.recentNotes,
-        gasUrl: state.gasUrl,
         mode: state.mode
       }));
     }
@@ -412,10 +421,7 @@
       elements.titleInput.value = state.title;
       elements.docTitle.value = state.title === '未命名記事' ? '' : state.title;
       elements.editor.value = state.content;
-      elements.urlInput.value = state.gasUrl;
       elements.currentName.textContent = state.title;
-      elements.currentSource.textContent = state.mode === 'gas' ? '儲存位置：Google 雲端硬碟' : '儲存位置：本機';
-      elements.currentId.textContent = `文件 ID：${state.fileId || '-'}`;
       elements.docMeta.textContent = state.fileId ? `已開啟：${state.fileId}` : '尚未儲存';
       setSavedAt(state.lastSavedAt ? `最後儲存：${formatDate(state.lastSavedAt)}` : '尚未同步');
       renderRecentNotes();
@@ -428,12 +434,46 @@
       persistLocalState();
     }
 
+    function setPromptMode(mode) {
+      const isInput = mode === 'input';
+      elements.promptInputField.style.display = isInput ? '' : 'none';
+      elements.promptList.style.display = isInput ? 'none' : 'flex';
+      elements.confirmPromptBtn.style.display = isInput ? '' : 'none';
+      elements.cancelPromptBtn.textContent = isInput ? '取消' : '關閉';
+      elements.promptList.innerHTML = '';
+    }
+
     function openPrompt(title, description, initialValue = '') {
+      setPromptMode('input');
       elements.promptTitle.textContent = title;
       elements.promptDescription.textContent = description;
       elements.promptInput.value = initialValue;
       elements.promptBackdrop.classList.add('show');
       elements.promptInput.focus();
+      return new Promise((resolve) => { promptResolve = resolve; });
+    }
+
+    function openFilePicker(notes) {
+      setPromptMode('list');
+      elements.promptTitle.textContent = 'Open';
+      elements.promptDescription.textContent = '請從雲端資料夾選擇要開啟的檔案。';
+
+      notes.forEach((note) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'note-item';
+        button.innerHTML = `
+          <div class="meta">
+            <strong>${escapeHtml(note.title || '未命名記事')}</strong>
+            <span>${escapeHtml(formatDate(note.updatedAt))}</span>
+          </div>
+          <div aria-hidden="true">開啟</div>
+        `;
+        button.addEventListener('click', () => closePrompt(note.fileId));
+        elements.promptList.appendChild(button);
+      });
+
+      elements.promptBackdrop.classList.add('show');
       return new Promise((resolve) => { promptResolve = resolve; });
     }
 
@@ -459,7 +499,6 @@
       if (suppressSync) return;
       state.title = normalizeTitle(elements.docTitle.value || elements.titleInput.value);
       state.content = elements.editor.value;
-      state.gasUrl = elements.urlInput.value.trim();
       persistLocalState();
       updateHeader();
     }
@@ -489,7 +528,7 @@
       return result;
     }
 
-    function setCurrentNote(note, source = 'local') {
+    function setCurrentNote(note, source = 'gas') {
       state.title = normalizeTitle(note.title);
       state.content = note.content || '';
       state.fileId = note.fileId || '';
@@ -508,10 +547,10 @@
     async function createNewNote() {
       const shouldClear = state.content.trim() || state.fileId || state.title !== '未命名記事';
       if (shouldClear) {
-        const confirmed = confirm('目前內容尚未儲存或已關聯文件，是否建立新記事？');
+        const confirmed = safeConfirm('目前內容尚未儲存或已關聯文件，是否建立新記事？');
         if (!confirmed) return;
       }
-      setCurrentNote({ title: '未命名記事', content: '', fileId: '', updatedAt: '' }, state.gasUrl ? 'gas' : 'local');
+      setCurrentNote({ title: '未命名記事', content: '', fileId: '', updatedAt: '' }, 'gas');
       setStatus('已建立新記事');
     }
 
@@ -529,30 +568,7 @@
         }
       }
 
-      setCurrentNote(note, 'local');
-      setStatus('已從最近清單載入本機內容');
-    }
-
-    async function openFileFromDisk() {
-      elements.fileInput.value = '';
-      elements.fileInput.click();
-    }
-
-    async function handleFileSelection(file) {
-      const content = await file.text();
-      setCurrentNote({ title: file.name, content, fileId: '', updatedAt: nowIso() }, 'local');
-      setStatus(`已開啟本機檔案：${file.name}`);
-    }
-
-    async function saveToLocalFile(name, content) {
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = name;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(link.href);
+      setStatus('無法載入該文件，請重新整理雲端清單後再試');
     }
 
     async function saveCurrentNote(asNew = false) {
@@ -564,17 +580,7 @@
         payload.fileId = '';
       }
 
-      if (!state.gasUrl) {
-        await saveToLocalFile(payload.title || 'untitled.txt', payload.content);
-        state.title = payload.title;
-        state.content = payload.content;
-        state.lastSavedAt = nowIso();
-        state.mode = 'local';
-        persistLocalState();
-        updateHeader();
-        setStatus('已下載為本機檔案');
-        return;
-      }
+      if (!state.gasUrl) { setStatus('未設定 GAS 網址，無法儲存雲端文件'); return; }
 
       try {
         setStatus('正在儲存到 Google 雲端硬碟...');
@@ -595,7 +601,7 @@
 
     async function openNoteFromGAS() {
       if (!state.gasUrl) {
-        elements.fileInput.click();
+        setStatus('未設定雲端網址，無法開啟雲端檔案清單');
         return;
       }
 
@@ -605,7 +611,7 @@
         const notes = Array.isArray(result.notes) ? result.notes : [];
         if (!notes.length) { setStatus('雲端沒有文件，請先建立或儲存一份記事。'); return; }
 
-        const selected = await openPrompt('Open', '請輸入要開啟的文件 ID。你也可以先按取消，再改用本機檔案開啟。', notes[0].fileId);
+        const selected = await openFilePicker(notes);
         if (!selected) { setStatus('已取消 Open'); return; }
 
         const loaded = await callGAS('load', { fileId: selected.trim() });
@@ -619,7 +625,7 @@
 
     async function deleteCurrentNote() {
       if (!state.fileId) { setStatus('目前沒有可刪除的雲端文件'); return; }
-      if (!confirm(`確定刪除目前文件「${state.title}」嗎？`)) return;
+      if (!safeConfirm(`確定刪除目前文件「${state.title}」嗎？`)) return;
 
       try {
         setStatus('正在刪除文件...');
@@ -635,7 +641,7 @@
     }
 
     async function refreshList() {
-      if (!state.gasUrl) { setStatus('未設定 GAS 網址，只能使用本機模式'); return; }
+      if (!state.gasUrl) { setStatus('未設定 GAS 網址，無法讀取雲端清單'); return; }
       try {
         setStatus('正在更新文件清單...');
         const result = await callGAS('list');
@@ -659,19 +665,6 @@
     elements.titleInput.addEventListener('input', () => { elements.docTitle.value = elements.titleInput.value; syncFromInputs(); });
     elements.docTitle.addEventListener('input', () => { elements.titleInput.value = elements.docTitle.value; syncFromInputs(); });
     elements.editor.addEventListener('input', syncFromInputs);
-    elements.urlInput.addEventListener('change', () => {
-      state.gasUrl = elements.urlInput.value.trim();
-      localStorage.setItem(GAS_URL_KEY, state.gasUrl);
-      persistLocalState();
-      updateHeader();
-      setStatus(state.gasUrl ? '已更新 GAS 網址' : '已切回本機模式');
-    });
-
-    elements.fileInput.addEventListener('change', async () => {
-      const [file] = elements.fileInput.files || [];
-      if (!file) return;
-      try { await handleFileSelection(file); } catch (error) { setStatus(`開啟本機檔案失敗：${error.message}`); }
-    });
 
     elements.cancelPromptBtn.addEventListener('click', () => closePrompt(''));
     elements.confirmPromptBtn.addEventListener('click', () => closePrompt(elements.promptInput.value.trim()));
@@ -683,7 +676,7 @@
 
     document.addEventListener('keydown', (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') { event.preventDefault(); saveCurrentNote(false); }
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'o') { event.preventDefault(); openFileFromDisk(); }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'o') { event.preventDefault(); openNoteFromGAS(); }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'n') { event.preventDefault(); createNewNote(); }
     });
 
@@ -694,12 +687,11 @@
       state.fileId = saved.fileId || '';
       state.lastSavedAt = saved.lastSavedAt || '';
       state.recentNotes = Array.isArray(saved.recentNotes) ? saved.recentNotes : [];
-      state.gasUrl = saved.gasUrl || state.gasUrl;
-      state.mode = saved.mode === 'gas' ? 'gas' : 'local';
+      state.mode = 'gas';
     }
 
     updateHeader();
-    setStatus('已載入本機狀態');
+    setStatus('已載入雲端模式');
     if (state.gasUrl) { refreshList().catch(() => {}); }
   </script>
 </body>
