@@ -1,4 +1,5 @@
-const LINE_CHANNEL_ACCESS_TOKEN = 'wvRx3SpKavpKXqu+VKsFPJp06vB+ti5bXy428wgTDUqdhmA700eivgp1JdZPmNkK49doDhECbl0rEzQSyvfC7cUy1J0TExUFzfhy6rvZc+lRfcXTWyMq8hw7UCekcgXV2ouQt62owiK929BVsWAcQgdB04t89/1O/w1cDnyilFU=';
+// 安全起見，改從專案屬性讀取。若想先測試，也可以暫時換成新 Token 字串
+const LINE_CHANNEL_ACCESS_TOKEN = PropertiesService.getScriptProperties().getProperty('LINE_TOKEN') || '你的新TOKEN';
 
 function doPost(e) {
   try {
@@ -14,13 +15,23 @@ function doPost(e) {
 
     events.forEach(function(event) {
       try {
-        if (!event.replyToken || !event.message) {
-          Logger.log('Skip event without replyToken/message. type=%s', event.type || 'unknown');
+        // 1. 檢查是否有 replyToken (大部份事件都有，除了 unfollow)
+        if (!event.replyToken) {
+          Logger.log('Skip event without replyToken. type=%s', event.type);
           return;
         }
 
-        const replyText = getEchoText_(event.message);
-        replyMessage_(event.replyToken, replyText);
+        // 2. 根據事件類型處理
+        if (event.type === 'message') {
+          const replyText = getEchoText_(event.message);
+          replyMessage_(event.replyToken, replyText);
+        } else if (event.type === 'follow') {
+          // 未來可以在這裡加：加好友的歡迎訊息
+          replyMessage_(event.replyToken, '謝謝你加我為好友！');
+        } else {
+          Logger.log('Unhandled event type: %s', event.type);
+        }
+
       } catch (innerErr) {
         Logger.log('Event handling failed: %s', innerErr && innerErr.message ? innerErr.message : innerErr);
       }
@@ -36,8 +47,7 @@ function getEchoText_(message) {
   if (message.type === 'text') {
     return message.text || '';
   }
-
-  return '收到你的訊息：' + message.type;
+  return '收到你的訊息，類型是：' + message.type;
 }
 
 function replyMessage_(replyToken, text) {
@@ -73,6 +83,7 @@ function replyMessage_(replyToken, text) {
   }
 }
 
+// 測試 Token 是否有效的工具
 function testLineToken_() {
   const url = 'https://api.line.me/v2/bot/info';
   const options = {
@@ -84,10 +95,6 @@ function testLineToken_() {
   };
 
   const response = UrlFetchApp.fetch(url, options);
-  const statusCode = response.getResponseCode();
-  const responseBody = response.getContentText();
-
-  Logger.log('LINE token test status=%s body=%s', statusCode, responseBody);
-
-  return responseBody;
+  Logger.log('LINE token test status=%s body=%s', response.getResponseCode(), response.getContentText());
+  return response.getContentText();
 }
