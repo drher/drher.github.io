@@ -217,6 +217,10 @@
             animation-delay: 0.44s;
         }
 
+        .project-card:nth-child(7) {
+            animation-delay: 0.52s;
+        }
+
         .project-card::before {
             content: "";
             position: absolute;
@@ -249,6 +253,10 @@
 
         .project-card.notepad::before {
             background: radial-gradient(circle, rgba(142, 95, 47, 0.24), rgba(142, 95, 47, 0));
+        }
+
+        .project-card.vocab::before {
+            background: radial-gradient(circle, rgba(15, 139, 141, 0.24), rgba(15, 139, 141, 0));
         }
 
         .project-card h3 {
@@ -336,6 +344,13 @@
                 radial-gradient(circle at 10% 16%, rgba(15, 118, 110, 0.16), transparent 26%),
                 radial-gradient(circle at 88% 18%, rgba(180, 83, 9, 0.16), transparent 24%),
                 linear-gradient(145deg, #eef6f7 0%, #f6efe2 100%);
+        }
+
+        .project-thumb.vocab-thumb {
+            background:
+                radial-gradient(circle at 14% 16%, rgba(15, 139, 141, 0.16), transparent 24%),
+                radial-gradient(circle at 86% 18%, rgba(255, 183, 3, 0.18), transparent 24%),
+                linear-gradient(145deg, #f3faf7 0%, #fff5df 100%);
         }
 
         .project-thumb.notepad-thumb {
@@ -451,6 +466,44 @@
             border-radius: 50%;
             background: radial-gradient(circle at 35% 35%, #fff, #c87844 60%, #9b4f20 100%);
             box-shadow: 0 2px 6px rgba(89, 54, 27, 0.28);
+        }
+
+        .vocab-card {
+            position: absolute;
+            inset: 52px 16px 16px 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(31, 26, 23, 0.08);
+            background: rgba(255, 255, 255, 0.84);
+            box-shadow: 0 12px 24px rgba(31, 26, 23, 0.08);
+            padding: 14px;
+        }
+
+        .vocab-word {
+            margin-bottom: 14px;
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #0e6869;
+            letter-spacing: 0.04em;
+        }
+
+        .vocab-choice {
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: rgba(247, 241, 229, 0.9);
+            border: 1px solid rgba(31, 26, 23, 0.08);
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #4f4a43;
+        }
+
+        .vocab-choice + .vocab-choice {
+            margin-top: 10px;
+        }
+
+        .vocab-choice.correct {
+            background: rgba(15, 139, 141, 0.12);
+            border-color: rgba(15, 139, 141, 0.28);
+            color: #0c6668;
         }
 
         .thumb-label {
@@ -666,7 +719,7 @@
                 <p class="lead">
                     我正在持續累積前端與互動設計作品，透過簡單直接的遊戲機制，練習
                     <strong>版面設計、操作手感、邏輯實作</strong>
-                    與使用者體驗。下面收錄了目前完成的六個互動作品。
+                    與使用者體驗。下面收錄了目前完成的七個互動作品。
                 </p>
             </article>
         </section>
@@ -791,6 +844,27 @@
                             <span class="thumb-label">Cloud Notepad</span>
                             <div class="notepad-pin"></div>
                             <div class="notepad-lines">- 今日待辦<br>- 作品集第6部分完成<br>- 記得按 Ctrl + S 儲存</div>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="project-card vocab">
+                    <h3>英文單字測驗</h3>
+                    <p>從 Google 試算表讀取英文單字與中文意思，隨機產生選擇題測驗，適合快速練習記憶與即時檢查答題表現。</p>
+                    <div class="tag-row">
+                        <span class="tag">英文學習</span>
+                        <span class="tag">Google 試算表</span>
+                        <span class="tag">Apps Script</span>
+                    </div>
+                    <a class="project-link" href="https://script.google.com/macros/s/AKfycbzPgpLMP4VC_G1ppoawl7rtK43EdaHnuZ7I7rCPEODTO9yGlOKHF1MRchpPMollKn86/exec" target="_blank" rel="noopener noreferrer" aria-label="前往英文單字測驗作品（GAS）">
+                        <div class="project-thumb vocab-thumb">
+                            <span class="thumb-label">Vocabulary Quiz</span>
+                            <div class="vocab-card">
+                                <div class="vocab-word">harvest</div>
+                                <div class="vocab-choice correct">A. 收成</div>
+                                <div class="vocab-choice">B. 旅程</div>
+                                <div class="vocab-choice">C. 機械</div>
+                            </div>
                         </div>
                     </a>
                 </article>
