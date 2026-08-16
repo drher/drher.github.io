@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>丙種職業安全衛生業務主管 模擬測驗</title>
+<style>
+  :root { --main:#1565c0; --ok:#2e7d32; --ng:#c62828; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px;
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    background: #eef2f7; color: #222;
+  }
+  .card {
+    max-width: 720px; margin: 24px auto; background: #fff;
+    border-radius: 12px; padding: 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.12);
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 8px; color: var(--main); }
+  .meta { display: flex; justify-content: space-between; font-size: .95rem; color: #666; margin-bottom: 12px; }
+  .bar { height: 6px; background: #dfe6ee; border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
+  .bar > i { display: block; height: 100%; background: var(--main); width: 0; transition: width .25s; }
+  .q { font-size: 1.15rem; line-height: 1.7; margin-bottom: 18px; }
+  .opts { list-style: none; margin: 0; padding: 0; }
+  .opts li { margin-bottom: 10px; }
+  .opts label {
+    display: flex; gap: 10px; align-items: flex-start;
+    border: 1px solid #cfd8e3; border-radius: 8px; padding: 12px;
+    cursor: pointer; line-height: 1.6;
+  }
+  .opts label:hover { border-color: var(--main); }
+  .opts input { margin-top: 4px; }
+  .opts li.correct label { border-color: var(--ok); background: #e8f5e9; }
+  .opts li.wrong label { border-color: var(--ng); background: #ffebee; }
+  .result { margin: 18px 0; font-weight: bold; font-size: 1.05rem; }
+  .result.ok { color: var(--ok); }
+  .result.ng { color: var(--ng); }
+  .explain {
+    background: #f7f9fc; border-left: 4px solid var(--main);
+    border-radius: 6px; padding: 12px 14px; margin: 0 0 18px;
+    line-height: 1.8; font-size: .98rem;
+  }
+  .explain dl { margin: 0; }
+  .explain dt { font-weight: bold; color: var(--main); margin-top: 6px; }
+  .explain dt:first-child { margin-top: 0; }
+  .explain dd { margin: 0 0 4px; }
+  button {
+    background: var(--main); color: #fff; border: 0; border-radius: 8px;
+    padding: 12px 28px; font-size: 1rem; cursor: pointer;
+  }
+  button:disabled { background: #9bb2c9; cursor: not-allowed; }
+  .score { font-size: 3rem; font-weight: bold; color: var(--main); text-align: center; margin: 16px 0; }
+  .review { margin-top: 20px; border-top: 1px solid #e0e6ee; padding-top: 12px; }
+  .review div { padding: 8px 0; border-bottom: 1px dashed #e0e6ee; line-height: 1.6; font-size: .95rem; }
+  .hide { display: none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>丙種職業安全衛生業務主管 模擬測驗</h1>
+
+  <!-- 開始畫面 -->
+  <section id="startView">
+    <p>本測驗自題庫隨機抽出 <b>20 題</b> 選擇題，每題 5 分，滿分 100 分。<br>
+       每頁一題，作答後立即顯示正確答案。</p>
+    <p class="meta"><span id="bankInfo">題庫載入中…</span></p>
+    <button id="startBtn" disabled>開始測驗</button>
+  </section>
+
+  <!-- 作答畫面 -->
+  <section id="quizView" class="hide">
+    <div class="meta">
+      <span>第 <b id="qNo">1</b> / <span id="qTotal">20</span> 題</span>
+      <span>目前答對：<b id="hitCount">0</b> 題</span>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="q" id="qText"></div>
+    <ul class="opts" id="optList"></ul>
+    <div class="result hide" id="resultBox"></div>
+    <div class="explain hide" id="explainBox"></div>
+    <button id="answerBtn">答題</button>
+    <button id="explainBtn" class="hide">解析</button>
+    <button id="nextBtn" class="hide">下一題</button>
+  </section>
+
+  <!-- 結算畫面 -->
+  <section id="doneView" class="hide">
+    <h1>測驗結束</h1>
+    <div class="score"><span id="finalScore">0</span> 分</div>
+    <p class="meta" style="justify-content:center">
+      答對 <b id="finalHit">0</b> 題 / 共 <b id="finalTotal">20</b> 題（每題 5 分）
+    </p>
+    <p id="comment" style="text-align:center;font-weight:bold"></p>
+    <button id="retryBtn">再測驗一次</button>
+    <div class="review" id="reviewBox"></div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+(function () {
+  const TOTAL = 20;
+  const PER_SCORE = 100 / TOTAL;
+  const XLSX_FILE = '丙種職業安全衛生業務主管題庫.xlsx';
+
+  const $ = id => document.getElementById(id);
+  const startView = $('startView'), quizView = $('quizView'), doneView = $('doneView');
+
+  let bank = [], quiz = [], idx = 0, hit = 0, answered = false, log = [];
+
+  function pickQuestions() {
+    const pool = bank.slice();
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, Math.min(TOTAL, pool.length));
+  }
+
+  function start() {
+    quiz = pickQuestions();
+    idx = 0; hit = 0; log = [];
+    $('qTotal').textContent = quiz.length;
+    startView.classList.add('hide');
+    doneView.classList.add('hide');
+    quizView.classList.remove('hide');
+    render();
+  }
+
+  function render() {
+    answered = false;
+    const item = quiz[idx];
+    $('qNo').textContent = idx + 1;
+    $('hitCount').textContent = hit;
+    $('barFill').style.width = (idx / quiz.length * 100) + '%';
+    $('qText').textContent = (idx + 1) + '. ' + item.q;
+
+    const list = $('optList');
+    list.innerHTML = '';
+    item.o.forEach((text, i) => {
+      const li = document.createElement('li');
+      const label = document.createElement('label');
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'opt';
+      radio.value = String(i + 1);
+      const span = document.createElement('span');
+      span.textContent = '(' + (i + 1) + ') ' + text;
+      label.appendChild(radio);
+      label.appendChild(span);
+      li.appendChild(label);
+      list.appendChild(li);
+    });
+
+    const box = $('resultBox');
+    box.className = 'result hide';
+    box.textContent = '';
+    const ex = $('explainBox');
+    ex.className = 'explain hide';
+    ex.innerHTML = '';
+    $('answerBtn').classList.remove('hide');
+    $('explainBtn').classList.add('hide');
+    $('nextBtn').classList.add('hide');
+    $('nextBtn').textContent = (idx === quiz.length - 1) ? '看成績' : '下一題';
+  }
+
+  function doAnswer() {
+    if (answered) return;
+    const checked = document.querySelector('input[name="opt"]:checked');
+    if (!checked) { alert('請先選擇一個答案'); return; }
+    answered = true;
+
+    const item = quiz[idx];
+    const chosen = Number(checked.value);
+    const correct = item.a;
+    if (chosen === correct) hit++;
+    log.push({ q: item.q, chosen: chosen, correct: correct, opts: item.o });
+
+    const lis = $('optList').children;
+    for (let i = 0; i < lis.length; i++) {
+      lis[i].querySelector('input').disabled = true;
+      if (i + 1 === correct) lis[i].classList.add('correct');
+      else if (i + 1 === chosen) lis[i].classList.add('wrong');
+    }
+
+    const box = $('resultBox');
+    box.classList.remove('hide');
+    if (chosen === correct) {
+      box.className = 'result ok';
+      box.textContent = '答對了！正確答案：(' + correct + ') ' + item.o[correct - 1];
+    } else {
+      box.className = 'result ng';
+      box.textContent = '答錯了。你選 (' + chosen + ')，正確答案：(' + correct + ') ' + item.o[correct - 1];
+    }
+    $('hitCount').textContent = hit;
+    $('answerBtn').classList.add('hide');
+    $('explainBtn').classList.remove('hide');
+    $('nextBtn').classList.remove('hide');
+  }
+
+  function showExplain() {
+    const item = quiz[idx];
+    const ex = $('explainBox');
+    const dl = document.createElement('dl');
+    const add = (t, v) => {
+      const dt = document.createElement('dt'); dt.textContent = t;
+      const dd = document.createElement('dd'); dd.textContent = v;
+      dl.appendChild(dt); dl.appendChild(dd);
+    };
+    add('頁碼', item.p || '（無）');
+    add('題號', item.n || '（無）');
+    add('解析與補充', item.e || '（本題題庫未提供解析）');
+    ex.innerHTML = '';
+    ex.appendChild(dl);
+    ex.classList.remove('hide');
+    $('explainBtn').classList.add('hide');
+  }
+
+  function next() {
+    idx++;
+    if (idx >= quiz.length) finish();
+    else render();
+  }
+
+  function finish() {
+    quizView.classList.add('hide');
+    doneView.classList.remove('hide');
+    const score = Math.round(hit * PER_SCORE);
+    $('finalScore').textContent = score;
+    $('finalHit').textContent = hit;
+    $('finalTotal').textContent = quiz.length;
+    $('comment').textContent = score >= 90 ? '表現優異！' :
+                               score >= 60 ? '及格，再加把勁！' : '未達及格標準，請多加練習。';
+
+    const box = $('reviewBox');
+    box.innerHTML = '';
+    const title = document.createElement('div');
+    title.innerHTML = '<b>作答檢討</b>';
+    box.appendChild(title);
+    log.forEach((r, i) => {
+      const d = document.createElement('div');
+      const mark = r.chosen === r.correct ? '✔' : '✘';
+      d.textContent = mark + ' ' + (i + 1) + '. ' + r.q +
+        '　【你的答案：(' + r.chosen + ')　正確答案：(' + r.correct + ') ' + r.opts[r.correct - 1] + '】';
+      d.style.color = r.chosen === r.correct ? '#2e7d32' : '#c62828';
+      box.appendChild(d);
+    });
+  }
+
+  function clean(v) {
+    return v === undefined || v === null ? '' : String(v).replace(/\s+/g, ' ').trim();
+  }
+
+  // 直接解析 Excel，Excel 更新後網頁題目即同步更新
+  function parseWorkbook(buf) {
+    const wb = XLSX.read(buf, { type: 'array' });
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
+    const out = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      const q = clean(r[2]);
+      const o = [clean(r[3]), clean(r[4]), clean(r[5]), clean(r[6])];
+      const a = parseInt(r[7], 10);
+      if (!q || o.some(x => !x) || !(a >= 1 && a <= 4)) continue;
+      out.push({ p: clean(r[0]), n: clean(r[1]), q: q, o: o, a: a, e: clean(r[8]) });
+    }
+    return out;
+  }
+
+  function ready(source) {
+    $('bankInfo').textContent = '題庫題數：' + bank.length + ' 題（' + source + '）';
+    $('startBtn').disabled = bank.length === 0;
+  }
+
+  function loadBank() {
+    fetch(encodeURIComponent(XLSX_FILE) + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(res => { if (!res.ok) throw new Error(res.status); return res.arrayBuffer(); })
+      .then(buf => {
+        bank = parseWorkbook(buf);
+        if (!bank.length) throw new Error('empty');
+        ready('讀自 Excel 題庫檔');
+      })
+      .catch(err => {
+        bank = [];
+        $('bankInfo').textContent = '題庫載入失敗（' + err.message + '），請確認 Excel 檔存在且以網頁伺服器開啟。';
+        $('startBtn').disabled = true;
+      });
+  }
+
+  loadBank();
+  $('startBtn').addEventListener('click', start);
+  $('answerBtn').addEventListener('click', doAnswer);
+  $('explainBtn').addEventListener('click', showExplain);
+  $('nextBtn').addEventListener('click', next);
+  $('retryBtn').addEventListener('click', start);
+})();
+</script>
+</body>
+</html>
