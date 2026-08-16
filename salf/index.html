@@ -311,7 +311,7 @@
   }
 
   loadBank();
-  $('startBtn').addEventListener('click', start);
+  $('startBtn').addEventListener('click', () => start());
   $('answerBtn').addEventListener('click', doAnswer);
   $('explainBtn').addEventListener('click', showExplain);
   $('nextBtn').addEventListener('click', next);
