@@ -51,8 +51,6 @@
   }
   button:disabled { background: #9bb2c9; cursor: not-allowed; }
   .score { font-size: 3rem; font-weight: bold; color: var(--main); text-align: center; margin: 16px 0; }
-  .review { margin-top: 20px; border-top: 1px solid #e0e6ee; padding-top: 12px; }
-  .review div { padding: 8px 0; border-bottom: 1px dashed #e0e6ee; line-height: 1.6; font-size: .95rem; }
   .hide { display: none; }
 </style>
 </head>
@@ -93,8 +91,7 @@
     </p>
     <p id="comment" style="text-align:center;font-weight:bold"></p>
     <button id="reviewWrongBtn" class="hide">複習答錯</button>
-    <button id="retryBtn" class="hide">再測驗一次</button>
-    <div class="review hide" id="reviewBox"></div>
+    <button id="newQuizBtn">新命題</button>
   </section>
 </div>
 
@@ -102,7 +99,6 @@
 <script>
 (function () {
   const TOTAL = 20;
-  const PER_SCORE = 100 / TOTAL;
   const XLSX_FILE = '丙種職業安全衛生業務主管題庫.xlsx';
 
   const $ = id => document.getElementById(id);
@@ -110,24 +106,29 @@
 
   let bank = [], quiz = [], idx = 0, hit = 0, answered = false, log = [];
 
-  function pickQuestions() {
-    const pool = bank.slice();
+  function shuffleOptions(item) {
+    const options = item.o.map((text, index) => ({ text: text, correct: index + 1 === item.a }));
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    return { ...item, options: options };
+  }
+
+  function pickQuestions(seed) {
+    const selected = seed ? seed.slice() : [];
+    const used = new Set(selected);
+    const pool = bank.filter(item => !used.has(item));
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
-    return pool.slice(0, Math.min(TOTAL, pool.length)).map(item => {
-      const options = item.o.map((text, index) => ({ text: text, correct: index + 1 === item.a }));
-      for (let i = options.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [options[i], options[j]] = [options[j], options[i]];
-      }
-      return { ...item, options: options };
-    });
+    selected.push(...pool.slice(0, Math.max(0, TOTAL - selected.length)));
+    return selected.slice(0, TOTAL).map(shuffleOptions);
   }
 
-  function start() {
-    quiz = pickQuestions();
+  function start(seed) {
+    quiz = pickQuestions(seed);
     idx = 0; hit = 0; log = [];
     $('qTotal').textContent = quiz.length;
     startView.classList.add('hide');
@@ -183,7 +184,7 @@
     const chosen = Number(checked.value);
     const correct = item.options.findIndex(option => option.correct) + 1;
     if (chosen === correct) hit++;
-    log.push({ q: item.q, chosen: chosen, correct: correct, opts: item.options.map(option => option.text) });
+    log.push({ item: item, q: item.q, chosen: chosen, correct: correct, opts: item.options.map(option => option.text) });
 
     const lis = $('optList').children;
     for (let i = 0; i < lis.length; i++) {
@@ -234,33 +235,19 @@
   function finish() {
     quizView.classList.add('hide');
     doneView.classList.remove('hide');
-    const score = Math.round(hit * PER_SCORE);
+    const score = Math.round(hit / quiz.length * 100);
     $('finalScore').textContent = score;
     $('finalHit').textContent = hit;
     $('finalTotal').textContent = quiz.length;
     $('comment').textContent = score >= 90 ? '表現優異！' :
                                score >= 60 ? '及格，再加把勁！' : '未達及格標準，請多加練習。';
-    $('reviewBox').classList.add('hide');
-    $('reviewWrongBtn').classList.toggle('hide', score === 100);
-    $('retryBtn').classList.toggle('hide', score !== 100);
+    $('reviewWrongBtn').classList.toggle('hide', !log.some(r => r.chosen !== r.correct));
+    $('newQuizBtn').classList.remove('hide');
   }
 
   function reviewWrongAnswers() {
-    const box = $('reviewBox');
-    box.innerHTML = '';
-    const title = document.createElement('div');
-    title.innerHTML = '<b>答錯題目複習</b>';
-    box.appendChild(title);
-    log.filter(r => r.chosen !== r.correct).forEach(r => {
-      const d = document.createElement('div');
-      d.textContent = '✘ ' + r.q +
-        '　【你的答案：(' + r.chosen + ')　正確答案：(' + r.correct + ') ' + r.opts[r.correct - 1] + '】';
-      d.style.color = '#c62828';
-      box.appendChild(d);
-    });
-    box.classList.remove('hide');
-    $('reviewWrongBtn').classList.add('hide');
-    $('retryBtn').classList.remove('hide');
+    const wrongItems = log.filter(r => r.chosen !== r.correct).map(r => r.item);
+    if (wrongItems.length) start(wrongItems);
   }
 
   function clean(v) {
@@ -309,7 +296,7 @@
   $('explainBtn').addEventListener('click', showExplain);
   $('nextBtn').addEventListener('click', next);
   $('reviewWrongBtn').addEventListener('click', reviewWrongAnswers);
-  $('retryBtn').addEventListener('click', start);
+  $('newQuizBtn').addEventListener('click', () => start());
 })();
 </script>
 </body>
