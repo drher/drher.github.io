@@ -19,6 +19,7 @@
   }
   h1 { font-size: 1.4rem; margin: 0 0 8px; color: var(--main); }
   .meta { display: flex; justify-content: space-between; font-size: .95rem; color: #666; margin-bottom: 12px; }
+  .quiz-mode { color: #666; font-size: .95rem; margin: -4px 0 14px; }
   .bar { height: 6px; background: #dfe6ee; border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
   .bar > i { display: block; height: 100%; background: var(--main); width: 0; transition: width .25s; }
   .q { font-size: 1.15rem; line-height: 1.7; margin-bottom: 18px; }
@@ -72,6 +73,7 @@
       <span>第 <b id="qNo">1</b> / <span id="qTotal">20</span> 題</span>
       <span>目前答對：<b id="hitCount">0</b> 題</span>
     </div>
+    <div class="quiz-mode" id="quizModeInfo"></div>
     <div class="bar"><i id="barFill"></i></div>
     <div class="q" id="qText"></div>
     <ul class="opts" id="optList"></ul>
@@ -131,6 +133,11 @@
     quiz = pickQuestions(seed);
     idx = 0; hit = 0; log = [];
     $('qTotal').textContent = quiz.length;
+    const reviewCount = seed ? Math.min(seed.length, quiz.length) : 0;
+    const addedCount = quiz.length - reviewCount;
+    $('quizModeInfo').textContent = reviewCount
+      ? '複習' + reviewCount + '題，新增' + addedCount + '題，共' + quiz.length + '題'
+      : '新命題，共' + quiz.length + '題';
     startView.classList.add('hide');
     doneView.classList.add('hide');
     quizView.classList.remove('hide');
