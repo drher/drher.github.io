@@ -92,8 +92,9 @@
       答對 <b id="finalHit">0</b> 題 / 共 <b id="finalTotal">20</b> 題（每題 5 分）
     </p>
     <p id="comment" style="text-align:center;font-weight:bold"></p>
-    <button id="retryBtn">再測驗一次</button>
-    <div class="review" id="reviewBox"></div>
+    <button id="reviewWrongBtn" class="hide">複習答錯</button>
+    <button id="retryBtn" class="hide">再測驗一次</button>
+    <div class="review hide" id="reviewBox"></div>
   </section>
 </div>
 
@@ -115,7 +116,14 @@
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
-    return pool.slice(0, Math.min(TOTAL, pool.length));
+    return pool.slice(0, Math.min(TOTAL, pool.length)).map(item => {
+      const options = item.o.map((text, index) => ({ text: text, correct: index + 1 === item.a }));
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+      return { ...item, options: options };
+    });
   }
 
   function start() {
@@ -138,7 +146,7 @@
 
     const list = $('optList');
     list.innerHTML = '';
-    item.o.forEach((text, i) => {
+    item.options.forEach((option, i) => {
       const li = document.createElement('li');
       const label = document.createElement('label');
       const radio = document.createElement('input');
@@ -146,7 +154,7 @@
       radio.name = 'opt';
       radio.value = String(i + 1);
       const span = document.createElement('span');
-      span.textContent = '(' + (i + 1) + ') ' + text;
+      span.textContent = '(' + (i + 1) + ') ' + option.text;
       label.appendChild(radio);
       label.appendChild(span);
       li.appendChild(label);
@@ -173,9 +181,9 @@
 
     const item = quiz[idx];
     const chosen = Number(checked.value);
-    const correct = item.a;
+    const correct = item.options.findIndex(option => option.correct) + 1;
     if (chosen === correct) hit++;
-    log.push({ q: item.q, chosen: chosen, correct: correct, opts: item.o });
+    log.push({ q: item.q, chosen: chosen, correct: correct, opts: item.options.map(option => option.text) });
 
     const lis = $('optList').children;
     for (let i = 0; i < lis.length; i++) {
@@ -188,10 +196,10 @@
     box.classList.remove('hide');
     if (chosen === correct) {
       box.className = 'result ok';
-      box.textContent = '答對了！正確答案：(' + correct + ') ' + item.o[correct - 1];
+      box.textContent = '答對了！正確答案：(' + correct + ') ' + item.options[correct - 1].text;
     } else {
       box.className = 'result ng';
-      box.textContent = '答錯了。你選 (' + chosen + ')，正確答案：(' + correct + ') ' + item.o[correct - 1];
+      box.textContent = '答錯了。你選 (' + chosen + ')，正確答案：(' + correct + ') ' + item.options[correct - 1].text;
     }
     $('hitCount').textContent = hit;
     $('answerBtn').classList.add('hide');
@@ -232,20 +240,27 @@
     $('finalTotal').textContent = quiz.length;
     $('comment').textContent = score >= 90 ? '表現優異！' :
                                score >= 60 ? '及格，再加把勁！' : '未達及格標準，請多加練習。';
+    $('reviewBox').classList.add('hide');
+    $('reviewWrongBtn').classList.toggle('hide', score === 100);
+    $('retryBtn').classList.toggle('hide', score !== 100);
+  }
 
+  function reviewWrongAnswers() {
     const box = $('reviewBox');
     box.innerHTML = '';
     const title = document.createElement('div');
-    title.innerHTML = '<b>作答檢討</b>';
+    title.innerHTML = '<b>答錯題目複習</b>';
     box.appendChild(title);
-    log.forEach((r, i) => {
+    log.filter(r => r.chosen !== r.correct).forEach(r => {
       const d = document.createElement('div');
-      const mark = r.chosen === r.correct ? '✔' : '✘';
-      d.textContent = mark + ' ' + (i + 1) + '. ' + r.q +
+      d.textContent = '✘ ' + r.q +
         '　【你的答案：(' + r.chosen + ')　正確答案：(' + r.correct + ') ' + r.opts[r.correct - 1] + '】';
-      d.style.color = r.chosen === r.correct ? '#2e7d32' : '#c62828';
+      d.style.color = '#c62828';
       box.appendChild(d);
     });
+    box.classList.remove('hide');
+    $('reviewWrongBtn').classList.add('hide');
+    $('retryBtn').classList.remove('hide');
   }
 
   function clean(v) {
@@ -293,6 +308,7 @@
   $('answerBtn').addEventListener('click', doAnswer);
   $('explainBtn').addEventListener('click', showExplain);
   $('nextBtn').addEventListener('click', next);
+  $('reviewWrongBtn').addEventListener('click', reviewWrongAnswers);
   $('retryBtn').addEventListener('click', start);
 })();
 </script>
