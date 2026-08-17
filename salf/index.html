@@ -237,9 +237,9 @@
       const dd = document.createElement('dd'); dd.textContent = v;
       dl.appendChild(dt); dl.appendChild(dd);
     };
-    add('頁碼', item.p || '（無）');
     add('題號', item.n || '（無）');
     add('解析與補充', item.e || '（本題題庫未提供解析）');
+    add('法規依據', item.l || '（本題題庫未提供法規依據）');
     ex.innerHTML = '';
     ex.appendChild(dl);
     ex.classList.remove('hide');
@@ -274,18 +274,74 @@
     return v === undefined || v === null ? '' : String(v).replace(/\s+/g, ' ').trim();
   }
 
+  function normalizeHeader(v) {
+    return clean(v).replace(/\s+/g, '').toLowerCase();
+  }
+
+  function findColumnIndex(headers, names) {
+    const normalized = headers.map(normalizeHeader);
+    for (const name of names) {
+      const target = normalizeHeader(name);
+      const index = normalized.indexOf(target);
+      if (index !== -1) return index;
+    }
+    return -1;
+  }
+
+  function parseAnswer(rawAnswer, explainText) {
+    const answer = parseInt(rawAnswer, 10);
+    if (answer >= 1 && answer <= 4) return answer;
+
+    const text = clean(explainText);
+    const match = text.match(/第\s*([1-4])\s*項|答案\s*[：:]?\s*([1-4])|\(([1-4])\)/);
+    if (!match) return NaN;
+    return Number(match[1] || match[2] || match[3]);
+  }
+
   // 直接解析 Excel，Excel 更新後網頁題目即同步更新
   function parseWorkbook(buf) {
     const wb = XLSX.read(buf, { type: 'array' });
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
+    if (!rows.length) return [];
+
+    const headers = rows[0] || [];
+    const col = {
+      p: findColumnIndex(headers, ['頁碼']),
+      n: findColumnIndex(headers, ['題號']),
+      q: findColumnIndex(headers, ['題目']),
+      o1: findColumnIndex(headers, ['選項1']),
+      o2: findColumnIndex(headers, ['選項2']),
+      o3: findColumnIndex(headers, ['選項3']),
+      o4: findColumnIndex(headers, ['選項4']),
+      a: findColumnIndex(headers, ['正確答案', '答案']),
+      e: findColumnIndex(headers, ['解析', '解析與補充']),
+      l: findColumnIndex(headers, ['法規', '法規依據'])
+    };
+
+    // 舊版題庫未提供標題時，回退到原本固定索引。
+    const useLegacyIndex = col.q === -1 || col.o1 === -1 || col.o2 === -1 || col.o3 === -1 || col.o4 === -1;
     const out = [];
     for (let i = 1; i < rows.length; i++) {
       const r = rows[i];
-      const q = clean(r[2]);
-      const o = [clean(r[3]), clean(r[4]), clean(r[5]), clean(r[6])];
-      const a = parseInt(r[7], 10);
+      const q = clean(r[useLegacyIndex ? 2 : col.q]);
+      const o = [
+        clean(r[useLegacyIndex ? 3 : col.o1]),
+        clean(r[useLegacyIndex ? 4 : col.o2]),
+        clean(r[useLegacyIndex ? 5 : col.o3]),
+        clean(r[useLegacyIndex ? 6 : col.o4])
+      ];
+      const explainText = clean(r[useLegacyIndex ? 8 : col.e]);
+      const a = parseAnswer(r[useLegacyIndex ? 7 : col.a], explainText);
       if (!q || o.some(x => !x) || !(a >= 1 && a <= 4)) continue;
-      out.push({ p: clean(r[0]), n: clean(r[1]), q: q, o: o, a: a, e: clean(r[8]) });
+      out.push({
+        p: clean(r[useLegacyIndex ? 0 : col.p]),
+        n: clean(r[useLegacyIndex ? 1 : col.n]),
+        q: q,
+        o: o,
+        a: a,
+        e: explainText,
+        l: clean(r[useLegacyIndex ? 9 : col.l])
+      });
     }
     return out;
   }
