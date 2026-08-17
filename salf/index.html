@@ -107,6 +107,7 @@
   const startView = $('startView'), quizView = $('quizView'), doneView = $('doneView');
 
   let bank = [], quiz = [], idx = 0, hit = 0, answered = false, log = [];
+  let bankStats = { scanned: 0, blankOption: 0, skippedNoQuestion: 0, skippedNoAnswer: 0 };
 
   function shuffleOptions(item) {
     const options = item.o.map((text, index) => ({ text: text, correct: index + 1 === item.a }));
@@ -238,6 +239,7 @@
       dl.appendChild(dt); dl.appendChild(dd);
     };
     add('題號', item.n || '（無）');
+    add('題庫位置', 'Excel 第 ' + item.row + ' 列' + (item.blank ? '（本題有空白選項，請回題庫補齊）' : ''));
     add('解析與補充', item.e || '（本題題庫未提供解析）');
     add('法規依據', item.l || '（本題題庫未提供法規依據）');
     ex.innerHTML = '';
@@ -331,10 +333,11 @@
     const useLegacyIndex = headerRow === -1;
     const startRow = useLegacyIndex ? 1 : headerRow + 1;
     const out = [];
+    bankStats = { scanned: 0, blankOption: 0, skippedNoQuestion: 0, skippedNoAnswer: 0 };
     for (let i = startRow; i < rows.length; i++) {
-      const r = rows[i];
+      const r = rows[i] || [];
       const q = clean(r[useLegacyIndex ? 2 : col.q]);
-      const o = [
+      const rawOptions = [
         clean(r[useLegacyIndex ? 3 : col.o1]),
         clean(r[useLegacyIndex ? 4 : col.o2]),
         clean(r[useLegacyIndex ? 5 : col.o3]),
@@ -342,8 +345,17 @@
       ];
       const explainText = clean(r[useLegacyIndex ? 8 : col.e]);
       const a = parseAnswer(r[useLegacyIndex ? 7 : col.a], explainText);
-      if (!q || o.some(x => !x) || !(a >= 1 && a <= 4)) continue;
+      if (!q && rawOptions.every(x => !x)) continue;
+      bankStats.scanned++;
+      if (!q) { bankStats.skippedNoQuestion++; continue; }
+      if (!(a >= 1 && a <= 4)) { bankStats.skippedNoAnswer++; continue; }
+      // 空白選項照樣納入，測驗時即可看出題庫哪一列需要補齊。
+      const hasBlank = rawOptions.some(x => !x);
+      if (hasBlank) bankStats.blankOption++;
+      const o = rawOptions.map((x, k) => x || ('【題庫空白，請補選項' + (k + 1) + '：Excel 第 ' + (i + 1) + ' 列】'));
       out.push({
+        blank: hasBlank,
+        row: i + 1,
         p: clean(r[useLegacyIndex ? 0 : col.p]),
         n: clean(r[useLegacyIndex ? 1 : col.n]),
         q: q,
@@ -357,7 +369,12 @@
   }
 
   function ready(source) {
-    $('bankInfo').textContent = '題庫題數：' + bank.length + ' 題（' + source + '）';
+    const detail = [];
+    if (bankStats.blankOption) detail.push('含空白選項 ' + bankStats.blankOption + ' 題（已納入）');
+    if (bankStats.skippedNoQuestion) detail.push('缺題目未納入 ' + bankStats.skippedNoQuestion + ' 列');
+    if (bankStats.skippedNoAnswer) detail.push('缺正確答案未納入 ' + bankStats.skippedNoAnswer + ' 列');
+    $('bankInfo').textContent = '題庫題數：' + bank.length + ' 題（' + source +
+      '；掃描 ' + bankStats.scanned + ' 列' + (detail.length ? '；' + detail.join('；') : '') + '）';
     $('startBtn').disabled = bank.length === 0;
   }
 
