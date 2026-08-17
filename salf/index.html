@@ -304,24 +304,34 @@
     const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
     if (!rows.length) return [];
 
-    const headers = rows[0] || [];
-    const col = {
-      p: findColumnIndex(headers, ['頁碼']),
-      n: findColumnIndex(headers, ['題號']),
-      q: findColumnIndex(headers, ['題目']),
-      o1: findColumnIndex(headers, ['選項1']),
-      o2: findColumnIndex(headers, ['選項2']),
-      o3: findColumnIndex(headers, ['選項3']),
-      o4: findColumnIndex(headers, ['選項4']),
-      a: findColumnIndex(headers, ['正確答案', '答案']),
-      e: findColumnIndex(headers, ['解析', '解析與補充']),
-      l: findColumnIndex(headers, ['法規', '法規依據'])
-    };
+    let headerRow = -1;
+    let col = null;
+    for (let i = 0; i < Math.min(rows.length, 20); i++) {
+      const headers = rows[i] || [];
+      const testCol = {
+        p: findColumnIndex(headers, ['頁碼']),
+        n: findColumnIndex(headers, ['題號']),
+        q: findColumnIndex(headers, ['題目']),
+        o1: findColumnIndex(headers, ['選項1']),
+        o2: findColumnIndex(headers, ['選項2']),
+        o3: findColumnIndex(headers, ['選項3']),
+        o4: findColumnIndex(headers, ['選項4']),
+        a: findColumnIndex(headers, ['正確答案', '答案']),
+        e: findColumnIndex(headers, ['解析', '解析與補充']),
+        l: findColumnIndex(headers, ['法規', '法規依據'])
+      };
+      if (testCol.q !== -1 && testCol.o1 !== -1 && testCol.o2 !== -1 && testCol.o3 !== -1 && testCol.o4 !== -1) {
+        headerRow = i;
+        col = testCol;
+        break;
+      }
+    }
 
-    // 舊版題庫未提供標題時，回退到原本固定索引。
-    const useLegacyIndex = col.q === -1 || col.o1 === -1 || col.o2 === -1 || col.o3 === -1 || col.o4 === -1;
+    // 未找到標題列時，回退到原本固定索引。
+    const useLegacyIndex = headerRow === -1;
+    const startRow = useLegacyIndex ? 1 : headerRow + 1;
     const out = [];
-    for (let i = 1; i < rows.length; i++) {
+    for (let i = startRow; i < rows.length; i++) {
       const r = rows[i];
       const q = clean(r[useLegacyIndex ? 2 : col.q]);
       const o = [
