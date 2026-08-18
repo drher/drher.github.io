@@ -272,9 +272,42 @@
     $('newQuizBtn').classList.remove('hide');
   }
 
+  function itemIdentity(item) {
+    if (!item) return '';
+    return clean(item.n) || clean(item.p) || clean(item.row) || '';
+  }
+
+  async function reloadBankThenReview(ids) {
+    const originalBank = bank.slice();
+    try {
+      const res = await fetch(encodeURIComponent(XLSX_FILE) + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!res.ok) throw new Error(res.status);
+      const buf = await res.arrayBuffer();
+      const freshBank = parseWorkbook(buf);
+      if (!freshBank.length) throw new Error('empty');
+      bank = freshBank;
+      const normalizedIds = new Set(ids.filter(Boolean));
+      const wrongItems = freshBank.filter(item => normalizedIds.has(clean(item.n)) || (!clean(item.n) && normalizedIds.has(clean(item.p))));
+      if (wrongItems.length) {
+        ready('重新讀取 Excel 最新題庫');
+        start(wrongItems);
+        return;
+      }
+      bank = originalBank;
+      $('bankInfo').textContent = '題庫已更新，但本次錯題題號已不再存在，請確認題庫是否變更。';
+    } catch (err) {
+      bank = originalBank;
+      $('bankInfo').textContent = '重新讀取 Excel 失敗（' + err.message + '），將沿用目前題庫。';
+    }
+  }
+
   function reviewWrongAnswers() {
-    const wrongItems = log.filter(r => r.chosen !== r.correct).map(r => r.item);
-    if (wrongItems.length) start(wrongItems);
+    const wrongIds = log
+      .filter(r => r.chosen !== r.correct)
+      .map(r => itemIdentity(r.item))
+      .filter(Boolean);
+    if (!wrongIds.length) return;
+    reloadBankThenReview(wrongIds);
   }
 
   function clean(v) {
