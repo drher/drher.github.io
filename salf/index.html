@@ -19,8 +19,13 @@
   }
   h1 { font-size: 1.4rem; margin: 0 0 8px; color: var(--main); }
   .creator {
-    margin: -4px 0 12px; text-align: right; font-size: .72rem; color: #7d8794;
+    display: flex; justify-content: flex-end; align-items: center; gap: 16px;
+    margin: -4px 24px 12px 0; text-align: right; font-size: .72rem; color: #7d8794;
     letter-spacing: .08em;
+  }
+  .view-counter {
+    border: 2px solid #e53935; border-radius: 6px; padding: 3px 8px;
+    color: #c62828; letter-spacing: .04em; white-space: nowrap;
   }
   .meta { display: flex; justify-content: space-between; font-size: .95rem; color: #666; margin-bottom: 12px; }
   .quiz-mode { color: #666; font-size: .95rem; margin: -4px 0 14px; }
@@ -62,7 +67,10 @@
 <body>
 <div class="card">
   <h1>丙種職業安全衛生業務主管 模擬測驗</h1>
-  <div class="creator">何帥</div>
+  <div class="creator">
+    <span>何帥</span>
+    <span class="view-counter" id="viewCounter" aria-label="網頁瀏覽次數">瀏覽次數：讀取中</span>
+  </div>
 
   <!-- 開始畫面 -->
   <section id="startView">
@@ -107,6 +115,7 @@
 (function () {
   const TOTAL = 20;
   const XLSX_FILE = '丙種職業安全衛生業務主管題庫.xlsx';
+  const COUNTER_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxyJt7DOh68RPgFxUymelX3fdWkQAu8XNccirVSnEKWFQwFMGIObDwUZQxLk4NZ0dMT/exec';
 
   const $ = id => document.getElementById(id);
   const startView = $('startView'), quizView = $('quizView'), doneView = $('doneView');
@@ -431,6 +440,34 @@
       });
   }
 
+  function updateViewCounter() {
+    if (!COUNTER_ENDPOINT) {
+      $('viewCounter').textContent = '瀏覽次數：待設定';
+      return;
+    }
+    const callbackName = 'salfCounterCallback_' + Date.now();
+    const script = document.createElement('script');
+    const cleanup = () => {
+      delete window[callbackName];
+      script.remove();
+    };
+    window[callbackName] = data => {
+      if (data && Number.isFinite(Number(data.count))) {
+        $('viewCounter').textContent = '瀏覽次數：' + Number(data.count);
+      } else {
+        $('viewCounter').textContent = '瀏覽次數：讀取失敗';
+      }
+      cleanup();
+    };
+    script.onerror = () => {
+      $('viewCounter').textContent = '瀏覽次數：讀取失敗';
+      cleanup();
+    };
+    script.src = COUNTER_ENDPOINT + '?callback=' + encodeURIComponent(callbackName);
+    document.head.appendChild(script);
+  }
+
+  updateViewCounter();
   loadBank();
   $('startBtn').addEventListener('click', () => start());
   $('answerBtn').addEventListener('click', doAnswer);
