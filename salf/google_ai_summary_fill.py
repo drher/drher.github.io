@@ -1,4 +1,5 @@
 import argparse
+import ctypes
 import re
 from pathlib import Path
 from urllib.parse import quote_plus
@@ -58,9 +59,11 @@ def extract_ai_answer(text: str) -> str:
         text = text[marker_match.end():].strip()
 
     text = re.sub(r"跳至主內容|無障礙說明|登入|登出", " ", text)
+    text = re.sub(r"勞動法令查詢系統\s*(?:\+\d+)?", " ", text)
+    text = re.sub(r"^(?:是|答案)\s*\(\s*\)\s*", "", text)
     text = re.sub(r"^(?:勞動法令查詢系統|勞動部法令查詢系統|來源)\s*(?:\+\d+)?\s*", "", text)
     text = re.split(
-        r"(?:如果你|如果您|請告訴我|請問您需要|查看更多|瞭解詳情|詳細資料|來源|分享|複製連結|\.\.\.|…|—)",
+        r"(?:如果你|如果您|如果需要|如果您需要|若您|請告訴我|請問您需要|查看更多|瞭解詳情|詳細資料|來源|分享|複製連結|\.\.\.|…|—)",
         text,
         maxsplit=1,
     )[0]
@@ -104,14 +107,14 @@ def clean_summary_text(text: str) -> str:
     text = re.sub(r"https?://\S+", " ", text)
     text = re.sub(r"(?:www\.|[A-Za-z0-9_\-]+\.)+(?:com|tw|org|net|gov|edu|io)(?:/\S+)?", " ", text)
 
-    # Remove obvious answer metadata and repeated option tags.
-    text = re.sub(r"(?:統計|答案|最佳解答|詳解|點點贊賞|隱藏答案|顯示答案|正確答案)\s*[:：]?\s*[A-D]?\s*[:：]?", " ", text)
+    # Keep answer and reasoning labels because they are part of the useful summary.
+    text = re.sub(r"(?:統計|點點贊賞|隱藏答案|顯示答案)\s*[:：]?\s*", " ", text)
+    text = re.sub(r"(?:高雄市政府全球資訊網|勞動法令查詢系統|勞動部法令查詢系統|維基百科|Wikipedia|法律人\s+LawPlayer)\s*\+\d+", " ", text, flags=re.I)
     text = re.sub(r"\b[A-D]\s*\(\d+\)\b", " ", text, flags=re.I)
-    text = re.sub(r"\b[A-D]\b", " ", text, flags=re.I)
 
     # Keep only sentences that contain legal keywords; drop search-result fragments and raw dates.
     text = re.sub(r"\d{4}年\d{1,2}月\d{1,2}日.*?", " ", text)
-    text = re.sub(r"(?:AI|概覽|摘要|Overview|搜尋結果|相關搜尋|更多 工具|照片|新聞|登入後查看|瞭解詳情|PDF|阿摩|Scribd|花好月圓|育才|Google)[^。！？?]*[。！？]?", " ", text, flags=re.I)
+    text = re.sub(r"(?:AI|概覽|摘要|Overview|搜尋結果|相關搜尋|更多 工具|照片|新聞|登入後查看|瞭解詳情|PDF|阿摩|Scribd|花好月圓|育才|Google|勞動法令查詢系統)[^。！？?]*[。！？]?", " ", text, flags=re.I)
     text = re.sub(r"\s+", " ", text).strip()
 
     candidates = []
@@ -119,7 +122,9 @@ def clean_summary_text(text: str) -> str:
         s = sentence.strip()
         if not s:
             continue
-        if any(keyword in s for keyword in [
+        if re.search(r"(?:正確答案|法理依據|重點說明|原因解析|選項解析)", s):
+            candidates.append(s)
+        elif any(keyword in s for keyword in [
             "職業安全衛生法",
             "三讀通過",
             "立法院",
@@ -154,23 +159,34 @@ def build_query(question: str, options: list[str]) -> str:
     return " ".join(parts)
 
 
-def detect_ai_summary(page) -> str:
-    # First, switch to the Google "全部" tab, since the AI summary is usually under that tab.
-    for selector in [
-        "a:has-text('全部')",
-        "text=全部",
-        "[role='tab']:has-text('全部')",
-        "span:has-text('全部')",
-    ]:
-        try:
-            loc = page.locator(selector).first
-            if loc.count() > 0:
-                loc.click(timeout=5000)
-                page.wait_for_timeout(2000)
-                break
-        except Exception:
-            pass
+def chrome_window_handles() -> set[int]:
+    user32 = ctypes.windll.user32
+    enum_windows = user32.EnumWindows
+    get_window_text = user32.GetWindowTextW
+    is_window_visible = user32.IsWindowVisible
+    callback_type = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)
+    handles = set()
 
+    @callback_type
+    def callback(hwnd, _lparam):
+        if is_window_visible(hwnd):
+            title = ctypes.create_unicode_buffer(512)
+            get_window_text(hwnd, title, len(title))
+            if "Google Chrome" in title.value:
+                handles.add(int(hwnd))
+        return True
+
+    enum_windows(callback, 0)
+    return handles
+
+
+def minimize_new_chrome_windows(existing_handles: set[int]) -> None:
+    user32 = ctypes.windll.user32
+    for hwnd in chrome_window_handles() - existing_handles:
+        user32.ShowWindow(hwnd, 6)  # SW_MINIMIZE
+
+
+def detect_ai_summary(page) -> str:
     markers = ["AI 摘要", "AI 概覽", "AI Overview", "概覽", "摘要"]
     for marker in markers:
         try:
@@ -190,7 +206,7 @@ def detect_ai_summary(page) -> str:
                     ):
                         candidates.append(answer)
                 if candidates:
-                    return max(candidates, key=len)
+                    return min(candidates, key=len)
         except Exception:
             pass
 
@@ -218,41 +234,30 @@ def detect_ai_summary(page) -> str:
             if answer and len(answer) <= 1200:
                 candidates.append(answer)
         if candidates:
-            return max(candidates, key=len)
+            return min(candidates, key=len)
 
     return ""
 
 
 def google_search_ai_summary(query: str, timeout_sec: int = 90) -> str:
     with sync_playwright() as p:
+        existing_chrome_windows = chrome_window_handles()
         browser = p.chromium.launch(
             channel="chrome",
             headless=False,
-            args=["--disable-blink-features=AutomationControlled"],
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--start-minimized",
+            ],
         )
         context = browser.new_context(viewport={"width": 1550, "height": 1200})
         page = context.new_page()
+        minimize_new_chrome_windows(existing_chrome_windows)
 
         url = "https://www.google.com/search?q=" + quote_plus(query)
         page.goto(url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
+        minimize_new_chrome_windows(existing_chrome_windows)
         page.wait_for_timeout(5000)
-
-        try:
-            page.locator("text=我接受").click(timeout=5000)
-        except Exception:
-            pass
-
-        try:
-            page.locator("button:has-text('同意')").click(timeout=5000)
-        except Exception:
-            pass
-
-        # Switch to the Google "全部" tab first to surface the AI summary block.
-        try:
-            page.locator("a:has-text('全部')").first.click(timeout=5000)
-            page.wait_for_timeout(3000)
-        except Exception:
-            pass
 
         summary = detect_ai_summary(page)
         if summary:
@@ -261,6 +266,8 @@ def google_search_ai_summary(query: str, timeout_sec: int = 90) -> str:
 
         body_text = normalize_text(page.locator("body").inner_text())
         browser.close()
+        if body_text.startswith("跳至主內容") or "搜尋結果" in body_text:
+            return ""
         return body_text[:1500] if body_text else ""
 
 
