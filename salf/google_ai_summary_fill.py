@@ -404,7 +404,7 @@ def google_search_ai_summary(query: str, timeout_sec: int = 90) -> str:
     with sync_playwright() as p:
         browser = p.chromium.launch(
             channel="chrome",
-            headless=True,
+            headless=False,
             args=["--disable-blink-features=AutomationControlled"],
         )
         context = browser.new_context(viewport={"width": 1550, "height": 1200})
