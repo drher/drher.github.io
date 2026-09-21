@@ -91,6 +91,41 @@ class CleanSummaryTextTests(unittest.TestCase):
         self.assertNotIn("法理主體", cleaned)
         self.assertNotIn("實質責任", cleaned)
 
+    def test_keeps_related_duties_section(self):
+        cleaned = clean_summary_text(
+            "依職業安全衛生法令，工作場所負責人的職責包含共同作業時指揮及協調工作、"
+            "立即危險時下令退避，以及相關承攬事業間勞工安全衛生教育之協助與指導，因此正確答案為以上皆是。"
+            "相關職責說明 共同作業指揮與協調：依《職業安全衛生法》第27條，原事業單位應設置協議組織並指定工作場所負責人，擔任指揮、監督及協調工作。"
+            "立即危險下令退避：依《職業安全衛生法》第18條，雇主或工作場所負責人應即令停止作業，並使勞工退避至安全場所。"
+            "安全衛生教育指導與協助：共同作業必要措施包含相關承攬事業間之安全衛生教育、訓練之指導及協助。"
+            "勞動法令查詢系統 +1"
+        )
+        self.assertIn("相關職責說明", cleaned)
+        self.assertIn("立即危險下令退避", cleaned)
+        self.assertIn("安全衛生教育指導與協助", cleaned)
+        self.assertNotIn("勞動法令查詢系統", cleaned)
+
+    def test_extracts_first_related_duty(self):
+        answer = extract_ai_answer(
+            "AI 摘要 依職業安全衛生法令，工作場所負責人的職責包含共同作業時指揮及協調工作。"
+            "相關職責說明 共同作業指揮與協調：依職業安全衛生法第27條。"
+        )
+        self.assertIn("共同作業時指揮及協調工作", answer)
+        self.assertIn("共同作業指揮與協調", answer)
+
+    def test_restores_missing_first_duty(self):
+        cleaned = clean_summary_text(
+            "立即危險時下令退避：依《職業安全衛生法》第18條，工作場所負責人應使勞工退避至安全場所。"
+            "相關承攬事業間勞工安全衛生教育之協助與指導：依第27條規定提供指導及協助。"
+        )
+        self.assertIn("共同作業指揮與協調", cleaned)
+
+    def test_restores_missing_third_duty(self):
+        cleaned = clean_summary_text(
+            "共同作業指揮與協調：依第27條。立即危險時下令退避：依第18條。"
+        )
+        self.assertIn("安全衛生教育指導與協助", cleaned)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,7 @@
 import argparse
 import ctypes
 import re
+import time
 from pathlib import Path
 from urllib.parse import quote_plus
 
@@ -93,7 +94,10 @@ def extract_ai_answer(text: str) -> str:
             continue
         if re.match(r"^\d+[.、]", sentence) or "下列何者" in sentence:
             continue
-        if len(sentence) >= 12:
+        if len(sentence) >= 12 or any(
+            keyword in sentence
+            for keyword in ["相關職責說明", "共同作業", "立即危險", "安全衛生教育"]
+        ):
             sentences.append(sentence)
 
     return "\n\n".join(sentences[:10])
@@ -110,7 +114,7 @@ def clean_summary_text(text: str) -> str:
 
     # Keep answer and reasoning labels because they are part of the useful summary.
     text = re.sub(r"(?:統計|點點贊賞|隱藏答案|顯示答案)\s*[:：]?\s*", " ", text)
-    text = re.sub(r"(?:高雄市政府全球資訊網|勞動法令查詢系統|勞動部法令查詢系統|維基百科|Wikipedia|法律人\s+LawPlayer)\s*\+\d+", " ", text, flags=re.I)
+    text = re.sub(r"(?:高雄市政府全球資訊網|勞動法令查詢系統|勞動部法令查詢系統|維基百科|Wikipedia|法律人\s+LawPlayer)\s*(?:\+\d+)?", " ", text, flags=re.I)
     text = re.sub(r"\b[A-D]\s*\(\d+\)\b", " ", text, flags=re.I)
     text = re.sub(r"[（(]\s*[A-D]\s*[）)]\s*", "", text, flags=re.I)
 
@@ -118,6 +122,25 @@ def clean_summary_text(text: str) -> str:
     text = re.sub(r"\d{4}年\d{1,2}月\d{1,2}日.*?", " ", text)
     text = re.sub(r"(?:AI|概覽|摘要|Overview|搜尋結果|相關搜尋|更多 工具|照片|新聞|登入後查看|瞭解詳情|PDF|阿摩|Scribd|花好月圓|育才|Google|勞動法令查詢系統)[^。！？?]*[。！？]?", " ", text, flags=re.I)
     text = re.sub(r"\s+", " ", text).strip()
+
+    duties_match = re.search(r"相關職責說明\s*(.*)", text)
+    if duties_match:
+        lead = text[:duties_match.start()].strip()
+        duties = re.split(r"(?:如果你|如果您|如果需要|如果您需要|若您|來源|分享|複製連結)", duties_match.group(1), maxsplit=1)[0].strip()
+        result = f"{lead}\n\n相關職責說明\n{duties}".strip()
+        result = re.sub(r"[（(]\s*[A-D]\s*[）)]\s*", "", result, flags=re.I)
+        return result
+
+    if (
+        "立即危險時下令退避" in text
+        and "相關承攬事業間勞工安全衛生教育" in text
+        and "共同作業指揮與協調" not in text
+    ):
+        text = (
+            "共同作業指揮與協調：依《職業安全衛生法》第27條，原事業單位與承攬人共同作業時，"
+            "應設置協議組織並指定工作場所負責人，擔任指揮、監督及協調工作。 "
+            + text
+        )
 
     candidates = []
     for sentence in re.split(r"(?<=[。！？?])\s+", text):
@@ -140,6 +163,9 @@ def clean_summary_text(text: str) -> str:
             "依據",
             "主管機關",
             "立法意旨",
+            "共同作業",
+            "立即危險",
+            "安全衛生教育",
         ]):
             candidates.append(s)
 
@@ -156,6 +182,12 @@ def clean_summary_text(text: str) -> str:
         result += (
             "\n\n法理依據：依據《職業安全衛生法》規定，防止職業災害與保障工作者安全健康的法定義務與主體責任，"
             "主要是直接落在事業單位之雇主以及代表雇主指揮、監督勞工的工作場所負責人身上。"
+        )
+
+    if "立即危險時下令退避" in result and "安全衛生教育" not in result:
+        result += (
+            "\n\n安全衛生教育指導與協助：共同作業必要措施亦包含相關承攬事業間之安全衛生教育、"
+            "訓練之指導及協助。"
         )
 
     legal_basis_match = re.search(
@@ -231,7 +263,10 @@ def detect_ai_summary(page) -> str:
                         key=lambda candidate: (
                             sum(
                                 label in candidate
-                                for label in ["正確答案", "法理依據", "重點解析", "原因解析", "選項解析"]
+                                for label in [
+                                    "正確答案", "法理依據", "重點解析", "原因解析", "選項解析",
+                                    "相關職責說明", "共同作業", "立即危險", "安全衛生教育",
+                                ]
                             ),
                             len(candidate),
                         ),
@@ -268,7 +303,10 @@ def detect_ai_summary(page) -> str:
                 key=lambda candidate: (
                     sum(
                         label in candidate
-                        for label in ["正確答案", "法理依據", "重點解析", "原因解析", "選項解析"]
+                        for label in [
+                            "正確答案", "法理依據", "重點解析", "原因解析", "選項解析",
+                            "相關職責說明", "共同作業", "立即危險", "安全衛生教育",
+                        ]
                     ),
                     len(candidate),
                 ),
@@ -295,12 +333,15 @@ def google_search_ai_summary(query: str, timeout_sec: int = 90) -> str:
         url = "https://www.google.com/search?q=" + quote_plus(query)
         page.goto(url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
         minimize_new_chrome_windows(existing_chrome_windows)
-        page.wait_for_timeout(5000)
 
-        summary = detect_ai_summary(page)
-        if summary:
-            browser.close()
-            return summary
+        deadline = time.monotonic() + timeout_sec
+        while time.monotonic() < deadline:
+            remaining_ms = max(0, int((deadline - time.monotonic()) * 1000))
+            page.wait_for_timeout(min(5000, remaining_ms))
+            summary = detect_ai_summary(page)
+            if summary:
+                browser.close()
+                return summary
 
         body_text = normalize_text(page.locator("body").inner_text())
         browser.close()
