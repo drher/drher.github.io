@@ -4,10 +4,21 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from google_ai_summary_fill import clean_summary_text, extract_ai_answer, remove_google_summary_noise
+from google_ai_summary_fill import (
+    clean_summary_text,
+    extract_ai_answer,
+    is_google_traffic_verification,
+    remove_google_summary_noise,
+)
 
 
 class CleanSummaryTextTests(unittest.TestCase):
+    def test_detects_google_traffic_verification(self):
+        self.assertTrue(is_google_traffic_verification(
+            "我們的系統偵測到您的電腦網路送出的流量有異常情況。"
+        ))
+        self.assertFalse(is_google_traffic_verification("正常的 Google 搜尋結果。"))
+
     def test_extracts_only_ai_answer(self):
         raw = (
             "AI 摘要 職業安全衛生法係由總統公布。"

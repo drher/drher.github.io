@@ -278,6 +278,10 @@ def build_query(question: str, options: list[str]) -> str:
     return " ".join(parts)
 
 
+def is_google_traffic_verification(text: str) -> bool:
+    return "偵測到您的電腦網路送出的流量有異常情況" in text
+
+
 def chrome_window_handles() -> set[int]:
     user32 = ctypes.windll.user32
     enum_windows = user32.EnumWindows
@@ -411,6 +415,11 @@ def google_search_ai_summary(query: str, timeout_sec: int = 90) -> str:
 
         deadline = time.monotonic() + timeout_sec
         while time.monotonic() < deadline:
+            page_text = page.locator("body").inner_text()
+            if is_google_traffic_verification(page_text):
+                browser.close()
+                raise RuntimeError("Google 偵測到異常流量並要求人工驗證，已停止處理。")
+
             remaining_ms = max(0, int((deadline - time.monotonic()) * 1000))
             page.wait_for_timeout(min(5000, remaining_ms))
             summary = detect_ai_summary(page)
@@ -420,6 +429,8 @@ def google_search_ai_summary(query: str, timeout_sec: int = 90) -> str:
 
         body_text = normalize_text(page.locator("body").inner_text())
         browser.close()
+        if is_google_traffic_verification(body_text):
+            raise RuntimeError("Google 偵測到異常流量並要求人工驗證，已停止處理。")
         if body_text.startswith("跳至主內容") or "搜尋結果" in body_text:
             return ""
         return body_text[:1500] if body_text else ""
@@ -442,11 +453,11 @@ def update_workbook(
     sheet_name: str,
     start_row: int = 2,
     max_rows: int | None = None,
-    request_delay_min: float = 25,
-    request_delay_max: float = 45,
-    batch_size: int = 5,
-    batch_delay_min: float = 180,
-    batch_delay_max: float = 300,
+    request_delay_min: float = 120,
+    request_delay_max: float = 240,
+    batch_size: int = 3,
+    batch_delay_min: float = 600,
+    batch_delay_max: float = 900,
 ):
     if request_delay_min < 0 or request_delay_max < request_delay_min:
         raise ValueError("題間等待時間必須為非負數，且最大值不得小於最小值。")
@@ -462,6 +473,10 @@ def update_workbook(
     if max_rows is not None:
         max_row = min(max_row, start_row + max_rows - 1)
 
+    total_questions = sum(
+        bool(str(ws.cell(row, 2).value or "").strip())
+        for row in range(start_row, max_row + 1)
+    )
     processed_count = 0
     for row in range(start_row, max_row + 1):
         q = ws.cell(row, 2).value
@@ -474,6 +489,7 @@ def update_workbook(
             opts.append("" if v is None else str(v))
 
         query = build_query(str(q), opts)
+        print(f"[progress] {processed_count + 1}/{total_questions} | row={row}")
         print(f"[query] row={row}: {query[:120]}")
 
         summary = remove_google_summary_noise(google_search_ai_summary(query))
@@ -485,7 +501,7 @@ def update_workbook(
 
         # Save after each row to keep progress, but use a safe temp output if the file is locked.
         save_path = save_workbook_safe(wb, xlsx_path)
-        print(f"[done] row={row} saved to {save_path}.")
+        print(f"[done] {processed_count + 1}/{total_questions} | row={row} saved to {save_path}.")
         processed_count += 1
 
         if row == max_row:
@@ -493,10 +509,10 @@ def update_workbook(
 
         if processed_count % batch_size == 0:
             delay = random.uniform(batch_delay_min, batch_delay_max)
-            print(f"[wait] completed {processed_count} questions; pausing {delay:.0f} seconds before the next batch.")
+            print(f"[wait] completed {processed_count}/{total_questions}; pausing {delay:.0f} seconds before the next batch.")
         else:
             delay = random.uniform(request_delay_min, request_delay_max)
-            print(f"[wait] pausing {delay:.0f} seconds before the next question.")
+            print(f"[wait] completed {processed_count}/{total_questions}; pausing {delay:.0f} seconds before the next question.")
         time.sleep(delay)
 
     return save_path
@@ -508,11 +524,11 @@ if __name__ == "__main__":
     parser.add_argument("--sheet", type=str, default="乾淨題庫", help="工作表名稱")
     parser.add_argument("--start-row", type=int, default=2, help="從哪一列開始處理")
     parser.add_argument("--max-rows", type=int, default=None, help="最多處理幾列，預設全部")
-    parser.add_argument("--request-delay-min", type=float, default=25, help="每題間隨機等待最少秒數")
-    parser.add_argument("--request-delay-max", type=float, default=45, help="每題間隨機等待最多秒數")
-    parser.add_argument("--batch-size", type=int, default=5, help="每批連續處理的題數")
-    parser.add_argument("--batch-delay-min", type=float, default=180, help="每批之間隨機等待最少秒數")
-    parser.add_argument("--batch-delay-max", type=float, default=300, help="每批之間隨機等待最多秒數")
+    parser.add_argument("--request-delay-min", type=float, default=120, help="每題間隨機等待最少秒數")
+    parser.add_argument("--request-delay-max", type=float, default=240, help="每題間隨機等待最多秒數")
+    parser.add_argument("--batch-size", type=int, default=3, help="每批連續處理的題數")
+    parser.add_argument("--batch-delay-min", type=float, default=600, help="每批之間隨機等待最少秒數")
+    parser.add_argument("--batch-delay-max", type=float, default=900, help="每批之間隨機等待最多秒數")
     args = parser.parse_args()
 
     result = update_workbook(
