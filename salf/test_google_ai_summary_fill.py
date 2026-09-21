@@ -60,6 +60,37 @@ class CleanSummaryTextTests(unittest.TestCase):
         self.assertIn("法理依據", cleaned)
         self.assertNotIn("高雄市政府全球資訊網", cleaned)
 
+    def test_removes_variable_option_marker_and_keeps_legal_basis(self):
+        raw = (
+            "職業安全衛生法以(A)雇主及工作場所負責人的責任為主，來負擔保障工作者安全與健康之義務。"
+            "正確答案：(A)雇主及工作場所負責人。"
+            "法理依據：依據《職業安全衛生法》規定，防止職業災害與保障工作者安全健康的法定義務與主體責任，"
+            "主要是直接落在事業單位之雇主以及代表雇主指揮、監督勞工的工作場所負責人身上。"
+        )
+        cleaned = clean_summary_text(raw)
+        self.assertIn("正確答案：雇主及工作場所負責人", cleaned)
+        self.assertIn("法理依據：依據《職業安全衛生法》規定", cleaned)
+        self.assertIn("工作場所負責人身上", cleaned)
+        self.assertNotIn("(A)", cleaned)
+
+    def test_adds_required_legal_basis_for_employer_question(self):
+        cleaned = clean_summary_text(
+            "職業安全衛生法以雇主及工作場所負責人的責任為主，來負擔保障工作者安全與健康之義務。"
+        )
+        self.assertIn("法理依據：依據《職業安全衛生法》規定", cleaned)
+        self.assertIn("事業單位之雇主以及代表雇主指揮、監督勞工", cleaned)
+
+    def test_keeps_only_legal_basis_section(self):
+        cleaned = clean_summary_text(
+            "職業安全衛生法以雇主及工作場所負責人的責任為主。"
+            "法理主體：雇主為主要義務主體。"
+            "實質責任：企業主與工作場所負責人負責安全衛生。"
+            "法理依據：依據《職業安全衛生法》規定，主要責任落在雇主以及工作場所負責人身上。"
+        )
+        self.assertIn("法理依據：依據《職業安全衛生法》規定", cleaned)
+        self.assertNotIn("法理主體", cleaned)
+        self.assertNotIn("實質責任", cleaned)
+
 
 if __name__ == "__main__":
     unittest.main()

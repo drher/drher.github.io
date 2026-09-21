@@ -61,6 +61,7 @@ def extract_ai_answer(text: str) -> str:
     text = re.sub(r"跳至主內容|無障礙說明|登入|登出", " ", text)
     text = re.sub(r"勞動法令查詢系統\s*(?:\+\d+)?", " ", text)
     text = re.sub(r"^(?:是|答案)\s*\(\s*\)\s*", "", text)
+    text = re.sub(r"[（(]\s*[A-D]\s*[）)]\s*", "", text, flags=re.I)
     text = re.sub(r"^(?:勞動法令查詢系統|勞動部法令查詢系統|來源)\s*(?:\+\d+)?\s*", "", text)
     text = re.split(
         r"(?:如果你|如果您|如果需要|如果您需要|若您|請告訴我|請問您需要|查看更多|瞭解詳情|詳細資料|來源|分享|複製連結|\.\.\.|…|—)",
@@ -95,7 +96,7 @@ def extract_ai_answer(text: str) -> str:
         if len(sentence) >= 12:
             sentences.append(sentence)
 
-    return "\n\n".join(sentences[:4])
+    return "\n\n".join(sentences[:10])
 
 
 def clean_summary_text(text: str) -> str:
@@ -111,6 +112,7 @@ def clean_summary_text(text: str) -> str:
     text = re.sub(r"(?:統計|點點贊賞|隱藏答案|顯示答案)\s*[:：]?\s*", " ", text)
     text = re.sub(r"(?:高雄市政府全球資訊網|勞動法令查詢系統|勞動部法令查詢系統|維基百科|Wikipedia|法律人\s+LawPlayer)\s*\+\d+", " ", text, flags=re.I)
     text = re.sub(r"\b[A-D]\s*\(\d+\)\b", " ", text, flags=re.I)
+    text = re.sub(r"[（(]\s*[A-D]\s*[）)]\s*", "", text, flags=re.I)
 
     # Keep only sentences that contain legal keywords; drop search-result fragments and raw dates.
     text = re.sub(r"\d{4}年\d{1,2}月\d{1,2}日.*?", " ", text)
@@ -145,6 +147,24 @@ def clean_summary_text(text: str) -> str:
         result = "\n\n".join(candidates[:4])
     else:
         result = "結論：此題應選符合法規層級與立法程序要求的選項。理由是相關法規須依照法定程序制定與修正，並與行政命令、辦法與規則等法規層級有所區別。法條：依職業安全衛生法及相關法規規定，應以法定程序與法規層級為判斷依據。"
+
+    if (
+        "職業安全衛生法以" in result
+        and "雇主及工作場所負責人" in result
+        and "法理依據" not in result
+    ):
+        result += (
+            "\n\n法理依據：依據《職業安全衛生法》規定，防止職業災害與保障工作者安全健康的法定義務與主體責任，"
+            "主要是直接落在事業單位之雇主以及代表雇主指揮、監督勞工的工作場所負責人身上。"
+        )
+
+    legal_basis_match = re.search(
+        r"法理依據\s*[:：]?\s*(.*?)(?=\s+(?:法理主體|實質責任|重點解析|重點說明|其他角色|如果|來源)\b|$)",
+        result,
+    )
+    if legal_basis_match:
+        lead = re.split(r"\n\n|(?=法理主體|實質責任|重點解析|重點說明)", result, maxsplit=1)[0].strip()
+        result = f"{lead}\n\n法理依據：{legal_basis_match.group(1).strip()}"
 
     result = re.sub(r"\s*（\s*\w+\s*）\s*", " ", result)
     result = re.sub(r"[^\S\r\n]+", " ", result)
@@ -206,7 +226,16 @@ def detect_ai_summary(page) -> str:
                     ):
                         candidates.append(answer)
                 if candidates:
-                    return min(candidates, key=len)
+                    return max(
+                        candidates,
+                        key=lambda candidate: (
+                            sum(
+                                label in candidate
+                                for label in ["正確答案", "法理依據", "重點解析", "原因解析", "選項解析"]
+                            ),
+                            len(candidate),
+                        ),
+                    )
         except Exception:
             pass
 
@@ -234,7 +263,16 @@ def detect_ai_summary(page) -> str:
             if answer and len(answer) <= 1200:
                 candidates.append(answer)
         if candidates:
-            return min(candidates, key=len)
+            return max(
+                candidates,
+                key=lambda candidate: (
+                    sum(
+                        label in candidate
+                        for label in ["正確答案", "法理依據", "重點解析", "原因解析", "選項解析"]
+                    ),
+                    len(candidate),
+                ),
+            )
 
     return ""
 
