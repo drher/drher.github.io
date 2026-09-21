@@ -93,7 +93,7 @@
     <div class="result hide" id="resultBox"></div>
     <div class="explain hide" id="explainBox"></div>
     <button id="answerBtn" type="button">答題</button>
-    <button id="explainBtn" type="button" class="hide">解析</button>
+    <button id="explainBtn" type="button" class="hide">解析/法規依據</button>
     <button id="nextBtn" type="button" class="hide">下一題</button>
   </section>
 
@@ -250,7 +250,7 @@
     };
     add('題號', item.n || '（無）');
     add('題庫位置', 'Excel 第 ' + item.row + ' 列' + (item.blank ? '（本題有空白選項，請回題庫補齊）' : ''));
-    add('解析與補充', item.e || '（本題題庫未提供解析）');
+    add('解析/法規依據', item.e || '（本題題庫未提供解析/法規依據）');
     add('法規依據', item.l || '（本題題庫未提供法規依據）');
     ex.innerHTML = '';
     ex.appendChild(dl);
@@ -362,7 +362,7 @@
         o3: findColumnIndex(headers, ['選項3']),
         o4: findColumnIndex(headers, ['選項4']),
         a: findColumnIndex(headers, ['正確答案', '答案']),
-        e: findColumnIndex(headers, ['解析', '解析與補充']),
+        e: findColumnIndex(headers, ['解析/法規依據', '解析', '解析與補充']),
         l: findColumnIndex(headers, ['法規', '法規依據'])
       };
       if (testCol.q !== -1 && testCol.o1 !== -1 && testCol.o2 !== -1 && testCol.o3 !== -1 && testCol.o4 !== -1) {
