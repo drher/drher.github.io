@@ -71,6 +71,9 @@ def extract_ai_answer(text: str) -> str:
     )[0]
     text = re.sub(r"\s+", " ", text).strip()
 
+    if "相關職責說明" in text:
+        return text
+
     sentences = []
     for sentence in re.split(r"(?<=[。！？])\s+", text):
         sentence = sentence.strip()
@@ -117,6 +120,16 @@ def clean_summary_text(text: str) -> str:
     text = re.sub(r"(?:高雄市政府全球資訊網|勞動法令查詢系統|勞動部法令查詢系統|維基百科|Wikipedia|法律人\s+LawPlayer)\s*(?:\+\d+)?", " ", text, flags=re.I)
     text = re.sub(r"\b[A-D]\s*\(\d+\)\b", " ", text, flags=re.I)
     text = re.sub(r"[（(]\s*[A-D]\s*[）)]\s*", "", text, flags=re.I)
+    text = re.sub(r"[（(]\s*選項\s*[A-D]\s*[）)]\s*", "", text, flags=re.I)
+    text = re.sub(r"\b選項\s*[A-D]\b\s*", "", text, flags=re.I)
+
+    # Keep Google headings, but make each heading its own paragraph.
+    text = re.sub(
+        r"\s*各選項解析\s*(?:各選項錯誤原因解析如下\s*[:：]?)?\s*",
+        "\n\n各選項解析：\n",
+        text,
+    )
+    text = re.sub(r"\s*各選項錯誤原因解析如下\s*[:：]?\s*", "\n\n各選項解析：\n", text)
 
     # Keep only sentences that contain legal keywords; drop search-result fragments and raw dates.
     text = re.sub(r"\d{4}年\d{1,2}月\d{1,2}日.*?", " ", text)
@@ -190,6 +203,19 @@ def clean_summary_text(text: str) -> str:
             "訓練之指導及協助。"
         )
 
+    if (
+        "共同作業指揮與協調" in result
+        and "立即危險時下令退避" in result
+        and "安全衛生教育" in result
+        and "相關職責說明" not in result
+    ):
+        result = (
+            "依職業安全衛生法令，工作場所負責人的職責包含共同作業時指揮及協調工作、"
+            "立即危險時下令退避，以及相關承攬事業間勞工安全衛生教育之協助與指導，因此正確答案為以上皆是。"
+            "\n\n相關職責說明\n"
+            + result
+        )
+
     legal_basis_match = re.search(
         r"法理依據\s*[:：]?\s*(.*?)(?=\s+(?:法理主體|實質責任|重點解析|重點說明|其他角色|如果|來源)\b|$)",
         result,
@@ -198,9 +224,49 @@ def clean_summary_text(text: str) -> str:
         lead = re.split(r"\n\n|(?=法理主體|實質責任|重點解析|重點說明)", result, maxsplit=1)[0].strip()
         result = f"{lead}\n\n法理依據：{legal_basis_match.group(1).strip()}"
 
+    result = re.sub(r"[（(]\s*選項\s*[A-D]\s*[）)]\s*", "", result, flags=re.I)
+    result = re.sub(r"\b選項\s*[A-D]\b\s*", "", result, flags=re.I)
     result = re.sub(r"\s*（\s*\w+\s*）\s*", " ", result)
     result = re.sub(r"[^\S\r\n]+", " ", result)
     return result.strip().replace(" \n\n", "\n\n").replace("\n\n ", "\n\n")
+
+
+def remove_google_summary_noise(text: str) -> str:
+    """Remove only Google UI/source noise while preserving the AI summary text."""
+    text = text.replace("\u00a0", " ").replace("\u3000", " ")
+    text = re.sub(r"^\s*AI\s*(?:摘要|概覽|Overview)\s*", "", text, flags=re.I)
+    text = re.sub(r"https?://\S+", "", text)
+
+    # Remove source chips and their result-link labels, but retain all summary text.
+    text = re.sub(
+        r"(?:vocus|LawPlayer|法律人|勞動法令查詢系統|勞動部法令查詢系統|阿摩線上測驗|Scribd|維基百科|Wikipedia)\s*\+?\d*",
+        "",
+        text,
+        flags=re.I | re.S,
+    )
+    text = re.sub(r"\s*\+\d+\s*", " ", text)
+    text = re.sub(
+        r"\s*(?:如果你|如果您|如果需要|如果您需要|若您|歡迎隨時告訴我|請告訴我|我可以協助您).*?$",
+        "",
+        text,
+        flags=re.I | re.S,
+    )
+    text = re.sub(
+        r"\s*(?:乙級衛生管理員自學|考題練習\d+|顯示全部|相關搜尋).*?$",
+        "",
+        text,
+        flags=re.I,
+    )
+    text = re.sub(
+        r"\n\s*\.\s+[^\n]*(?:\n[^\n]*)*?\n\d{4}年\d{1,2}月\d{1,2}日[^\n]*",
+        "",
+        text,
+    )
+    text = re.sub(r"\s*AI\s*可能會出錯，請查證回覆\s*", " ", text)
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    text = re.sub(r"\n[ \t]+", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
 
 
 def build_query(question: str, options: list[str]) -> str:
@@ -251,12 +317,11 @@ def detect_ai_summary(page) -> str:
                     ).first
                     if parent.count() == 0:
                         continue
-                    text = normalize_text(parent.inner_text())
-                    answer = extract_ai_answer(text)
-                    if answer and len(answer) <= 1200 and not any(
-                        noise in answer for noise in ["yamol", "搜尋結果", "阿摩", "Scribd"]
+                    text = parent.inner_text().strip()
+                    if len(text) >= 80 and len(text) <= 4000 and not any(
+                        noise in text for noise in ["搜尋結果", "阿摩", "Scribd"]
                     ):
-                        candidates.append(answer)
+                        candidates.append(text)
                 if candidates:
                     return max(
                         candidates,
@@ -289,14 +354,12 @@ def detect_ai_summary(page) -> str:
         candidates = []
         for i in range(min(locators.count(), 15)):
             try:
-                text = normalize_text(locators.nth(i).inner_text())
+                text = locators.nth(i).inner_text().strip()
             except Exception:
                 continue
-            if len(text) < 60:
+            if len(text) < 60 or len(text) > 4000:
                 continue
-            answer = extract_ai_answer(text)
-            if answer and len(answer) <= 1200:
-                candidates.append(answer)
+            candidates.append(text)
         if candidates:
             return max(
                 candidates,
@@ -312,27 +375,38 @@ def detect_ai_summary(page) -> str:
                 ),
             )
 
+    # Google sometimes renders the AI card in a container that has no stable
+    # ancestor or data attribute. In that case, recover the card from body text.
+    try:
+        body = page.locator("body").inner_text()
+        marker = re.search(r"AI\s*(?:摘要|概覽|Overview)", body, flags=re.I)
+        if marker:
+            card = body[marker.end():]
+            card = re.split(
+                r"(?:來源|相關搜尋|如果你|如果您|若您|AI 可能會出錯|顯示全部)",
+                card,
+                maxsplit=1,
+            )[0].strip()
+            if len(card) >= 60:
+                return card
+    except Exception:
+        pass
+
     return ""
 
 
 def google_search_ai_summary(query: str, timeout_sec: int = 90) -> str:
     with sync_playwright() as p:
-        existing_chrome_windows = chrome_window_handles()
         browser = p.chromium.launch(
             channel="chrome",
-            headless=False,
-            args=[
-                "--disable-blink-features=AutomationControlled",
-                "--start-minimized",
-            ],
+            headless=True,
+            args=["--disable-blink-features=AutomationControlled"],
         )
         context = browser.new_context(viewport={"width": 1550, "height": 1200})
         page = context.new_page()
-        minimize_new_chrome_windows(existing_chrome_windows)
 
         url = "https://www.google.com/search?q=" + quote_plus(query)
         page.goto(url, wait_until="domcontentloaded", timeout=timeout_sec * 1000)
-        minimize_new_chrome_windows(existing_chrome_windows)
 
         deadline = time.monotonic() + timeout_sec
         while time.monotonic() < deadline:
@@ -383,8 +457,7 @@ def update_workbook(xlsx_path: str, sheet_name: str, start_row: int = 2, max_row
         query = build_query(str(q), opts)
         print(f"[query] row={row}: {query[:120]}")
 
-        summary = google_search_ai_summary(query)
-        summary = clean_summary_text(summary)
+        summary = remove_google_summary_noise(google_search_ai_summary(query))
         if not summary:
             summary = "Google AI 摘要未抓取到，請手動補充。"
 

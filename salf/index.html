@@ -125,10 +125,6 @@
 
   function shuffleOptions(item) {
     const options = item.o.map((text, index) => ({ text: text, correct: index + 1 === item.a }));
-    for (let i = options.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [options[i], options[j]] = [options[j], options[i]];
-    }
     return { ...item, options: options };
   }
 

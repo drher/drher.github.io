@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from google_ai_summary_fill import clean_summary_text, extract_ai_answer
+from google_ai_summary_fill import clean_summary_text, extract_ai_answer, remove_google_summary_noise
 
 
 class CleanSummaryTextTests(unittest.TestCase):
@@ -112,6 +112,79 @@ class CleanSummaryTextTests(unittest.TestCase):
         )
         self.assertIn("共同作業時指揮及協調工作", answer)
         self.assertIn("共同作業指揮與協調", answer)
+
+    def test_preserves_full_ai_duties_card(self):
+        answer = extract_ai_answer(
+            "AI 摘要 依職業安全衛生法令，工作場所負責人的職責包含共同作業時指揮及協調工作、"
+            "立即危險時下令退避，以及相關承攬事業間勞工安全衛生教育之協助與指導，因此正確答案為以上皆是。"
+            "相關職責說明 共同作業指揮與協調：依第27條。立即危險下令退避：依第18條。"
+            "安全衛生教育指導與協助：依第27條。勞動法令查詢系統 +1"
+        )
+        self.assertIn("工作場所負責人的職責包含共同作業時指揮及協調工作", answer)
+        self.assertIn("相關職責說明", answer)
+        self.assertIn("安全衛生教育指導與協助", answer)
+        self.assertNotIn("勞動法令查詢系統", answer)
+
+    def test_restores_full_duties_card_header(self):
+        cleaned = clean_summary_text(
+            "共同作業指揮與協調：依第27條。立即危險時下令退避：依第18條。"
+            "相關承攬事業間勞工安全衛生教育之協助與指導：依第27條。"
+        )
+        self.assertIn("工作場所負責人的職責包含共同作業時指揮及協調工作", cleaned)
+        self.assertIn("相關職責說明", cleaned)
+
+    def test_removes_google_ui_noise_only(self):
+        cleaned = remove_google_summary_noise(
+            "AI 摘要\n正確的敘述為：工作場所建築物應依建築法規設計。\n"
+            "各選項解析：\n(A) 錯誤說明。\nvocus +1\n"
+            "如果你需要更多職業安全衛生管理或勞動法規的相關考古題解析，歡迎隨時告訴我！"
+        )
+        self.assertNotIn("AI 摘要", cleaned)
+        self.assertNotIn("vocus", cleaned)
+        self.assertNotIn("如果你需要", cleaned)
+        self.assertIn("各選項解析", cleaned)
+        self.assertIn("(A) 錯誤說明", cleaned)
+
+    def test_removes_multiline_follow_up_and_source(self):
+        cleaned = remove_google_summary_noise(
+            "正文內容。\n如果你需要更多職業安全衛生法的歷屆考題解析，請告訴我！\n"
+            "乙級衛生管理員自學(考題練習41) - 方格子\n顯示全部"
+        )
+        self.assertEqual(cleaned, "正文內容。")
+
+    def test_preserves_full_summary_except_links_and_follow_up(self):
+        cleaned = remove_google_summary_noise(
+            "AI 摘要\n正確的敘述為：(B) 工作場所建築物應依建築法規及職業安全衛生法規之相關規定設計為正確敘述。\n"
+            "各選項錯誤原因解析如下：\n"
+            "• (A) 勞工保險條例之主管機關已配合全民健康保險之開辦，移由衛生福利部主管：錯誤，勞工保險之主管機關在中央為勞動部。\n"
+            "• (B) 工作場所建築物應依建築法規及職業安全衛生法規之相關規定設計：正確。\n"
+            "vocus +1\n如果你需要更多解析，歡迎隨時告訴我！"
+        )
+        self.assertIn("正確的敘述為：(B)", cleaned)
+        self.assertIn("各選項錯誤原因解析如下：", cleaned)
+        self.assertIn("• (A)", cleaned)
+        self.assertIn("• (B)", cleaned)
+        self.assertNotIn("vocus", cleaned)
+        self.assertNotIn("如果你", cleaned)
+
+    def test_removes_standalone_google_result_link_line(self):
+        cleaned = remove_google_summary_noise(
+            "有關職業安全衛生法適用範圍之敘述，正確的是適用各業。\n"
+            ". 有關職業安全衛生法適用範圍之敘述，下列為何正確？\n"
+            "2024年10月7日 - 答案：登入後查看"
+        )
+        self.assertEqual(cleaned, "有關職業安全衛生法適用範圍之敘述，正確的是適用各業。")
+
+    def test_removes_option_marker_and_separates_heading(self):
+        cleaned = clean_summary_text(
+            "正確的敘述為：工作場所建築物應依建築法規及職業安全衛生法規之相關規定設計（選項 B）。"
+            "各選項解析各選項錯誤原因解析如下：勞工保險條例之主管機關移由衛生福利部主管：錯誤。"
+            "工作場所建築物應依相關規定設計：正確。"
+        )
+        self.assertNotIn("選項 B", cleaned)
+        self.assertIn("各選項解析：", cleaned)
+        self.assertNotIn("各選項錯誤原因解析如下", cleaned)
+        self.assertIn("\n\n各選項解析", cleaned)
 
     def test_restores_missing_first_duty(self):
         cleaned = clean_summary_text(
