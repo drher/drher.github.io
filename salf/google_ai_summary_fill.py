@@ -1,5 +1,6 @@
 import argparse
 import ctypes
+import random
 import re
 import time
 from pathlib import Path
@@ -436,7 +437,24 @@ def save_workbook_safe(wb, target_path: str) -> str:
         return str(alt)
 
 
-def update_workbook(xlsx_path: str, sheet_name: str, start_row: int = 2, max_rows: int | None = None):
+def update_workbook(
+    xlsx_path: str,
+    sheet_name: str,
+    start_row: int = 2,
+    max_rows: int | None = None,
+    request_delay_min: float = 25,
+    request_delay_max: float = 45,
+    batch_size: int = 5,
+    batch_delay_min: float = 180,
+    batch_delay_max: float = 300,
+):
+    if request_delay_min < 0 or request_delay_max < request_delay_min:
+        raise ValueError("題間等待時間必須為非負數，且最大值不得小於最小值。")
+    if batch_size < 1:
+        raise ValueError("每批題數必須至少為 1。")
+    if batch_delay_min < 0 or batch_delay_max < batch_delay_min:
+        raise ValueError("批次等待時間必須為非負數，且最大值不得小於最小值。")
+
     wb = load_workbook(xlsx_path, data_only=False)
     ws = wb[sheet_name]
 
@@ -444,6 +462,7 @@ def update_workbook(xlsx_path: str, sheet_name: str, start_row: int = 2, max_row
     if max_rows is not None:
         max_row = min(max_row, start_row + max_rows - 1)
 
+    processed_count = 0
     for row in range(start_row, max_row + 1):
         q = ws.cell(row, 2).value
         if q is None or str(q).strip() == "":
@@ -467,6 +486,18 @@ def update_workbook(xlsx_path: str, sheet_name: str, start_row: int = 2, max_row
         # Save after each row to keep progress, but use a safe temp output if the file is locked.
         save_path = save_workbook_safe(wb, xlsx_path)
         print(f"[done] row={row} saved to {save_path}.")
+        processed_count += 1
+
+        if row == max_row:
+            continue
+
+        if processed_count % batch_size == 0:
+            delay = random.uniform(batch_delay_min, batch_delay_max)
+            print(f"[wait] completed {processed_count} questions; pausing {delay:.0f} seconds before the next batch.")
+        else:
+            delay = random.uniform(request_delay_min, request_delay_max)
+            print(f"[wait] pausing {delay:.0f} seconds before the next question.")
+        time.sleep(delay)
 
     return save_path
 
@@ -477,7 +508,22 @@ if __name__ == "__main__":
     parser.add_argument("--sheet", type=str, default="乾淨題庫", help="工作表名稱")
     parser.add_argument("--start-row", type=int, default=2, help="從哪一列開始處理")
     parser.add_argument("--max-rows", type=int, default=None, help="最多處理幾列，預設全部")
+    parser.add_argument("--request-delay-min", type=float, default=25, help="每題間隨機等待最少秒數")
+    parser.add_argument("--request-delay-max", type=float, default=45, help="每題間隨機等待最多秒數")
+    parser.add_argument("--batch-size", type=int, default=5, help="每批連續處理的題數")
+    parser.add_argument("--batch-delay-min", type=float, default=180, help="每批之間隨機等待最少秒數")
+    parser.add_argument("--batch-delay-max", type=float, default=300, help="每批之間隨機等待最多秒數")
     args = parser.parse_args()
 
-    result = update_workbook(args.xlsx, args.sheet, start_row=args.start_row, max_rows=args.max_rows)
+    result = update_workbook(
+        args.xlsx,
+        args.sheet,
+        start_row=args.start_row,
+        max_rows=args.max_rows,
+        request_delay_min=args.request_delay_min,
+        request_delay_max=args.request_delay_max,
+        batch_size=args.batch_size,
+        batch_delay_min=args.batch_delay_min,
+        batch_delay_max=args.batch_delay_max,
+    )
     print(f"finished: {result}")
