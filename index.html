@@ -221,6 +221,18 @@
             animation-delay: 0.52s;
         }
 
+        .project-card:nth-child(8) {
+            animation-delay: 0.6s;
+        }
+
+        .project-card:nth-child(9) {
+            animation-delay: 0.68s;
+        }
+
+        .project-card:nth-child(10) {
+            animation-delay: 0.76s;
+        }
+
         .project-card::before {
             content: "";
             position: absolute;
@@ -253,6 +265,18 @@
 
         .project-card.notepad::before {
             background: radial-gradient(circle, rgba(142, 95, 47, 0.24), rgba(142, 95, 47, 0));
+        }
+
+        .project-card.linebot::before {
+            background: radial-gradient(circle, rgba(6, 199, 85, 0.22), rgba(6, 199, 85, 0));
+        }
+
+        .project-card.counter::before {
+            background: radial-gradient(circle, rgba(21, 101, 192, 0.22), rgba(21, 101, 192, 0));
+        }
+
+        .project-card.safety::before {
+            background: radial-gradient(circle, rgba(198, 40, 40, 0.22), rgba(198, 40, 40, 0));
         }
 
         .project-card.vocab::before {
@@ -506,6 +530,118 @@
             color: #0c6668;
         }
 
+        .project-thumb.linebot-thumb {
+            background: linear-gradient(145deg, #eafbf1 0%, #d8f5e3 100%);
+        }
+
+        .project-thumb.counter-thumb {
+            background: linear-gradient(145deg, #eef4fb 0%, #dbe7f7 100%);
+        }
+
+        .project-thumb.safety-thumb {
+            background: linear-gradient(145deg, #fdf1ef 0%, #fbe3e0 100%);
+        }
+
+        .linebot-chip {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.9);
+            font-weight: 900;
+            font-size: 0.78rem;
+            color: #06c755;
+            border: 1px solid rgba(6, 199, 85, 0.3);
+        }
+
+        .linebot-bubble {
+            position: absolute;
+            max-width: 210px;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            line-height: 1.5;
+            border: 1px solid rgba(31, 26, 23, 0.1);
+        }
+
+        .linebot-bubble.user {
+            right: 16px;
+            top: 70px;
+            background: #06c755;
+            color: #fff;
+            border-bottom-right-radius: 5px;
+        }
+
+        .linebot-bubble.bot {
+            left: 16px;
+            top: 132px;
+            background: #ffffff;
+            border-bottom-left-radius: 5px;
+        }
+
+        .counter-display {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .counter-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #1565c0;
+            letter-spacing: 0.05em;
+        }
+
+        .counter-caption {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #5b6b82;
+        }
+
+        .safety-quiz {
+            position: absolute;
+            inset: 52px 16px 16px 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(31, 26, 23, 0.08);
+            background: rgba(255, 255, 255, 0.86);
+            box-shadow: 0 12px 24px rgba(31, 26, 23, 0.08);
+            padding: 14px;
+        }
+
+        .safety-question {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #8c2f2f;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .safety-option {
+            padding: 9px 12px;
+            border-radius: 12px;
+            background: rgba(247, 241, 229, 0.9);
+            border: 1px solid rgba(31, 26, 23, 0.08);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #4f4a43;
+        }
+
+        .safety-option + .safety-option {
+            margin-top: 8px;
+        }
+
+        .safety-option.correct {
+            background: rgba(198, 40, 40, 0.1);
+            border-color: rgba(198, 40, 40, 0.28);
+            color: #8c2f2f;
+        }
+
         .thumb-label {
             position: absolute;
             top: 16px;
@@ -719,7 +855,7 @@
                 <p class="lead">
                     我正在持續累積前端與互動設計作品，透過簡單直接的遊戲機制，練習
                     <strong>版面設計、操作手感、邏輯實作</strong>
-                    與使用者體驗。下面收錄了目前完成的七個互動作品。
+                    與使用者體驗。下面收錄了目前完成的十個互動作品。
                 </p>
             </article>
         </section>
@@ -868,8 +1004,64 @@
                         </div>
                     </a>
                 </article>
+
+                <article class="project-card linebot">
+                    <h3>LINE 聊天機器人</h3>
+                    <p>透過 Google Apps Script 接收 LINE Webhook 事件並自動回覆使用者訊息，練習串接第三方平台 API 與後端事件處理，屬於無獨立頁面的後端服務。</p>
+                    <div class="tag-row">
+                        <span class="tag">LINE Bot</span>
+                        <span class="tag">Webhook</span>
+                        <span class="tag">Apps Script</span>
+                    </div>
+                    <div class="project-link" aria-label="LINE 聊天機器人為後端服務，無獨立網頁">
+                        <div class="project-thumb linebot-thumb">
+                            <span class="thumb-label">LINE Bot Webhook</span>
+                            <span class="linebot-chip">Connected</span>
+                            <div class="linebot-bubble user">你好！</div>
+                            <div class="linebot-bubble bot">收到你的訊息，類型是：text</div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="project-card counter">
+                    <h3>網頁計數器</h3>
+                    <p>透過 Google Apps Script 記錄並回傳全站瀏覽次數，前端以 JSONP 方式跨網域讀取，作為練習前後端串接的最小範例。</p>
+                    <div class="tag-row">
+                        <span class="tag">瀏覽計數</span>
+                        <span class="tag">JSONP</span>
+                        <span class="tag">Apps Script</span>
+                    </div>
+                    <a class="project-link" href="9/index.html" aria-label="前往網頁計數器作品">
+                        <div class="project-thumb counter-thumb">
+                            <span class="thumb-label">Page Counter</span>
+                            <div class="counter-display">
+                                <div class="counter-number">128</div>
+                                <div class="counter-caption">次瀏覽</div>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="project-card safety">
+                    <h3>丙種職業安全衛生業務主管模擬測驗</h3>
+                    <p>直接解析 Excel 題庫並隨機出題，作答後立即顯示正確答案與解析，並支援錯題複習與瀏覽次數統計。</p>
+                    <div class="tag-row">
+                        <span class="tag">Excel 題庫</span>
+                        <span class="tag">模擬測驗</span>
+                        <span class="tag">錯題複習</span>
+                    </div>
+                    <a class="project-link" href="salf/index.html" aria-label="前往丙種職業安全衛生業務主管模擬測驗作品">
+                        <div class="project-thumb safety-thumb">
+                            <span class="thumb-label">Safety Officer Quiz</span>
+                            <div class="safety-quiz">
+                                <div class="safety-question">下列何者屬於職業安全衛生法之立法目的？</div>
+                                <div class="safety-option correct">A. 防止職業災害</div>
+                                <div class="safety-option">B. 提升企業獲利</div>
+                            </div>
+                        </div>
+                    </a>
+                </article>
             </div>
         </section>
-    </main>
-</body>
+    </main></body>
 </html>
