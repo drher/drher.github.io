@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>網頁計數器</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    font-family: "Microsoft JhengHei", "PingFang TC", system-ui, sans-serif;
+    background: #eef2f7; color: #222;
+  }
+  .card {
+    background: #fff; border-radius: 12px; padding: 32px 40px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.12); text-align: center;
+  }
+  h1 { font-size: 1.2rem; margin: 0 0 16px; color: #1565c0; }
+  .count {
+    font-size: 3rem; font-weight: bold; color: #c62828;
+    letter-spacing: .05em;
+  }
+  .hint { margin-top: 12px; font-size: .8rem; color: #888; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>網頁瀏覽次數</h1>
+  <div class="count" id="count">讀取中…</div>
+  <p class="hint">計數值由 Google Apps Script（count.gs）統一儲存，全站訪客共用</p>
+</div>
+
+<script>
+  // 部署 count.gs 為 Web App 後，將產生的 /exec 網址填入下方
+  const COUNTER_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxyJt7DOh68RPgFxUymelX3fdWkQAu8XNccirVSnEKWFQwFMGIObDwUZQxLk4NZ0dMT/exec';
+
+  function updateCounter() {
+    const countEl = document.getElementById('count');
+    if (!COUNTER_ENDPOINT || COUNTER_ENDPOINT.includes('請填入部署ID')) {
+      countEl.textContent = '待設定';
+      return;
+    }
+    const callbackName = 'counterCallback_' + Date.now();
+    const script = document.createElement('script');
+    const cleanup = () => {
+      delete window[callbackName];
+      script.remove();
+    };
+    window[callbackName] = data => {
+      countEl.textContent = (data && Number.isFinite(Number(data.count))) ? Number(data.count) : '讀取失敗';
+      cleanup();
+    };
+    script.onerror = () => {
+      countEl.textContent = '讀取失敗';
+      cleanup();
+    };
+    script.src = COUNTER_ENDPOINT + '?callback=' + encodeURIComponent(callbackName);
+    document.head.appendChild(script);
+  }
+
+  updateCounter();
+</script>
+</body>
+</html>
