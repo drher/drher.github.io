@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工程用計算機 | 何帥</title>
+  <style>
+    :root {
+      --ink: #28323a;
+      --muted: #69747b;
+      --line: #c8cdd0;
+      --body: #edf0f0;
+      --key: #d8dde0;
+      --key-shadow: #aeb7bc;
+      --blue: #073d87;
+      --blue-dark: #042c65;
+      --red: #754a58;
+      --red-dark: #4c303b;
+      --display: #e8f0e2;
+      --display-ink: #253c2c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Arial Narrow", "Microsoft JhengHei", sans-serif;
+      background: linear-gradient(135deg, #f7f8f8, var(--body));
+      padding: 24px 12px 40px;
+    }
+
+    .page { max-width: 470px; margin: 0 auto; position: relative; }
+
+    .author {
+      position: absolute;
+      top: 0;
+      right: 0;
+      color: var(--red);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+    }
+
+    header { padding: 20px 0 12px; }
+    .eyebrow { margin: 0 0 4px; color: var(--red); font-size: .68rem; letter-spacing: .16em; font-weight: 700; }
+    h1 { margin: 0; font-size: 1.8rem; letter-spacing: .04em; }
+    .subtitle { margin: 5px 0 0; color: var(--muted); font-size: .85rem; }
+
+    .calculator {
+      background: #f8f8f8;
+      border: 1px solid #d1d5d6;
+      border-radius: 34px 34px 24px 24px;
+      box-shadow: 0 20px 42px rgba(38,49,54,.2), 0 2px 0 white inset;
+      padding: 18px 24px 25px;
+    }
+
+    .solar { height: 42px; width: 160px; margin: 0 auto 16px; border: 2px solid #8b8d8f; border-radius: 4px; background: linear-gradient(90deg, #303237, #595b5d 50%, #303237); box-shadow: inset 0 2px 3px #202123; }
+    .brand-line { display: flex; justify-content: space-between; align-items: end; margin: 0 10px 10px; }
+    .brand { color: #1f2529; font-size: 1.22rem; font-weight: 800; letter-spacing: .03em; }
+    .model { display: block; color: #60696d; font-size: .72rem; letter-spacing: .08em; }
+    .battery { color: #5d6668; font-size: .6rem; letter-spacing: .06em; }
+    }
+
+    .screen {
+      min-height: 116px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border: 2px solid #737a77;
+      border-radius: 5px;
+      background: var(--display);
+      box-shadow: inset 0 2px 5px rgba(35,72,63,.16);
+      overflow: hidden;
+    }
+
+    .screen-meta { display: flex; justify-content: space-between; color: #4c6a50; font-size: .7rem; font-weight: 700; letter-spacing: .1em; }
+    #expression { min-height: 1.5em; color: #638078; text-align: right; font-size: 1rem; white-space: nowrap; overflow-x: auto; }
+    #result { color: var(--display-ink); text-align: right; font-family: Consolas, monospace; font-size: clamp(1.75rem, 7vw, 2.8rem); white-space: nowrap; overflow-x: auto; }
+
+    .toolbar { display: flex; gap: 8px; margin: 13px 0 9px; }
+    .mode { flex: 1; padding: 5px; border: 0; background: transparent; color: #687176; font-size: .72rem; font-weight: 700; cursor: pointer; }
+    .mode.active { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+
+    .keypad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px 7px; }
+    button.key { min-height: 40px; border: 1px solid #b5bdc1; border-radius: 7px; background: var(--key); color: var(--ink); box-shadow: 0 3px 0 var(--key-shadow); font: inherit; font-size: .86rem; font-weight: 700; cursor: pointer; transition: transform .12s, box-shadow .12s, background .12s; }
+    button.key:hover { background: #f3f7f6; }
+    button.key:active { transform: translateY(3px); box-shadow: 0 0 0 var(--key-shadow); }
+    button.function { color: var(--blue); background: #dfe4e6; }
+    button.operator { color: white; background: #39464e; box-shadow: 0 3px 0 #202a2f; }
+    button.operator:hover { background: #4d5b63; }
+    button.action { color: white; background: var(--red); box-shadow: 0 3px 0 var(--red-dark); }
+    button.action:hover { background: #865b69; }
+    button.equal { grid-column: span 2; color: white; background: var(--blue); box-shadow: 0 3px 0 var(--blue-dark); }
+    button.wide { grid-column: span 2; }
+    .help { margin: 15px 0 0; color: var(--muted); text-align: center; font-size: .68rem; }
+
+    @media (max-width: 520px) {
+      body { padding: 12px 7px 30px; }
+      .author { position: static; float: right; margin-top: 5px; }
+      header { padding-top: 26px; }
+      .calculator { padding-inline: 15px; }
+      .keypad { gap: 7px 5px; }
+      button.key { min-height: 38px; font-size: .78rem; }
+      .screen { min-height: 110px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="author">作者｜何帥</div>
+    <header>
+      <p class="eyebrow">ENGINEERING TOOL</p>
+      <h1>工程用計算機</h1>
+      <p class="subtitle">精準計算，讓每一步都清楚可讀。</p>
+    </header>
+
+    <section class="calculator" aria-label="工程用計算機">
+      <div class="solar" aria-label="太陽能板"></div>
+      <div class="brand-line">
+        <div class="brand">JINHO <span class="model">JH-222</span></div>
+        <div class="battery">SOLAR • BATTERY</div>
+      </div>
+      <div class="screen" aria-live="polite">
+        <div class="screen-meta"><span id="memoryState">M: 0</span><span id="angleState">DEG</span></div>
+        <div id="expression">準備開始計算</div>
+        <div id="result">0</div>
+      </div>
+
+      <div class="toolbar">
+        <button class="mode" data-action="shift">SHIFT</button>
+        <button class="mode" data-action="alpha">ALPHA</button>
+        <button class="mode active" data-angle="DEG">DEG</button>
+        <button class="mode" data-angle="RAD">RAD</button>
+        <button class="mode" data-action="clear">ON</button>
+      </div>
+
+      <div class="keypad">
+        <button class="key function" data-action="memory-clear">M-</button>
+        <button class="key function" data-action="memory-recall">MRC</button>
+        <button class="key function" data-value="(">(</button>
+        <button class="key function" data-value=")">)</button>
+        <button class="key function" data-value="^2">x²</button>
+
+        <button class="key function" data-value="asin(">sin⁻¹</button>
+        <button class="key function" data-value="acos(">cos⁻¹</button>
+        <button class="key function" data-value="atan(">tan⁻¹</button>
+        <button class="key function" data-value="sqrt(">√</button>
+        <button class="key function" data-value="^">xʸ</button>
+
+        <button class="key function" data-value="sin(">sin</button>
+        <button class="key function" data-value="cos(">cos</button>
+        <button class="key function" data-value="tan(">tan</button>
+        <button class="key function" data-value="log(">log</button>
+        <button class="key function" data-value="ln(">ln</button>
+
+        <button class="key function" data-action="memory-add">M+</button>
+        <button class="key function" data-value="pi">π</button>
+        <button class="key function" data-value="e">e</button>
+        <button class="key function" data-value="!">x!</button>
+        <button class="key function" data-value="%">%</button>
+
+        <button class="key" data-value="7">7</button>
+        <button class="key" data-value="8">8</button>
+        <button class="key" data-value="9">9</button>
+        <button class="key action" data-action="backspace">DEL</button>
+        <button class="key action" data-action="clear">AC</button>
+
+        <button class="key" data-value="4">4</button>
+        <button class="key" data-value="5">5</button>
+        <button class="key" data-value="6">6</button>
+        <button class="key operator" data-value="*">×</button>
+        <button class="key operator" data-value="/">÷</button>
+
+        <button class="key" data-value="1">1</button>
+        <button class="key" data-value="2">2</button>
+        <button class="key" data-value="3">3</button>
+        <button class="key operator" data-value="+">+</button>
+        <button class="key operator" data-value="-">−</button>
+
+        <button class="key" data-value="0">0</button>
+        <button class="key" data-value=".">.</button>
+        <button class="key" data-action="negate">(+/−)</button>
+        <button class="key" data-value="ans">Ans</button>
+        <button class="key equal" data-action="equals">=</button>
+      </div>
+      <p class="help">支援鍵盤輸入：數字、運算符號、Enter、Esc、Backspace</p>
+    </section>
+  </main>
+
+  <script>
+    const expressionEl = document.getElementById('expression');
+    const resultEl = document.getElementById('result');
+    const memoryStateEl = document.getElementById('memoryState');
+    const angleStateEl = document.getElementById('angleState');
+    let expression = '';
+    let memory = 0;
+    let lastAnswer = 0;
+    let angleMode = 'DEG';
+    let justEvaluated = false;
+
+    const functions = {
+      sin: value => Math.sin(toRadians(value)),
+      cos: value => Math.cos(toRadians(value)),
+      tan: value => Math.tan(toRadians(value)),
+      asin: value => fromRadians(Math.asin(value)),
+      acos: value => fromRadians(Math.acos(value)),
+      atan: value => fromRadians(Math.atan(value)),
+      sqrt: value => Math.sqrt(value),
+      log: value => Math.log10(value),
+      ln: value => Math.log(value)
+    };
+
+    function toRadians(value) { return angleMode === 'DEG' ? value * Math.PI / 180 : value; }
+    function fromRadians(value) { return angleMode === 'DEG' ? value * 180 / Math.PI : value; }
+    function factorial(value) {
+      if (value < 0 || !Number.isInteger(value) || value > 170) throw new Error('階乘僅支援 0 至 170 的整數');
+      let total = 1;
+      for (let index = 2; index <= value; index += 1) total *= index;
+      return total;
+    }
+
+    function calculate(source) {
+      let safe = source.replaceAll('pi', 'Math.PI').replaceAll('ans', String(lastAnswer)).replaceAll('^', '**');
+      safe = safe.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+      safe = safe.replace(/(\d+(?:\.\d+)?)!/g, 'factorial($1)');
+      safe = safe.replace(/\b(e)\b/g, 'Math.E');
+      Object.keys(functions).forEach(name => { safe = safe.replaceAll(name + '(', 'functions.' + name + '('); });
+      if (!/^[0-9+\-*/().,%*\sA-Za-z]+$/.test(safe) || /\b(?:constructor|prototype|window|document|eval)\b/.test(safe)) throw new Error('算式格式無效');
+      return Function('functions', 'factorial', 'return ' + safe)(functions, factorial);
+    }
+
+    function format(value) {
+      if (!Number.isFinite(value)) throw new Error('結果不是有限數值');
+      return Number(value.toPrecision(12)).toString();
+    }
+
+    function updateScreen(value = expression ? expression : '準備開始計算', result = expression ? '0' : '0') {
+      expressionEl.textContent = value || '準備開始計算';
+      resultEl.textContent = result;
+      memoryStateEl.textContent = 'M: ' + format(memory);
+      angleStateEl.textContent = angleMode;
+    }
+
+    function appendValue(value) {
+      if (justEvaluated && /^[0-9.]$/.test(value)) expression = '';
+      justEvaluated = false;
+      expression += value;
+      updateScreen(expression, resultEl.textContent);
+    }
+
+    function evaluateExpression() {
+      if (!expression) return;
+      try {
+        const answer = format(calculate(expression));
+        updateScreen(expression, answer);
+        lastAnswer = Number(answer);
+        expression = answer;
+        justEvaluated = true;
+      } catch (error) {
+        updateScreen(expression, '錯誤');
+      }
+    }
+
+    function handleAction(action) {
+      if (action === 'clear') { expression = ''; justEvaluated = false; updateScreen(); return; }
+      if (action === 'backspace') { expression = expression.slice(0, -1); updateScreen(expression, resultEl.textContent); return; }
+      if (action === 'equals') { evaluateExpression(); return; }
+      if (action === 'negate') { expression = expression ? '-(' + expression + ')' : '-'; updateScreen(expression, resultEl.textContent); return; }
+      if (action.startsWith('memory')) {
+        const current = expression ? Number(calculate(expression)) : 0;
+        if (action === 'memory-clear') memory = 0;
+        if (action === 'memory-recall') appendValue(format(memory));
+        if (action === 'memory-add') memory += current;
+        if (action === 'memory-subtract') memory -= current;
+        updateScreen(expression, resultEl.textContent);
+      }
+    }
+
+    document.querySelectorAll('[data-value]').forEach(button => button.addEventListener('click', () => appendValue(button.dataset.value)));
+    document.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => handleAction(button.dataset.action)));
+    document.querySelectorAll('[data-angle]').forEach(button => button.addEventListener('click', () => {
+      angleMode = button.dataset.angle;
+      document.querySelectorAll('[data-angle]').forEach(item => item.classList.toggle('active', item === button));
+      updateScreen(expression, resultEl.textContent);
+    }));
+
+    document.addEventListener('keydown', event => {
+      if (/^[0-9.]$/.test(event.key) || ['+', '-', '*', '/', '(', ')', '%', '^'].includes(event.key)) appendValue(event.key);
+      else if (event.key === 'Enter' || event.key === '=') evaluateExpression();
+      else if (event.key === 'Backspace') handleAction('backspace');
+      else if (event.key === 'Escape') handleAction('clear');
+    });
+
+    updateScreen();
+  </script>
+</body>
+</html>
