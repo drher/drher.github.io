@@ -93,7 +93,7 @@
     <div class="result hide" id="resultBox"></div>
     <div class="explain hide" id="explainBox"></div>
     <button id="answerBtn" type="button">答題</button>
-    <button id="explainBtn" type="button" class="hide">解析/法規依據</button>
+    <button id="explainBtn" type="button" class="hide">解析</button>
     <button id="nextBtn" type="button" class="hide">下一題</button>
   </section>
 
@@ -250,8 +250,7 @@
     };
     add('題號', item.n || '（無）');
     add('題庫位置', 'Excel 第 ' + item.row + ' 列' + (item.blank ? '（本題有空白選項，請回題庫補齊）' : ''));
-    add('解析/法規依據', item.e || '（本題題庫未提供解析/法規依據）');
-    add('法規依據', item.l || '（本題題庫未提供法規依據）');
+    add('解析', item.e || '（本題題庫未提供解析）');
     ex.innerHTML = '';
     ex.appendChild(dl);
     ex.classList.remove('hide');
