@@ -1,22 +1,20 @@
 const SPREADSHEET_ID = '1PdiO0QQIYgSC31k1ZpY2KJNESRCUAh3sd1Z2WKdla9Q';
 const HEADER_SCAN_ROWS = 20;
+const RESEND_DELAY_SECONDS = 120;
+const GENERIC_RESPONSE = '若此 Email 已登記且資料唯一，成績將寄送至該信箱。';
 
 function doGet() {
-  const template = HtmlService.createTemplateFromFile('Index');
-  template.clientId = PropertiesService.getScriptProperties().getProperty('GOOGLE_CLIENT_ID') || '';
-
-  return template.evaluate()
+  return HtmlService.createHtmlOutputFromFile('Index')
     .setTitle('電路學成績查詢')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
-function getMyGrades(idToken) {
-  const clientId = PropertiesService.getScriptProperties().getProperty('GOOGLE_CLIENT_ID');
-  if (!clientId) {
-    throw new Error('系統尚未設定 Google OAuth Client ID，請聯絡管理員。');
+function sendGrades(emailAddress) {
+  const email = normalizeEmail_(emailAddress);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return GENERIC_RESPONSE;
   }
 
-  const email = verifyGoogleIdToken_(idToken, clientId);
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheets()[0];
   if (!sheet) {
     throw new Error('成績試算表中沒有可讀取的工作表。');
@@ -32,12 +30,8 @@ function getMyGrades(idToken) {
   const matchingRows = values.slice(headerInfo.rowIndex + 1).filter((row) =>
     normalizeEmail_(row[headerInfo.emailIndex]) === email
   );
-
-  if (matchingRows.length === 0) {
-    throw new Error('成績資料中找不到此 Gmail，請確認登記的 Email 是否正確。');
-  }
-  if (matchingRows.length > 1) {
-    throw new Error('此 Gmail 對應到多筆資料，請聯絡管理員確認成績表。');
+  if (matchingRows.length !== 1 || !reserveEmailSend_(email)) {
+    return GENERIC_RESPONSE;
   }
 
   const row = matchingRows[0];
@@ -52,32 +46,23 @@ function getMyGrades(idToken) {
     return result;
   }, []);
 
-  return { email: email, fields: fields };
-}
+  const plainText = fields.map((field) => field.label + ': ' + field.value).join('\n');
+  const htmlRows = fields.map((field) =>
+    '<tr><th style="text-align:left;padding:10px;border-bottom:1px solid #d5d9d2">' +
+    escapeHtml_(field.label) + '</th><td style="padding:10px;border-bottom:1px solid #d5d9d2">' +
+    escapeHtml_(field.value) + '</td></tr>'
+  ).join('');
 
-function verifyGoogleIdToken_(idToken, clientId) {
-  if (typeof idToken !== 'string' || !idToken) {
-    throw new Error('登入憑證無效，請重新登入。');
-  }
+  MailApp.sendEmail({
+    to: email,
+    subject: '電路學個人成績',
+    body: '以下是您的成績：\n\n' + plainText,
+    htmlBody: '<p>以下是您的成績：</p><table style="border-collapse:collapse">' +
+      htmlRows + '</table>',
+    name: '電路學成績查詢'
+  });
 
-  const response = UrlFetchApp.fetch(
-    'https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken),
-    { muteHttpExceptions: true }
-  );
-  if (response.getResponseCode() !== 200) {
-    throw new Error('Google 登入驗證失敗，請重新登入。');
-  }
-
-  const claims = JSON.parse(response.getContentText());
-  const issuer = claims.iss;
-  if (claims.aud !== clientId ||
-      (issuer !== 'accounts.google.com' && issuer !== 'https://accounts.google.com') ||
-      String(claims.email_verified).toLowerCase() !== 'true' ||
-      !claims.email) {
-    throw new Error('無法確認此 Google 帳號，請使用已驗證的 Gmail 登入。');
-  }
-
-  return normalizeEmail_(claims.email);
+  return GENERIC_RESPONSE;
 }
 
 function findHeaderRow_(values) {
@@ -101,4 +86,31 @@ function normalizeHeader_(value) {
 
 function normalizeEmail_(value) {
   return String(value || '').trim().toLowerCase();
+}
+
+function reserveEmailSend_(email) {
+  const digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, email);
+  const key = 'grade-email-' + Utilities.base64EncodeWebSafe(digest);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const cache = CacheService.getScriptCache();
+    if (cache.get(key)) {
+      return false;
+    }
+    cache.put(key, 'sent', RESEND_DELAY_SECONDS);
+    return true;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function escapeHtml_(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[character]);
 }
