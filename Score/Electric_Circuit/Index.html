@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>電路學成績查詢</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f5f4ef;
+        --ink: #182a2a;
+        --muted: #64716d;
+        --line: #d5d9d2;
+        --green: #176b58;
+        --lime: #d9ec78;
+        --coral: #d75d43;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background-color: var(--paper);
+        background-image: radial-gradient(#c4ccc1 0.7px, transparent 0.7px);
+        background-size: 19px 19px;
+        font-family: 'Noto Sans TC', sans-serif;
+      }
+
+      .topline {
+        height: 8px;
+        background: linear-gradient(90deg, var(--green) 0 68%, var(--lime) 68% 88%, var(--coral) 88%);
+      }
+
+      main {
+        width: min(920px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 44px 0 72px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--ink);
+      }
+
+      .eyebrow, .term, .field-index, .field-value {
+        font-family: 'DM Mono', monospace;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(30px, 7vw, 54px);
+        line-height: 1.18;
+        font-weight: 700;
+      }
+
+      .term {
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      .login-area {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        min-height: 100px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      #loginPrompt, #status {
+        margin: 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      #googleButton { min-height: 42px; }
+
+      #status.error { color: #a83d2c; }
+      #status.success { color: var(--green); }
+
+      #results { padding-top: 30px; }
+      #results[hidden], #loginPrompt[hidden], #status[hidden] { display: none; }
+
+      .result-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .result-head h2 { margin: 0; font-size: 18px; }
+
+      .student-email {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+
+      .grade-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        border-top: 1px solid var(--ink);
+        border-left: 1px solid var(--line);
+      }
+
+      .grade-field {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+        min-height: 86px;
+        padding: 15px 18px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        animation: reveal 360ms both;
+        animation-delay: calc(var(--i) * 35ms);
+      }
+
+      .field-label { font-size: 14px; }
+      .field-index { display: block; margin-bottom: 6px; color: #89928b; font-size: 10px; }
+      .field-value { font-size: clamp(20px, 4vw, 30px); font-weight: 500; text-align: right; }
+
+      footer {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      @keyframes reveal {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (max-width: 560px) {
+        main { width: min(100% - 28px, 920px); padding-top: 30px; }
+        header { align-items: flex-start; flex-direction: column; gap: 14px; }
+        .grade-list { grid-template-columns: 1fr; }
+        .grade-field { min-height: 74px; }
+        .result-head { align-items: flex-start; flex-direction: column; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+      }
+    </style>
+  </head>
+  <body data-client-id="<?= clientId ?>">
+    <div class="topline" aria-hidden="true"></div>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">STUDENT PORTAL / ELECTRIC CIRCUITS</p>
+          <h1>個人成績查詢</h1>
+        </div>
+        <span class="term">成績資料即時更新</span>
+      </header>
+
+      <section class="login-area" aria-live="polite">
+        <p id="loginPrompt">使用登記於成績表中的 Google 帳號登入</p>
+        <div id="googleButton"></div>
+        <p id="status" role="status" hidden></p>
+      </section>
+
+      <section id="results" hidden aria-live="polite">
+        <div class="result-head">
+          <h2>我的成績</h2>
+          <p class="student-email" id="studentEmail"></p>
+        </div>
+        <div class="grade-list" id="gradeList"></div>
+      </section>
+
+      <footer>如資料有誤，請聯絡授課教師。</footer>
+    </main>
+
+    <script>
+      const clientId = document.body.dataset.clientId;
+      const prompt = document.getElementById('loginPrompt');
+      const status = document.getElementById('status');
+      const results = document.getElementById('results');
+
+      function showStatus(message, type) {
+        status.textContent = message;
+        status.className = type || '';
+        status.hidden = false;
+      }
+
+      function handleCredential(response) {
+        prompt.hidden = true;
+        document.getElementById('googleButton').hidden = true;
+        showStatus('正在驗證帳號並查詢成績…', '');
+
+        google.script.run
+          .withSuccessHandler((data) => {
+            const list = document.getElementById('gradeList');
+            list.replaceChildren();
+            data.fields.forEach((field, index) => {
+              const item = document.createElement('article');
+              item.className = 'grade-field';
+              item.style.setProperty('--i', index);
+
+              const label = document.createElement('div');
+              label.className = 'field-label';
+              const fieldIndex = document.createElement('span');
+              fieldIndex.className = 'field-index';
+              fieldIndex.textContent = String(index + 1).padStart(2, '0');
+              label.append(fieldIndex, document.createTextNode(field.label));
+
+              const value = document.createElement('strong');
+              value.className = 'field-value';
+              value.textContent = field.value;
+              item.append(label, value);
+              list.appendChild(item);
+            });
+
+            document.getElementById('studentEmail').textContent = data.email;
+            results.hidden = false;
+            showStatus('已驗證登入帳號', 'success');
+          })
+          .withFailureHandler((error) => {
+            prompt.hidden = false;
+            document.getElementById('googleButton').hidden = false;
+            showStatus(error && error.message ? error.message : '查詢失敗，請稍後再試。', 'error');
+          })
+          .getMyGrades(response.credential);
+      }
+
+      function initializeSignIn() {
+        if (!clientId) {
+          prompt.hidden = true;
+          showStatus('系統尚未完成登入設定，請聯絡管理員。', 'error');
+          return;
+        }
+        if (!window.google || !google.accounts || !google.accounts.id) {
+          showStatus('Google 登入元件載入失敗，請重新整理頁面。', 'error');
+          return;
+        }
+
+        google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleCredential,
+          auto_select: false
+        });
+        google.accounts.id.renderButton(document.getElementById('googleButton'), {
+          theme: 'outline',
+          size: 'large',
+          text: 'signin_with',
+          shape: 'rectangular',
+          locale: 'zh_TW'
+        });
+      }
+
+      window.addEventListener('load', initializeSignIn);
+    </script>
+  </body>
+</html>
