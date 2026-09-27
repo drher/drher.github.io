@@ -55,11 +55,11 @@ function sendGrades(emailAddress) {
 
   MailApp.sendEmail({
     to: email,
-    subject: '電路學個人成績',
+    subject: '基本電學 個人成績',
     body: '以下是您的成績：\n\n' + plainText,
     htmlBody: '<p>以下是您的成績：</p><table style="border-collapse:collapse">' +
       htmlRows + '</table>',
-    name: '電路學成績查詢'
+    name: '基本電學 成績查詢'
   });
 
   return GENERIC_RESPONSE;

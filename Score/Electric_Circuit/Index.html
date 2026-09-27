@@ -96,19 +96,39 @@
         gap: 10px;
       }
 
-      input {
+      .email-field {
+        display: flex;
         flex: 1;
         min-width: 0;
         min-height: 48px;
-        padding: 0 14px;
         border: 1px solid #9ba79f;
         border-radius: 3px;
         background: #fff;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        padding: 0 14px;
+        border: 0;
+        border-radius: 3px 0 0 3px;
+        background: transparent;
         color: var(--ink);
         font: inherit;
       }
 
-      input:focus { outline: 2px solid var(--green); outline-offset: 2px; }
+      .email-field:focus-within { outline: 2px solid var(--green); outline-offset: 2px; }
+
+      .email-domain {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        padding: 0 12px 0 0;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      .email-domain[hidden] { display: none; }
 
       button {
         min-height: 48px;
@@ -158,9 +178,12 @@
 
       <section class="request-area">
         <form id="gradeForm">
-          <label for="email">Email</label>
+          <label for="emailLocal">Email</label>
           <div class="form-row">
-            <input id="email" name="email" type="email" autocomplete="email" placeholder="請輸入成績表登記的 Email" required />
+            <div class="email-field">
+              <input id="emailLocal" name="emailLocal" type="text" autocomplete="username" placeholder="請輸入 Email 帳號" required />
+              <span id="emailDomain" class="email-domain" aria-hidden="true">@gm.ptivs.tn.edu.tw</span>
+            </div>
             <button id="sendButton" type="submit">寄送成績</button>
           </div>
           <p id="status" role="status" aria-live="polite"></p>
@@ -172,14 +195,23 @@
 
     <script>
       const form = document.getElementById('gradeForm');
-      const emailInput = document.getElementById('email');
+      const emailInput = document.getElementById('emailLocal');
+      const emailDomain = document.getElementById('emailDomain');
       const sendButton = document.getElementById('sendButton');
       const status = document.getElementById('status');
+
+      emailInput.addEventListener('input', () => {
+        emailDomain.hidden = emailInput.value.includes('@');
+      });
 
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         sendButton.disabled = true;
         status.textContent = '正在處理寄送…';
+        const enteredAddress = emailInput.value.trim();
+        const emailAddress = enteredAddress.includes('@')
+          ? enteredAddress
+          : enteredAddress + '@gm.ptivs.tn.edu.tw';
 
         google.script.run
           .withSuccessHandler((message) => {
@@ -190,7 +222,7 @@
             status.textContent = '目前無法完成寄送，請稍後再試。';
             sendButton.disabled = false;
           })
-          .sendGrades(emailInput.value);
+          .sendGrades(emailAddress);
       });
     </script>
   </body>
