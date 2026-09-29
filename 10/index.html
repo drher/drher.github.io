@@ -2,299 +2,313 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>工程用計算機 | 何帥</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f7fb">
+  <title>英文單字測驗｜Vocabulary Quiz</title>
   <style>
     :root {
-      --ink: #28323a;
-      --muted: #69747b;
-      --line: #c8cdd0;
-      --body: #edf0f0;
-      --key: #d8dde0;
-      --key-shadow: #aeb7bc;
-      --blue: #073d87;
-      --blue-dark: #042c65;
-      --red: #754a58;
-      --red-dark: #4c303b;
-      --display: #e8f0e2;
-      --display-ink: #253c2c;
+      color-scheme: light;
+      --ink: #17233b;
+      --muted: #68758d;
+      --brand: #4169e1;
+      --brand-dark: #3154c7;
+      --line: #e4eaf3;
+      --surface: #ffffff;
+      --background: #f4f7fb;
+      --success: #16845b;
+      --danger: #c34248;
+      font-family: "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
     }
 
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      min-height: 100vh;
+      min-width: 320px;
       color: var(--ink);
-      font-family: "Arial Narrow", "Microsoft JhengHei", sans-serif;
-      background: linear-gradient(135deg, #f7f8f8, var(--body));
-      padding: 24px 12px 40px;
+      background:
+        radial-gradient(ellipse at 8% 0%, rgba(65, 105, 225, .10), transparent 36rem),
+        var(--background);
     }
+    button, input { font: inherit; }
+    .page { width: min(920px, calc(100% - 32px)); margin: 0 auto; padding: 24px 0 56px; }
+    .exam-header { position: relative; padding: 28px 30px 24px; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); box-shadow: 0 12px 36px rgba(28, 46, 84, .07); }
+    .designer { position: absolute; top: 18px; right: 22px; color: var(--muted); font-size: .88rem; }
+    .eyebrow { margin: 0 0 8px; color: var(--brand); font-size: .77rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.35rem); letter-spacing: -.03em; }
+    .subtitle { max-width: 620px; margin: 10px 0 0; color: var(--muted); line-height: 1.7; }
+    .exam-facts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .fact { padding: 8px 12px; border-radius: 999px; background: #f0f4ff; color: #344d99; font-size: .9rem; font-weight: 700; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 18px 0; padding: 13px 17px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+    .progress-copy { color: var(--muted); font-size: .9rem; }
+    .timer { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; font-size: 1.1rem; font-weight: 800; }
+    .timer.warning { color: var(--danger); }
+    .timer-icon { font-size: 1.15rem; }
+    .intro, .question-card, .result-card { border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: 0 6px 20px rgba(28, 46, 84, .045); }
+    .intro { padding: 28px; }
+    .intro h2, .result-card h2 { margin: 0 0 10px; font-size: 1.25rem; }
+    .intro p { margin: 0; color: var(--muted); line-height: 1.8; }
+    .question-list { display: grid; gap: 14px; }
+    .question-card { padding: 20px 22px; scroll-margin-top: 18px; }
+    .question-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+    .question-number { color: var(--brand); font-size: .85rem; font-weight: 800; }
+    .word { margin: 0; font-size: 1.3rem; font-weight: 750; letter-spacing: .01em; }
+    .points { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+    .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    .option { position: relative; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; transition: border-color .15s, background .15s, transform .15s; }
+    .option:hover { transform: translateY(-1px); border-color: #a9baf2; background: #f8f9ff; }
+    .option:has(input:checked) { border-color: var(--brand); background: #f0f4ff; }
+    .option input { width: 17px; height: 17px; margin: 0; accent-color: var(--brand); }
+    .option.correct { border-color: #80c9a8; background: #effaf4; }
+    .option.incorrect { border-color: #e8a2a5; background: #fff3f3; }
+    .feedback { margin: 12px 0 0; color: var(--muted); font-size: .88rem; }
+    .feedback.correct-text { color: var(--success); }
+    .feedback.wrong-text { color: var(--danger); }
+    .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0; }
+    .button { min-height: 46px; padding: 11px 20px; border: 0; border-radius: 12px; cursor: pointer; font-weight: 750; transition: background .15s, transform .15s; }
+    .button:hover:not(:disabled) { transform: translateY(-1px); }
+    .button:focus-visible, .option:focus-within { outline: 3px solid rgba(65, 105, 225, .3); outline-offset: 2px; }
+    .button-primary { color: #fff; background: var(--brand); }
+    .button-primary:hover:not(:disabled) { background: var(--brand-dark); }
+    .button-secondary { color: #35415b; background: #e9eef7; }
+    .button:disabled { cursor: not-allowed; opacity: .55; }
+    .result-card { margin-top: 16px; padding: 25px; text-align: center; }
+    .score { margin: 7px 0; color: var(--brand); font-size: clamp(2.2rem, 8vw, 3.4rem); font-weight: 850; font-variant-numeric: tabular-nums; }
+    .result-detail { margin: 0; color: var(--muted); line-height: 1.7; }
+    .source { margin: 23px 0 0; color: var(--muted); font-size: .82rem; text-align: center; }
+    .source a { color: var(--brand-dark); text-underline-offset: 3px; }
+    [hidden] { display: none !important; }
 
-    .page { max-width: 470px; margin: 0 auto; position: relative; }
-
-    .author {
-      position: absolute;
-      top: 0;
-      right: 0;
-      color: var(--red);
-      font-size: .78rem;
-      font-weight: 700;
-      letter-spacing: .12em;
+    @media (max-width: 620px) {
+      .page { width: min(100% - 20px, 920px); padding-top: 10px; }
+      .exam-header { padding: 52px 19px 20px; border-radius: 17px; }
+      .designer { top: 17px; right: 18px; }
+      .toolbar { margin: 12px 0; padding: 12px; }
+      .question-card { padding: 17px 15px; }
+      .options { grid-template-columns: 1fr; }
+      .intro { padding: 22px 19px; }
     }
-
-    header { padding: 20px 0 12px; }
-    .eyebrow { margin: 0 0 4px; color: var(--red); font-size: .68rem; letter-spacing: .16em; font-weight: 700; }
-    h1 { margin: 0; font-size: 1.8rem; letter-spacing: .04em; }
-    .subtitle { margin: 5px 0 0; color: var(--muted); font-size: .85rem; }
-
-    .calculator {
-      background: #f8f8f8;
-      border: 1px solid #d1d5d6;
-      border-radius: 34px 34px 24px 24px;
-      box-shadow: 0 20px 42px rgba(38,49,54,.2), 0 2px 0 white inset;
-      padding: 18px 24px 25px;
-    }
-
-    .solar { height: 42px; width: 160px; margin: 0 auto 16px; border: 2px solid #8b8d8f; border-radius: 4px; background: linear-gradient(90deg, #303237, #595b5d 50%, #303237); box-shadow: inset 0 2px 3px #202123; }
-    .brand-line { display: flex; justify-content: space-between; align-items: end; margin: 0 10px 10px; }
-    .brand { color: #1f2529; font-size: 1.22rem; font-weight: 800; letter-spacing: .03em; }
-    .model { display: block; color: #60696d; font-size: .72rem; letter-spacing: .08em; }
-    .battery { color: #5d6668; font-size: .6rem; letter-spacing: .06em; }
-    }
-
-    .screen {
-      min-height: 116px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 12px 14px;
-      border: 2px solid #737a77;
-      border-radius: 5px;
-      background: var(--display);
-      box-shadow: inset 0 2px 5px rgba(35,72,63,.16);
-      overflow: hidden;
-    }
-
-    .screen-meta { display: flex; justify-content: space-between; color: #4c6a50; font-size: .7rem; font-weight: 700; letter-spacing: .1em; }
-    #expression { min-height: 1.5em; color: #638078; text-align: right; font-size: 1rem; white-space: nowrap; overflow-x: auto; }
-    #result { color: var(--display-ink); text-align: right; font-family: Consolas, monospace; font-size: clamp(1.75rem, 7vw, 2.8rem); white-space: nowrap; overflow-x: auto; }
-
-    .toolbar { display: flex; gap: 8px; margin: 13px 0 9px; }
-    .mode { flex: 1; padding: 5px; border: 0; background: transparent; color: #687176; font-size: .72rem; font-weight: 700; cursor: pointer; }
-    .mode.active { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
-
-    .keypad { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px 7px; }
-    button.key { min-height: 40px; border: 1px solid #b5bdc1; border-radius: 7px; background: var(--key); color: var(--ink); box-shadow: 0 3px 0 var(--key-shadow); font: inherit; font-size: .86rem; font-weight: 700; cursor: pointer; transition: transform .12s, box-shadow .12s, background .12s; }
-    button.key:hover { background: #f3f7f6; }
-    button.key:active { transform: translateY(3px); box-shadow: 0 0 0 var(--key-shadow); }
-    button.function { color: var(--blue); background: #dfe4e6; }
-    button.operator { color: white; background: #39464e; box-shadow: 0 3px 0 #202a2f; }
-    button.operator:hover { background: #4d5b63; }
-    button.action { color: white; background: var(--red); box-shadow: 0 3px 0 var(--red-dark); }
-    button.action:hover { background: #865b69; }
-    button.equal { grid-column: span 2; color: white; background: var(--blue); box-shadow: 0 3px 0 var(--blue-dark); }
-    button.wide { grid-column: span 2; }
-    .help { margin: 15px 0 0; color: var(--muted); text-align: center; font-size: .68rem; }
-
-    @media (max-width: 520px) {
-      body { padding: 12px 7px 30px; }
-      .author { position: static; float: right; margin-top: 5px; }
-      header { padding-top: 26px; }
-      .calculator { padding-inline: 15px; }
-      .keypad { gap: 7px 5px; }
-      button.key { min-height: 38px; font-size: .78rem; }
-      .screen { min-height: 110px; }
+    @media print {
+      body { background: #fff; }
+      .page { width: 100%; padding: 0; }
+      .exam-header, .question-card, .intro, .result-card { box-shadow: none; break-inside: avoid; }
+      .actions, .source { display: none; }
     }
   </style>
 </head>
 <body>
   <main class="page">
-    <div class="author">作者｜何帥</div>
-    <header>
-      <p class="eyebrow">ENGINEERING TOOL</p>
-      <h1>工程用計算機</h1>
-      <p class="subtitle">精準計算，讓每一步都清楚可讀。</p>
+    <header class="exam-header">
+      <span class="designer">設計者：何帥</span>
+      <p class="eyebrow">English Vocabulary</p>
+      <h1>英文單字測驗</h1>
+      <p class="subtitle">請選出每個英文單字最正確的中文意思。祝你作答順利！</p>
+      <div class="exam-facts" aria-label="測驗資訊">
+        <span class="fact">20 題選擇題</span>
+        <span class="fact">每題 5 分・滿分 100 分</span>
+        <span class="fact">限時 10 分鐘</span>
+      </div>
     </header>
 
-    <section class="calculator" aria-label="工程用計算機">
-      <div class="solar" aria-label="太陽能板"></div>
-      <div class="brand-line">
-        <div class="brand">JINHO <span class="model">JH-222</span></div>
-        <div class="battery">SOLAR • BATTERY</div>
-      </div>
-      <div class="screen" aria-live="polite">
-        <div class="screen-meta"><span id="memoryState">M: 0</span><span id="angleState">DEG</span></div>
-        <div id="expression">準備開始計算</div>
-        <div id="result">0</div>
-      </div>
-
-      <div class="toolbar">
-        <button class="mode" data-action="shift">SHIFT</button>
-        <button class="mode" data-action="alpha">ALPHA</button>
-        <button class="mode active" data-angle="DEG">DEG</button>
-        <button class="mode" data-angle="RAD">RAD</button>
-        <button class="mode" data-action="clear">ON</button>
-      </div>
-
-      <div class="keypad">
-        <button class="key function" data-action="memory-clear">M-</button>
-        <button class="key function" data-action="memory-recall">MRC</button>
-        <button class="key function" data-value="(">(</button>
-        <button class="key function" data-value=")">)</button>
-        <button class="key function" data-value="^2">x²</button>
-
-        <button class="key function" data-value="asin(">sin⁻¹</button>
-        <button class="key function" data-value="acos(">cos⁻¹</button>
-        <button class="key function" data-value="atan(">tan⁻¹</button>
-        <button class="key function" data-value="sqrt(">√</button>
-        <button class="key function" data-value="^">xʸ</button>
-
-        <button class="key function" data-value="sin(">sin</button>
-        <button class="key function" data-value="cos(">cos</button>
-        <button class="key function" data-value="tan(">tan</button>
-        <button class="key function" data-value="log(">log</button>
-        <button class="key function" data-value="ln(">ln</button>
-
-        <button class="key function" data-action="memory-add">M+</button>
-        <button class="key function" data-value="pi">π</button>
-        <button class="key function" data-value="e">e</button>
-        <button class="key function" data-value="!">x!</button>
-        <button class="key function" data-value="%">%</button>
-
-        <button class="key" data-value="7">7</button>
-        <button class="key" data-value="8">8</button>
-        <button class="key" data-value="9">9</button>
-        <button class="key action" data-action="backspace">DEL</button>
-        <button class="key action" data-action="clear">AC</button>
-
-        <button class="key" data-value="4">4</button>
-        <button class="key" data-value="5">5</button>
-        <button class="key" data-value="6">6</button>
-        <button class="key operator" data-value="*">×</button>
-        <button class="key operator" data-value="/">÷</button>
-
-        <button class="key" data-value="1">1</button>
-        <button class="key" data-value="2">2</button>
-        <button class="key" data-value="3">3</button>
-        <button class="key operator" data-value="+">+</button>
-        <button class="key operator" data-value="-">−</button>
-
-        <button class="key" data-value="0">0</button>
-        <button class="key" data-value=".">.</button>
-        <button class="key" data-action="negate">(+/−)</button>
-        <button class="key" data-value="ans">Ans</button>
-        <button class="key equal" data-action="equals">=</button>
-      </div>
-      <p class="help">支援鍵盤輸入：數字、運算符號、Enter、Esc、Backspace</p>
+    <section class="toolbar" aria-label="測驗狀態">
+      <span id="progress" class="progress-copy">準備開始</span>
+      <div id="timer" class="timer" role="timer" aria-live="off"><span class="timer-icon" aria-hidden="true">◷</span><span id="time">10:00</span></div>
     </section>
+
+    <section id="intro" class="intro">
+      <h2>作答說明</h2>
+      <p>題目會從單字表中隨機抽出 20 個不同的單字，每題有四個選項。按下「開始測驗」後計時立即開始；時間到會自動交卷，也可以提早交卷。交卷後即可查看分數與答案。</p>
+    </section>
+
+    <form id="quiz" hidden>
+      <div id="questionList" class="question-list"></div>
+      <div class="actions">
+        <button id="submitButton" class="button button-primary" type="submit">交卷並查看成績</button>
+      </div>
+    </form>
+
+    <section id="result" class="result-card" aria-live="polite" hidden>
+      <h2 id="resultTitle">測驗完成</h2>
+      <p id="score" class="score"></p>
+      <p id="resultDetail" class="result-detail"></p>
+      <div class="actions"><button id="restartButton" class="button button-secondary" type="button">再測一次</button></div>
+    </section>
+
+    <div id="startActions" class="actions">
+      <button id="startButton" class="button button-primary" type="button">開始測驗</button>
+    </div>
+
+    <p class="source">單字來源：<a href="https://docs.google.com/spreadsheets/d/1jC167kiM3Bk2dddHyoD_Wrw-BrSKbPcWinyAcQ3-af0/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer">英文單字列表 Google 試算表</a></p>
   </main>
 
   <script>
-    const expressionEl = document.getElementById('expression');
-    const resultEl = document.getElementById('result');
-    const memoryStateEl = document.getElementById('memoryState');
-    const angleStateEl = document.getElementById('angleState');
-    let expression = '';
-    let memory = 0;
-    let lastAnswer = 0;
-    let angleMode = 'DEG';
-    let justEvaluated = false;
+    // 依 Google 試算表公開單字表建立測驗題庫，避免考試時受網路或試算表權限影響。
+    const vocabulary = [
+      ["ability", "能力"], ["accept", "接受"], ["achieve", "達成"], ["activity", "活動"],
+      ["advantage", "優點"], ["advice", "建議"], ["afford", "負擔得起"], ["agree", "同意"],
+      ["allow", "允許"], ["almost", "幾乎"], ["although", "雖然"], ["amazing", "令人驚訝的"],
+      ["apologize", "道歉"], ["appear", "出現"], ["apply", "申請；應用"], ["area", "地區；區域"],
+      ["arrive", "到達"], ["attend", "參加；出席"], ["available", "可取得的"], ["average", "平均的"],
+      ["avoid", "避免"], ["balance", "平衡"], ["basic", "基本的"], ["behavior", "行為"],
+      ["belong", "屬於"], ["benefit", "好處"], ["borrow", "借入"], ["brave", "勇敢的"],
+      ["career", "職業生涯"], ["cause", "原因；造成"], ["celebrate", "慶祝"], ["chance", "機會"],
+      ["choice", "選擇"], ["communicate", "溝通"], ["compare", "比較"], ["complete", "完成"],
+      ["concentrate", "專心"], ["confident", "有信心的"], ["consider", "考慮"], ["contact", "聯絡"],
+      ["continue", "繼續"], ["convenient", "方便的"], ["create", "創造"], ["culture", "文化"],
+      ["customer", "顧客"], ["decide", "決定"], ["decrease", "減少"], ["delicious", "美味的"],
+      ["depend", "依靠；取決於"], ["describe", "描述"], ["develop", "發展"], ["difference", "差異"],
+      ["difficult", "困難的"], ["direction", "方向；指示"], ["discover", "發現"], ["discuss", "討論"],
+      ["disease", "疾病"], ["distance", "距離"], ["education", "教育"], ["effort", "努力"],
+      ["encourage", "鼓勵"], ["environment", "環境"], ["especially", "尤其"], ["experience", "經驗"],
+      ["explain", "解釋"], ["factory", "工廠"], ["favorite", "最喜愛的"], ["feature", "特色；特徵"],
+      ["foreign", "外國的"], ["improve", "改善；進步"], ["future", "未來"], ["goal", "目標"],
+      ["habit", "習慣"], ["healthy", "健康的"], ["helpful", "有幫助的"], ["however", "然而"],
+      ["imagine", "想像"], ["important", "重要的"], ["include", "包含"], ["increase", "增加"],
+      ["information", "資訊"], ["instead", "代替；反而"], ["introduce", "介紹"], ["invite", "邀請"],
+      ["journey", "旅程"], ["knowledge", "知識"], ["language", "語言"], ["local", "當地的"],
+      ["manage", "管理；設法做到"], ["necessary", "必要的"], ["opportunity", "機會"], ["organize", "組織；安排"],
+      ["patient", "有耐心的"], ["popular", "受歡迎的"], ["prepare", "準備"], ["prevent", "預防"],
+      ["probably", "可能"], ["produce", "生產"], ["protect", "保護"]
+    ];
 
-    const functions = {
-      sin: value => Math.sin(toRadians(value)),
-      cos: value => Math.cos(toRadians(value)),
-      tan: value => Math.tan(toRadians(value)),
-      asin: value => fromRadians(Math.asin(value)),
-      acos: value => fromRadians(Math.acos(value)),
-      atan: value => fromRadians(Math.atan(value)),
-      sqrt: value => Math.sqrt(value),
-      log: value => Math.log10(value),
-      ln: value => Math.log(value)
-    };
+    const QUESTION_COUNT = 20;
+    const POINTS_PER_QUESTION = 5;
+    const EXAM_SECONDS = 10 * 60;
+    const intro = document.querySelector("#intro");
+    const quiz = document.querySelector("#quiz");
+    const questionList = document.querySelector("#questionList");
+    const result = document.querySelector("#result");
+    const progress = document.querySelector("#progress");
+    const timer = document.querySelector("#timer");
+    const timeDisplay = document.querySelector("#time");
+    const startActions = document.querySelector("#startActions");
+    const submitButton = document.querySelector("#submitButton");
+    let questions = [];
+    let remainingSeconds = EXAM_SECONDS;
+    let timerId = null;
+    let finished = false;
 
-    function toRadians(value) { return angleMode === 'DEG' ? value * Math.PI / 180 : value; }
-    function fromRadians(value) { return angleMode === 'DEG' ? value * 180 / Math.PI : value; }
-    function factorial(value) {
-      if (value < 0 || !Number.isInteger(value) || value > 170) throw new Error('階乘僅支援 0 至 170 的整數');
-      let total = 1;
-      for (let index = 2; index <= value; index += 1) total *= index;
-      return total;
-    }
-
-    function calculate(source) {
-      let safe = source.replaceAll('pi', 'Math.PI').replaceAll('ans', String(lastAnswer)).replaceAll('^', '**');
-      safe = safe.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
-      safe = safe.replace(/(\d+(?:\.\d+)?)!/g, 'factorial($1)');
-      safe = safe.replace(/\b(e)\b/g, 'Math.E');
-      Object.keys(functions).forEach(name => { safe = safe.replaceAll(name + '(', 'functions.' + name + '('); });
-      if (!/^[0-9+\-*/().,%*\sA-Za-z]+$/.test(safe) || /\b(?:constructor|prototype|window|document|eval)\b/.test(safe)) throw new Error('算式格式無效');
-      return Function('functions', 'factorial', 'return ' + safe)(functions, factorial);
-    }
-
-    function format(value) {
-      if (!Number.isFinite(value)) throw new Error('結果不是有限數值');
-      return Number(value.toPrecision(12)).toString();
-    }
-
-    function updateScreen(value = expression ? expression : '準備開始計算', result = expression ? '0' : '0') {
-      expressionEl.textContent = value || '準備開始計算';
-      resultEl.textContent = result;
-      memoryStateEl.textContent = 'M: ' + format(memory);
-      angleStateEl.textContent = angleMode;
-    }
-
-    function appendValue(value) {
-      if (justEvaluated && /^[0-9.]$/.test(value)) expression = '';
-      justEvaluated = false;
-      expression += value;
-      updateScreen(expression, resultEl.textContent);
-    }
-
-    function evaluateExpression() {
-      if (!expression) return;
-      try {
-        const answer = format(calculate(expression));
-        updateScreen(expression, answer);
-        lastAnswer = Number(answer);
-        expression = answer;
-        justEvaluated = true;
-      } catch (error) {
-        updateScreen(expression, '錯誤');
+    function shuffled(items) {
+      const result = [...items];
+      for (let i = result.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
       }
+      return result;
     }
 
-    function handleAction(action) {
-      if (action === 'clear') { expression = ''; justEvaluated = false; updateScreen(); return; }
-      if (action === 'backspace') { expression = expression.slice(0, -1); updateScreen(expression, resultEl.textContent); return; }
-      if (action === 'equals') { evaluateExpression(); return; }
-      if (action === 'negate') { expression = expression ? '-(' + expression + ')' : '-'; updateScreen(expression, resultEl.textContent); return; }
-      if (action.startsWith('memory')) {
-        const current = expression ? Number(calculate(expression)) : 0;
-        if (action === 'memory-clear') memory = 0;
-        if (action === 'memory-recall') appendValue(format(memory));
-        if (action === 'memory-add') memory += current;
-        if (action === 'memory-subtract') memory -= current;
-        updateScreen(expression, resultEl.textContent);
-      }
+    function makeQuestions() {
+      return shuffled(vocabulary).slice(0, QUESTION_COUNT).map(([word, meaning]) => {
+        const distractors = shuffled(vocabulary.filter((entry) => entry[1] !== meaning)).slice(0, 3);
+        const options = shuffled([meaning, ...distractors.map((entry) => entry[1])]);
+        return { word, meaning, options };
+      });
     }
 
-    document.querySelectorAll('[data-value]').forEach(button => button.addEventListener('click', () => appendValue(button.dataset.value)));
-    document.querySelectorAll('[data-action]').forEach(button => button.addEventListener('click', () => handleAction(button.dataset.action)));
-    document.querySelectorAll('[data-angle]').forEach(button => button.addEventListener('click', () => {
-      angleMode = button.dataset.angle;
-      document.querySelectorAll('[data-angle]').forEach(item => item.classList.toggle('active', item === button));
-      updateScreen(expression, resultEl.textContent);
-    }));
+    function renderQuestions() {
+      questionList.replaceChildren();
+      questions.forEach((question, index) => {
+        const card = document.createElement("fieldset");
+        card.className = "question-card";
+        card.id = `question-${index + 1}`;
+        card.style.borderStyle = "solid";
+        card.innerHTML = `
+          <legend class="question-top">
+            <span class="question-number">第 ${index + 1} 題</span>
+            <span class="points">${POINTS_PER_QUESTION} 分</span>
+          </legend>
+          <p class="word">${question.word}</p>
+          <div class="options" role="radiogroup" aria-label="${question.word} 的中文意思">
+            ${question.options.map((option, optionIndex) => `
+              <label class="option" data-option="${optionIndex}">
+                <input type="radio" name="question-${index}" value="${optionIndex}" aria-label="${option}">
+                <span>${option}</span>
+              </label>`).join("")}
+          </div>
+          <p class="feedback" id="feedback-${index}" hidden></p>
+        `;
+        questionList.append(card);
+      });
+      updateProgress();
+    }
 
-    document.addEventListener('keydown', event => {
-      if (/^[0-9.]$/.test(event.key) || ['+', '-', '*', '/', '(', ')', '%', '^'].includes(event.key)) appendValue(event.key);
-      else if (event.key === 'Enter' || event.key === '=') evaluateExpression();
-      else if (event.key === 'Backspace') handleAction('backspace');
-      else if (event.key === 'Escape') handleAction('clear');
+    function updateProgress() {
+      const answered = questions.reduce((count, _question, index) =>
+        count + (quiz.querySelector(`input[name="question-${index}"]:checked`) ? 1 : 0), 0);
+      progress.textContent = `已作答 ${answered} / ${QUESTION_COUNT} 題`;
+    }
+
+    function displayTime() {
+      const minutes = Math.floor(remainingSeconds / 60);
+      const seconds = remainingSeconds % 60;
+      timeDisplay.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      timer.classList.toggle("warning", remainingSeconds <= 60);
+    }
+
+    function startExam() {
+      questions = makeQuestions();
+      remainingSeconds = EXAM_SECONDS;
+      finished = false;
+      displayTime();
+      renderQuestions();
+      intro.hidden = true;
+      result.hidden = true;
+      startActions.hidden = true;
+      quiz.hidden = false;
+      submitButton.disabled = false;
+      timerId = window.setInterval(() => {
+        remainingSeconds -= 1;
+        displayTime();
+        if (remainingSeconds <= 0) finishExam(true);
+      }, 1000);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function finishExam(timeExpired = false) {
+      if (finished) return;
+      finished = true;
+      window.clearInterval(timerId);
+      timerId = null;
+      submitButton.disabled = true;
+      let correctCount = 0;
+      let answeredCount = 0;
+
+      questions.forEach((question, index) => {
+        const selected = quiz.querySelector(`input[name="question-${index}"]:checked`);
+        const card = document.querySelector(`#question-${index + 1}`);
+        const options = card.querySelectorAll(".option");
+        const feedback = card.querySelector(".feedback");
+        if (selected) answeredCount += 1;
+        const chosenMeaning = selected ? question.options[Number(selected.value)] : null;
+        const isCorrect = chosenMeaning === question.meaning;
+        if (isCorrect) correctCount += 1;
+
+        options.forEach((option, optionIndex) => {
+          const meaning = question.options[optionIndex];
+          option.querySelector("input").disabled = true;
+          if (meaning === question.meaning) option.classList.add("correct");
+          if (selected && Number(selected.value) === optionIndex && !isCorrect) option.classList.add("incorrect");
+        });
+        feedback.hidden = false;
+        feedback.classList.add(isCorrect ? "correct-text" : "wrong-text");
+        feedback.textContent = isCorrect ? "答對了！" : `正確答案：${question.meaning}${selected ? "" : "（未作答）"}`;
+      });
+
+      const score = correctCount * POINTS_PER_QUESTION;
+      document.querySelector("#resultTitle").textContent = timeExpired ? "時間到，已自動交卷" : "測驗完成";
+      document.querySelector("#score").textContent = `${score} / 100 分`;
+      document.querySelector("#resultDetail").textContent = `答對 ${correctCount} 題，已作答 ${answeredCount} / ${QUESTION_COUNT} 題。每題 ${POINTS_PER_QUESTION} 分。`;
+      progress.textContent = "已完成測驗";
+      result.hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    quiz.addEventListener("change", updateProgress);
+    quiz.addEventListener("submit", (event) => {
+      event.preventDefault();
+      finishExam(false);
     });
-
-    updateScreen();
+    document.querySelector("#startButton").addEventListener("click", startExam);
+    document.querySelector("#restartButton").addEventListener("click", startExam);
   </script>
 </body>
 </html>
