@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>硬體裝修實務 成績查詢</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f5f4ef;
+        --ink: #182a2a;
+        --muted: #64716d;
+        --line: #d5d9d2;
+        --green: #176b58;
+        --lime: #d9ec78;
+        --coral: #d75d43;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background-color: var(--paper);
+        background-image: radial-gradient(#c4ccc1 0.7px, transparent 0.7px);
+        background-size: 19px 19px;
+        font-family: 'Noto Sans TC', sans-serif;
+      }
+
+      .topline {
+        height: 8px;
+        background: linear-gradient(90deg, var(--green) 0 68%, var(--lime) 68% 88%, var(--coral) 88%);
+      }
+
+      main {
+        width: min(920px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 44px 0 72px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+        padding-bottom: 28px;
+        border-bottom: 1px solid var(--ink);
+      }
+
+      .eyebrow, .term {
+        font-family: 'DM Mono', monospace;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(30px, 7vw, 54px);
+        line-height: 1.18;
+        font-weight: 700;
+      }
+
+      .term {
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      .request-area {
+        max-width: 560px;
+        padding: 30px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      label {
+        display: block;
+        margin-bottom: 9px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .email-field {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+        min-height: 48px;
+        border: 1px solid #9ba79f;
+        border-radius: 3px;
+        background: #fff;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        padding: 0 14px;
+        border: 0;
+        border-radius: 3px 0 0 3px;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+      }
+
+      .email-field:focus-within { outline: 2px solid var(--green); outline-offset: 2px; }
+
+      .email-domain {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        padding: 0 12px 0 0;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      .email-domain[hidden] { display: none; }
+
+      button {
+        min-height: 48px;
+        padding: 0 20px;
+        border: 0;
+        border-radius: 3px;
+        background: var(--green);
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button:hover:not(:disabled) { background: #105342; }
+      button:disabled { cursor: wait; opacity: 0.65; }
+
+      #status {
+        min-height: 24px;
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      footer {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      @media (max-width: 560px) {
+        main { width: min(100% - 28px, 920px); padding-top: 30px; }
+        header { align-items: flex-start; flex-direction: column; gap: 14px; }
+        .form-row { align-items: stretch; flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="topline" aria-hidden="true"></div>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">STUDENT PORTAL / HARDWARE REPAIR PRACTICE</p>
+          <h1>硬體裝修實務 成績查詢</h1>
+        </div>
+        <span class="term">何帥</span>
+      </header>
+
+      <section class="request-area">
+        <form id="gradeForm">
+          <label for="emailLocal">Email</label>
+          <div class="form-row">
+            <div class="email-field">
+              <input id="emailLocal" name="emailLocal" type="text" autocomplete="username" placeholder="請輸入 Email 帳號" required />
+              <span id="emailDomain" class="email-domain" aria-hidden="true">@gm.ptivs.tn.edu.tw</span>
+            </div>
+            <button id="sendButton" type="submit">寄送成績</button>
+          </div>
+          <p id="status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <footer>如資料有誤，請聯絡 何裕隆老師。</footer>
+    </main>
+
+    <script>
+      const form = document.getElementById('gradeForm');
+      const emailInput = document.getElementById('emailLocal');
+      const emailDomain = document.getElementById('emailDomain');
+      const sendButton = document.getElementById('sendButton');
+      const status = document.getElementById('status');
+
+      emailInput.addEventListener('input', () => {
+        emailDomain.hidden = emailInput.value.includes('@');
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        sendButton.disabled = true;
+        status.textContent = '正在處理寄送…';
+        const enteredAddress = emailInput.value.trim();
+        const emailAddress = enteredAddress.includes('@')
+          ? enteredAddress
+          : enteredAddress + '@gm.ptivs.tn.edu.tw';
+
+        google.script.run
+          .withSuccessHandler((message) => {
+            status.textContent = message;
+            sendButton.disabled = false;
+          })
+          .withFailureHandler(() => {
+            status.textContent = '目前無法完成寄送，請稍後再試。';
+            sendButton.disabled = false;
+          })
+          .sendGrades(emailAddress);
+      });
+    </script>
+  </body>
+</html>
