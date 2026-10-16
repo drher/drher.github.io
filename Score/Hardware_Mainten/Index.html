@@ -204,6 +204,26 @@
         emailDomain.hidden = emailInput.value.includes('@');
       });
 
+      let countdownTimer = null;
+
+      function startCountdown(seconds, message) {
+        clearInterval(countdownTimer);
+        const endTime = Date.now() + seconds * 1000;
+        const render = () => {
+          const remaining = Math.ceil((endTime - Date.now()) / 1000);
+          if (remaining <= 0) {
+            clearInterval(countdownTimer);
+            status.textContent = '現在可以重新寄送。';
+            sendButton.disabled = false;
+            return;
+          }
+          const countdownText = '請於 ' + remaining + ' 秒後再重新寄送。';
+          status.textContent = message ? message + ' ' + countdownText : countdownText;
+        };
+        render();
+        countdownTimer = setInterval(render, 250);
+      }
+
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         sendButton.disabled = true;
@@ -214,9 +234,13 @@
           : enteredAddress + '@gm.ptivs.tn.edu.tw';
 
         google.script.run
-          .withSuccessHandler((message) => {
-            status.textContent = message;
-            sendButton.disabled = false;
+          .withSuccessHandler((result) => {
+            if (typeof result === 'string') {
+              status.textContent = result;
+              sendButton.disabled = false;
+              return;
+            }
+            startCountdown(result.waitSeconds, result.message);
           })
           .withFailureHandler(() => {
             status.textContent = '目前無法完成寄送，請稍後再試。';

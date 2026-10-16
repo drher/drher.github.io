@@ -1,7 +1,9 @@
 const SPREADSHEET_ID = '1VA3EMKAUiduJ6L9LJtAyaTIslsUhsNaNwFtdp5Hs7zY';
 const HEADER_SCAN_ROWS = 20;
-const RESEND_DELAY_SECONDS = 120;
+const RESEND_DELAY_SECONDS = 60;
 const GENERIC_RESPONSE = '若此 Email 已登記且資料唯一，成績將寄送至該信箱。';
+
+const NOT_FOUND_RESPONSE = '無此Email,請重新輸入...';
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('Index')
@@ -30,8 +32,16 @@ function sendGrades(emailAddress) {
   const matchingRows = values.slice(headerInfo.rowIndex + 1).filter((row) =>
     normalizeEmail_(row[headerInfo.emailIndex]) === email
   );
-  if (matchingRows.length !== 1 || !reserveEmailSend_(email)) {
+  if (matchingRows.length === 0) {
+    return NOT_FOUND_RESPONSE;
+  }
+  if (matchingRows.length > 1) {
+    console.warn('不寄信:' + email + ' 符合筆數=' + matchingRows.length);
     return GENERIC_RESPONSE;
+  }
+  const waitSeconds = reserveEmailSend_(email);
+  if (waitSeconds > 0) {
+    return { waitSeconds: waitSeconds };
   }
 
   const row = matchingRows[0];
@@ -62,7 +72,7 @@ function sendGrades(emailAddress) {
     name: '硬體裝修實務 成績查詢'
   });
 
-  return GENERIC_RESPONSE;
+  return { message: GENERIC_RESPONSE, waitSeconds: RESEND_DELAY_SECONDS };
 }
 
 function findHeaderRow_(values) {
@@ -85,7 +95,7 @@ function normalizeHeader_(value) {
 }
 
 function normalizeEmail_(value) {
-  return String(value || '').trim().toLowerCase();
+  return String(value || '').normalize('NFKC').replace(/[\u200B-\u200D\uFEFF\s]/g, '').toLowerCase();
 }
 
 function reserveEmailSend_(email) {
@@ -95,11 +105,16 @@ function reserveEmailSend_(email) {
   lock.waitLock(10000);
   try {
     const cache = CacheService.getScriptCache();
-    if (cache.get(key)) {
-      return false;
+    const last = Number(cache.get(key));
+    const now = Date.now();
+    if (last) {
+      const remaining = Math.ceil((last + RESEND_DELAY_SECONDS * 1000 - now) / 1000);
+      if (remaining > 0) {
+        return remaining;
+      }
     }
-    cache.put(key, 'sent', RESEND_DELAY_SECONDS);
-    return true;
+    cache.put(key, String(now), RESEND_DELAY_SECONDS);
+    return 0;
   } finally {
     lock.releaseLock();
   }
