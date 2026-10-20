@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>火柴人小遊戲</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", "Noto Sans TC", sans-serif;
+      background: #101522;
+      color: #f2f4fa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(ellipse at 50% 0%, #273653 0, transparent 58%),
+        #101522;
+    }
+
+    main {
+      width: min(900px, 100%);
+    }
+
+    header {
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.6rem, 5vw, 2.3rem);
+      letter-spacing: 0.08em;
+    }
+
+    header p {
+      margin: 0;
+      color: #aab5c9;
+    }
+
+    .game-frame {
+      overflow: hidden;
+      border: 1px solid #35415a;
+      border-radius: 18px;
+      background: #182236;
+      box-shadow: 0 24px 70px #0006;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #b9e5f2;
+    }
+
+    canvas:focus-visible {
+      outline: 3px solid #fff;
+      outline-offset: -5px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px 24px;
+      padding: 18px;
+      color: #d5dced;
+      font-size: 0.95rem;
+    }
+
+    .control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    kbd {
+      min-width: 34px;
+      padding: 5px 9px;
+      border: 1px solid #596780;
+      border-bottom-width: 3px;
+      border-radius: 7px;
+      background: #26334a;
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .hint {
+      margin: 14px 0 0;
+      color: #8491a8;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 16px;
+      }
+
+      .controls {
+        gap: 12px 16px;
+        padding: 15px 10px;
+        font-size: 0.88rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>火柴人小遊戲</h1>
+      <p>用方向鍵操控紅色火柴人！</p>
+    </header>
+
+    <section class="game-frame" aria-label="火柴人遊戲">
+      <canvas id="game" tabindex="0" aria-label="紅色火柴人遊戲畫面"></canvas>
+      <div class="controls" aria-label="操作方式">
+        <span class="control"><kbd>←</kbd><kbd>→</kbd> 行走</span>
+        <span class="control"><kbd>↑</kbd> 跳躍</span>
+        <span class="control"><kbd>↓</kbd> 蹲下</span>
+      </div>
+    </section>
+    <p class="hint">點選遊戲畫面取得操作焦點，再使用鍵盤方向鍵</p>
+  </main>
+
+  <script>
+    (() => {
+      const canvas = document.querySelector("#game");
+      const context = canvas.getContext("2d");
+      const world = { width: 900, height: 480 };
+      const groundY = world.height - 54;
+      const player = {
+        x: world.width / 2,
+        feetY: groundY,
+        jumpSpeed: 0,
+        grounded: true,
+        facing: 1,
+        walking: false,
+        crouching: false,
+        step: 0
+      };
+      const keys = new Set();
+      let previousTime = 0;
+
+      function resizeCanvas() {
+        const bounds = canvas.getBoundingClientRect();
+        const pixelRatio = window.devicePixelRatio || 1;
+        canvas.width = Math.round(bounds.width * pixelRatio);
+        canvas.height = Math.round(bounds.width * world.height / world.width * pixelRatio);
+        context.setTransform(
+          canvas.width / world.width, 0,
+          0, canvas.height / world.height, 0, 0
+        );
+        if (player.grounded) {
+          player.feetY = groundY;
+        }
+      }
+
+      function drawBackground() {
+        const sky = context.createLinearGradient(0, 0, 0, world.height);
+        sky.addColorStop(0, "#b9e5f2");
+        sky.addColorStop(1, "#e4f5e8");
+        context.fillStyle = sky;
+        context.fillRect(0, 0, world.width, world.height);
+
+        context.fillStyle = "#ffffff55";
+        context.beginPath();
+        context.arc(735, 92, 39, 0, Math.PI * 2);
+        context.fill();
+
+        context.fillStyle = "#9bcfbd";
+        context.beginPath();
+        context.moveTo(0, groundY - 80);
+        context.quadraticCurveTo(220, groundY - 170, 450, groundY - 78);
+        context.quadraticCurveTo(680, groundY - 150, world.width, groundY - 75);
+        context.lineTo(world.width, groundY);
+        context.lineTo(0, groundY);
+        context.fill();
+
+        context.fillStyle = "#74b88d";
+        context.fillRect(0, groundY, world.width, world.height - groundY);
+        context.fillStyle = "#559b72";
+        context.fillRect(0, groundY, world.width, 8);
+      }
+
+      function drawSegment(startX, startY, endX, endY) {
+        context.beginPath();
+        context.moveTo(startX, startY);
+        context.lineTo(endX, endY);
+        context.stroke();
+      }
+
+      function drawPlayer(time) {
+        const crouch = player.crouching && player.grounded;
+        const stride = player.walking && !crouch && player.grounded
+          ? Math.sin(player.step) * 17
+          : 0;
+        const armSwing = player.walking && !crouch && player.grounded
+          ? Math.sin(player.step + Math.PI) * 13
+          : 0;
+        const bodyHeight = crouch ? 43 : 68;
+        const hipY = player.feetY - bodyHeight;
+        const shoulderY = hipY - (crouch ? 26 : 42);
+        const headY = shoulderY - 21;
+
+        context.save();
+        context.translate(player.x, 0);
+        context.scale(player.facing, 1);
+        context.lineCap = "round";
+        context.lineJoin = "round";
+        context.strokeStyle = "#e43f4f";
+        context.fillStyle = "#e43f4f";
+        context.lineWidth = 8;
+
+        context.beginPath();
+        context.arc(0, headY, 15, 0, Math.PI * 2);
+        context.fill();
+
+        drawSegment(0, shoulderY, 0, hipY);
+        drawSegment(0, shoulderY + 5, -20 + armSwing, shoulderY + 26);
+        drawSegment(0, shoulderY + 5, 20 - armSwing, shoulderY + 26);
+        drawSegment(0, hipY, -14 + stride, player.feetY - 3);
+        drawSegment(0, hipY, 14 - stride, player.feetY - 3);
+
+        context.restore();
+
+        if (!player.walking && !crouch && player.grounded) {
+          context.fillStyle = "#ffffffaa";
+          context.font = "16px Segoe UI, sans-serif";
+          context.textAlign = "center";
+          context.fillText("準備好了嗎？", player.x, headY - 34 + Math.sin(time / 350) * 3);
+        }
+      }
+
+      function draw(time) {
+        context.clearRect(0, 0, world.width, world.height);
+        drawBackground();
+        drawPlayer(time);
+      }
+
+      function update(time) {
+        const delta = Math.min((time - previousTime) / 1000 || 0, 0.04);
+        previousTime = time;
+
+        const movingLeft = keys.has("ArrowLeft");
+        const movingRight = keys.has("ArrowRight");
+        player.walking = movingLeft !== movingRight;
+        player.crouching = keys.has("ArrowDown");
+
+        if (movingLeft !== movingRight) {
+          const direction = movingLeft ? -1 : 1;
+          player.facing = direction;
+          player.x += direction * 240 * delta;
+          player.step += delta * 12;
+        }
+
+        player.x = Math.max(28, Math.min(world.width - 28, player.x));
+
+        if (!player.grounded) {
+          player.jumpSpeed += 1450 * delta;
+          player.feetY += player.jumpSpeed * delta;
+          if (player.feetY >= groundY) {
+            player.feetY = groundY;
+            player.jumpSpeed = 0;
+            player.grounded = true;
+          }
+        }
+
+        draw(time);
+        window.requestAnimationFrame(update);
+      }
+
+      canvas.addEventListener("click", () => canvas.focus());
+
+      window.addEventListener("keydown", (event) => {
+        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
+          event.preventDefault();
+        }
+        if (event.code === "ArrowUp" && !event.repeat && player.grounded) {
+          player.jumpSpeed = -570;
+          player.grounded = false;
+        }
+        keys.add(event.code);
+      });
+
+      window.addEventListener("keyup", (event) => keys.delete(event.code));
+      window.addEventListener("blur", () => keys.clear());
+      window.addEventListener("resize", resizeCanvas);
+
+      resizeCanvas();
+      window.requestAnimationFrame(update);
+    })();
+  </script>
+</body>
+</html>
