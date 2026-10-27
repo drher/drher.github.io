@@ -233,6 +233,14 @@
             animation-delay: 0.76s;
         }
 
+        .project-card:nth-child(11) {
+            animation-delay: 0.84s;
+        }
+
+        .project-card:nth-child(12) {
+            animation-delay: 0.92s;
+        }
+
         .project-card::before {
             content: "";
             position: absolute;
@@ -281,6 +289,14 @@
 
         .project-card.vocab::before {
             background: radial-gradient(circle, rgba(15, 139, 141, 0.24), rgba(15, 139, 141, 0));
+        }
+
+        .project-card.timed-quiz::before {
+            background: radial-gradient(circle, rgba(65, 105, 225, 0.22), rgba(65, 105, 225, 0));
+        }
+
+        .project-card.stickman::before {
+            background: radial-gradient(circle, rgba(228, 63, 79, 0.22), rgba(228, 63, 79, 0));
         }
 
         .project-card h3 {
@@ -375,6 +391,146 @@
                 radial-gradient(circle at 14% 16%, rgba(15, 139, 141, 0.16), transparent 24%),
                 radial-gradient(circle at 86% 18%, rgba(255, 183, 3, 0.18), transparent 24%),
                 linear-gradient(145deg, #f3faf7 0%, #fff5df 100%);
+        }
+
+        .project-thumb.timed-quiz-thumb {
+            background:
+                radial-gradient(circle at 12% 18%, rgba(65, 105, 225, 0.14), transparent 26%),
+                linear-gradient(145deg, #f4f7ff 0%, #e6edff 100%);
+        }
+
+        .timed-quiz-panel {
+            position: absolute;
+            inset: 52px 18px 16px;
+            padding: 16px;
+            border: 1px solid rgba(65, 105, 225, 0.14);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: 0 10px 24px rgba(28, 46, 84, 0.08);
+        }
+
+        .timed-quiz-time {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            color: #c34248;
+            font-size: 0.82rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timed-quiz-word {
+            margin: 4px 0 12px;
+            color: #17233b;
+            font-size: 1.65rem;
+            font-weight: 850;
+        }
+
+        .timed-quiz-choice {
+            padding: 7px 10px;
+            border: 1px solid #e4eaf3;
+            border-radius: 10px;
+            background: #f8f9ff;
+            color: #35415b;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .timed-quiz-choice + .timed-quiz-choice {
+            margin-top: 6px;
+        }
+
+        .timed-quiz-choice.correct {
+            border-color: #80c9a8;
+            background: #effaf4;
+            color: #16845b;
+        }
+
+        .project-thumb.stickman-thumb {
+            background:
+                radial-gradient(circle at 78% 20%, rgba(255, 255, 255, 0.72), transparent 14%),
+                linear-gradient(180deg, #b9e5f2 0%, #e4f5e8 72%, #74b88d 72%, #559b72 100%);
+        }
+
+        .stickman-figure {
+            position: absolute;
+            bottom: 42px;
+            left: 50%;
+            width: 72px;
+            height: 126px;
+            transform: translateX(-50%);
+        }
+
+        .stickman-head {
+            position: absolute;
+            top: 0;
+            left: 28px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e43f4f;
+        }
+
+        .stickman-torso,
+        .stickman-limb {
+            position: absolute;
+            height: 8px;
+            border-radius: 8px;
+            background: #e43f4f;
+        }
+
+        .stickman-torso {
+            top: 32px;
+            left: 39px;
+            width: 8px;
+            height: 42px;
+        }
+
+        .stickman-limb.arm-left {
+            top: 47px;
+            left: 13px;
+            width: 31px;
+            transform: rotate(28deg);
+            transform-origin: right center;
+        }
+
+        .stickman-limb.arm-right {
+            top: 47px;
+            left: 42px;
+            width: 31px;
+            transform: rotate(-28deg);
+            transform-origin: left center;
+        }
+
+        .stickman-limb.leg-left {
+            top: 79px;
+            left: 17px;
+            width: 34px;
+            transform: rotate(-48deg);
+            transform-origin: right center;
+        }
+
+        .stickman-limb.leg-right {
+            top: 79px;
+            left: 42px;
+            width: 34px;
+            transform: rotate(38deg);
+            transform-origin: left center;
+        }
+
+        .stickman-controls {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            display: grid;
+            gap: 7px;
+            padding: 10px 12px;
+            border: 1px solid rgba(31, 26, 23, 0.08);
+            border-radius: 14px;
+            background: rgba(255, 248, 236, 0.9);
+            color: #4f5d52;
+            font-size: 0.76rem;
+            font-weight: 800;
         }
 
         .project-thumb.notepad-thumb {
@@ -855,12 +1011,16 @@
                 <p class="lead">
                     我正在持續累積前端與互動設計作品，透過簡單直接的遊戲機制，練習
                     <strong>版面設計、操作手感、邏輯實作</strong>
-                    與使用者體驗。下面收錄了目前完成的十個互動作品。
+                    與使用者體驗。作品集目前收錄 12 件互動遊戲、學習工具與線上服務，並會隨著新作品持續更新。
                 </p>
             </article>
         </section>
 
         <section id="projects" aria-labelledby="projects-title">
+            <div class="section-header">
+                <h2 id="projects-title">作品集</h2>
+                <p>從瀏覽器小遊戲、學習工具到雲端服務，整理每件作品的設計重點與實際體驗入口。</p>
+            </div>
             <div class="projects">
                 <article class="project-card mole">
                     <h3>打地鼠</h3>
@@ -985,7 +1145,7 @@
                 </article>
 
                 <article class="project-card vocab">
-                    <h3>英文單字測驗</h3>
+                    <h3>英文單字測驗｜雲端版</h3>
                     <p>從 Google 試算表讀取英文單字與中文意思，隨機產生選擇題測驗，適合快速練習記憶與即時檢查答題表現。</p>
                     <div class="tag-row">
                         <span class="tag">英文學習</span>
@@ -1000,6 +1160,28 @@
                                 <div class="vocab-choice correct">A. 收成</div>
                                 <div class="vocab-choice">B. 旅程</div>
                                 <div class="vocab-choice">C. 機械</div>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="project-card timed-quiz">
+                    <h3>英文單字測驗｜限時挑戰</h3>
+                    <p>從單字題庫隨機抽出 20 題，在 10 分鐘內完成作答；交卷後立即查看分數與正確答案，支援重新挑戰。</p>
+                    <div class="tag-row">
+                        <span class="tag">隨機出題</span>
+                        <span class="tag">倒數計時</span>
+                        <span class="tag">即時批改</span>
+                    </div>
+                    <a class="project-link" href="10/index.html" aria-label="前往英文單字測驗限時挑戰版">
+                        <div class="project-thumb timed-quiz-thumb">
+                            <span class="thumb-label">Timed Vocabulary Quiz</span>
+                            <div class="timed-quiz-panel">
+                                <span class="timed-quiz-time">◷ 10:00</span>
+                                <div class="timed-quiz-word">harvest</div>
+                                <div class="timed-quiz-choice correct">A. 收成</div>
+                                <div class="timed-quiz-choice">B. 旅程</div>
+                                <div class="timed-quiz-choice">C. 機械</div>
                             </div>
                         </div>
                     </a>
@@ -1057,6 +1239,33 @@
                                 <div class="safety-question">下列何者屬於職業安全衛生法之立法目的？</div>
                                 <div class="safety-option correct">A. 防止職業災害</div>
                                 <div class="safety-option">B. 提升企業獲利</div>
+                            </div>
+                        </div>
+                    </a>
+                </article>
+
+                <article class="project-card stickman">
+                    <h3>火柴人小遊戲</h3>
+                    <p>以 Canvas 繪製可操作的火柴人，使用方向鍵行走、跳躍與蹲下，並依螢幕尺寸調整遊戲畫面。</p>
+                    <div class="tag-row">
+                        <span class="tag">Canvas 動畫</span>
+                        <span class="tag">鍵盤操作</span>
+                        <span class="tag">響應式畫面</span>
+                    </div>
+                    <a class="project-link" href="11/index.html" aria-label="前往火柴人小遊戲">
+                        <div class="project-thumb stickman-thumb">
+                            <span class="thumb-label">Stickman Game</span>
+                            <div class="stickman-figure" aria-hidden="true">
+                                <span class="stickman-head"></span>
+                                <span class="stickman-torso"></span>
+                                <span class="stickman-limb arm-left"></span>
+                                <span class="stickman-limb arm-right"></span>
+                                <span class="stickman-limb leg-left"></span>
+                                <span class="stickman-limb leg-right"></span>
+                            </div>
+                            <div class="stickman-controls">
+                                <span>← → 行走</span>
+                                <span>↑ 跳躍　↓ 蹲下</span>
                             </div>
                         </div>
                     </a>
