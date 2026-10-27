@@ -241,6 +241,10 @@
             animation-delay: 0.92s;
         }
 
+        .project-card:nth-child(13) {
+            animation-delay: 1s;
+        }
+
         .project-card::before {
             content: "";
             position: absolute;
@@ -285,6 +289,10 @@
 
         .project-card.safety::before {
             background: radial-gradient(circle, rgba(198, 40, 40, 0.22), rgba(198, 40, 40, 0));
+        }
+
+        .project-card.score::before {
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.2), rgba(124, 58, 237, 0));
         }
 
         .project-card.vocab::before {
@@ -391,6 +399,43 @@
                 radial-gradient(circle at 14% 16%, rgba(15, 139, 141, 0.16), transparent 24%),
                 radial-gradient(circle at 86% 18%, rgba(255, 183, 3, 0.18), transparent 24%),
                 linear-gradient(145deg, #f3faf7 0%, #fff5df 100%);
+        }
+
+        .project-thumb.score-thumb {
+            background:
+                radial-gradient(circle at 12% 16%, rgba(124, 58, 237, 0.14), transparent 26%),
+                linear-gradient(145deg, #f6f3fd 0%, #e9eefb 100%);
+        }
+
+        .score-mail {
+            position: absolute;
+            inset: 56px 18px 16px;
+            padding: 14px 16px;
+            border: 1px solid rgba(124, 58, 237, 0.16);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 24px rgba(52, 38, 94, 0.1);
+        }
+
+        .score-mail-subject {
+            margin-bottom: 10px;
+            color: #4c2a96;
+            font-size: 0.88rem;
+            font-weight: 800;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #e3e0ee;
+            color: #43405a;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .score-row b {
+            color: #7c3aed;
         }
 
         .project-thumb.timed-quiz-thumb {
@@ -1011,7 +1056,7 @@
                 <p class="lead">
                     我正在持續累積前端與互動設計作品，透過簡單直接的遊戲機制，練習
                     <strong>版面設計、操作手感、邏輯實作</strong>
-                    與使用者體驗。作品集目前收錄 12 件互動遊戲、學習工具與線上服務，並會隨著新作品持續更新。
+                    與使用者體驗。作品集目前收錄 13 件互動遊戲、學習工具與線上服務，並會隨著新作品持續更新。
                 </p>
             </article>
         </section>
@@ -1269,6 +1314,27 @@
                             </div>
                         </div>
                     </a>
+                </article>
+
+                <article class="project-card score">
+                    <h3>成績查詢寄發系統</h3>
+                    <p>學生輸入 Email 後，系統以 Google Apps Script 比對成績試算表，並將個人成績以郵件寄出；已套用於基本電學、硬體裝修實務與專題製作三門課程，並加入防止重複寄送與避免洩漏名單的設計。</p>
+                    <div class="tag-row">
+                        <span class="tag">郵件寄發</span>
+                        <span class="tag">Google 試算表</span>
+                        <span class="tag">Apps Script</span>
+                    </div>
+                    <div class="project-link" aria-label="成績查詢寄發系統為內部使用的服務，無公開連結">
+                        <div class="project-thumb score-thumb">
+                            <span class="thumb-label">Score Mailer</span>
+                            <div class="score-mail">
+                                <div class="score-mail-subject">✉ 基本電學 個人成績</div>
+                                <div class="score-row"><span>平時成績</span><b>—</b></div>
+                                <div class="score-row"><span>期中考</span><b>—</b></div>
+                                <div class="score-row"><span>學期成績</span><b>—</b></div>
+                            </div>
+                        </div>
+                    </div>
                 </article>
             </div>
         </section>
