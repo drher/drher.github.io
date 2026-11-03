@@ -248,7 +248,7 @@
             context.fillStyle = "#6cc36a";
             context.fillRect(o.x - 2, top - 5, o.w + 4, 9);
             if (!o.starTaken) {
-              drawStar(o.x + o.w / 2, top - starHeight, time);
+              drawStar(o.x + o.w + starOffset, top - starHeight, time);
             }
           } else {
             context.fillStyle = "#6b4f3a";
@@ -610,7 +610,8 @@
         drawHud();
       }
 
-      const starHeight = 190;
+      const starHeight = 175;
+      const starOffset = 70;
 
       function platformLevel(prevFeet) {
         let level = groundY;
@@ -686,9 +687,9 @@
             }
 
             if (o.wide && !o.starTaken) {
-              const starX = o.x + o.w / 2;
+              const starX = o.x + o.w + starOffset;
               const starY = top - starHeight;
-              if (Math.abs(starX - player.x) < 30 && starY > player.feetY - 90 && starY < player.feetY - 20) {
+              if (Math.abs(starX - player.x) < 36 && starY > player.feetY - 100 && starY < player.feetY - 15) {
                 o.starTaken = true;
                 health = Math.min(maxHealth, health + 1);
                 playHealSound();
