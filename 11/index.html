@@ -57,6 +57,9 @@
 
     canvas {
       display: block;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
       width: 100%;
       height: auto;
       background: #b9e5f2;
@@ -120,18 +123,13 @@
   <main>
     <header>
       <h1>火柴人小遊戲</h1>
-      <p>用方向鍵操控紅色火柴人！</p>
+      <p>觸碰螢幕讓火柴人跳起，躲開障礙！</p>
     </header>
 
     <section class="game-frame" aria-label="火柴人遊戲">
-      <canvas id="game" tabindex="0" aria-label="紅色火柴人遊戲畫面"></canvas>
-      <div class="controls" aria-label="操作方式">
-        <span class="control"><kbd>←</kbd><kbd>→</kbd> 行走</span>
-        <span class="control"><kbd>↑</kbd> 跳躍</span>
-        <span class="control"><kbd>↓</kbd> 蹲下</span>
-      </div>
+      <canvas id="game" aria-label="紅色火柴人遊戲畫面"></canvas>
     </section>
-    <p class="hint">點選遊戲畫面取得操作焦點，再使用鍵盤方向鍵</p>
+    <p class="hint">觸碰（或點擊）畫面跳躍；遊戲結束後再觸碰即可重新開始</p>
   </main>
 
   <script>
@@ -141,17 +139,74 @@
       const world = { width: 900, height: 480 };
       const groundY = world.height - 54;
       const player = {
-        x: world.width / 2,
+        x: 160,
         feetY: groundY,
         jumpSpeed: 0,
         grounded: true,
         facing: 1,
-        walking: false,
-        crouching: false,
         step: 0
       };
-      const keys = new Set();
+      const maxHealth = 3;
+      let health = maxHealth;
+      let gameOver = false;
+      let score = 0;
+      let invincibleUntil = 0;
+      let obstacles = [];
+      let spawnTimer = 1;
       let previousTime = 0;
+
+      function resetGame() {
+        health = maxHealth;
+        gameOver = false;
+        score = 0;
+        obstacles = [];
+        spawnTimer = 1;
+        invincibleUntil = 0;
+        player.feetY = groundY;
+        player.jumpSpeed = 0;
+        player.grounded = true;
+      }
+
+      function jump() {
+        startMusic();
+        if (gameOver) {
+          resetGame();
+          return;
+        }
+        if (player.grounded) {
+          player.jumpSpeed = -620;
+          player.grounded = false;
+          playJumpSound();
+        }
+      }
+
+      function drawObstacles() {
+        context.fillStyle = "#6b4f3a";
+        for (const o of obstacles) {
+          context.fillRect(o.x, groundY - o.h, o.w, o.h);
+        }
+      }
+
+      function drawHud() {
+        context.textAlign = "left";
+        context.font = "bold 24px Segoe UI, sans-serif";
+        context.fillStyle = "#e43f4f";
+        context.fillText("♥".repeat(health) + "♡".repeat(maxHealth - health), 20, 36);
+        context.fillStyle = "#33415c";
+        context.textAlign = "right";
+        context.fillText("分數 " + Math.floor(score), world.width - 20, 36);
+
+        if (gameOver) {
+          context.fillStyle = "#000a";
+          context.fillRect(0, 0, world.width, world.height);
+          context.fillStyle = "#fff";
+          context.textAlign = "center";
+          context.font = "bold 44px Segoe UI, sans-serif";
+          context.fillText("遊戲結束", world.width / 2, world.height / 2 - 10);
+          context.font = "22px Segoe UI, sans-serif";
+          context.fillText("分數 " + Math.floor(score) + "，觸碰螢幕重新開始", world.width / 2, world.height / 2 + 32);
+        }
+      }
 
       function resizeCanvas() {
         const bounds = canvas.getBoundingClientRect();
@@ -202,70 +257,155 @@
       }
 
       function drawPlayer(time) {
-        const crouch = player.crouching && player.grounded;
-        const stride = player.walking && !crouch && player.grounded
-          ? Math.sin(player.step) * 17
-          : 0;
-        const armSwing = player.walking && !crouch && player.grounded
-          ? Math.sin(player.step + Math.PI) * 13
-          : 0;
-        const bodyHeight = crouch ? 43 : 68;
-        const hipY = player.feetY - bodyHeight;
-        const shoulderY = hipY - (crouch ? 26 : 42);
-        const headY = shoulderY - 21;
+        const running = !gameOver && player.grounded;
+        const phase = Math.sin(player.step);
+        const stride = running ? phase * 9 : 0;
+        const bob = running ? Math.abs(phase) * 3 : 0;
+        const airborne = !player.grounded;
+        const feet = player.feetY;
 
         context.save();
-        context.translate(player.x, 0);
+        if (time < invincibleUntil && Math.floor(time / 80) % 2 === 0) {
+          context.globalAlpha = 0.35;
+        }
+        context.translate(player.x, -bob);
         context.scale(player.facing, 1);
-        context.lineCap = "round";
-        context.lineJoin = "round";
-        context.strokeStyle = "#e43f4f";
-        context.fillStyle = "#e43f4f";
-        context.lineWidth = 8;
 
-        context.beginPath();
-        context.arc(0, headY, 15, 0, Math.PI * 2);
-        context.fill();
+        const rect = (color, x, y, w, h) => {
+          context.fillStyle = color;
+          context.fillRect(x, y, w, h);
+        };
 
-        drawSegment(0, shoulderY, 0, hipY);
-        drawSegment(0, shoulderY + 5, -20 + armSwing, shoulderY + 26);
-        drawSegment(0, shoulderY + 5, 20 - armSwing, shoulderY + 26);
-        drawSegment(0, hipY, -14 + stride, player.feetY - 3);
-        drawSegment(0, hipY, 14 - stride, player.feetY - 3);
+        // 鞋子與腿
+        const backFootX = airborne ? -16 : -12 - stride;
+        const frontFootX = airborne ? 6 : 2 + stride;
+        rect("#6b3a1e", backFootX, feet - 8, 16, 8);
+        rect("#6b3a1e", frontFootX, feet - 8, 16, 8);
+        rect("#2a5fd0", -10, feet - 24, 20, 16);
+
+        // 身體：紅衣藍吊帶褲
+        rect("#e43f4f", -13, feet - 44, 26, 22);
+        rect("#2a5fd0", -13, feet - 34, 26, 12);
+        rect("#2a5fd0", -10, feet - 44, 5, 10);
+        rect("#2a5fd0", 5, feet - 44, 5, 10);
+        rect("#ffd23f", -9, feet - 31, 4, 4);
+        rect("#ffd23f", 5, feet - 31, 4, 4);
+
+        // 手臂與手套
+        const armY = airborne ? feet - 56 : feet - 42 + (running ? phase * 4 : 0);
+        rect("#e43f4f", 10, armY, 12, 8);
+        rect("#ffffff", 20, armY - 1, 8, 10);
+        rect("#e43f4f", -22, armY + (airborne ? 0 : 4), 12, 8);
+        rect("#ffffff", -28, armY + (airborne ? -1 : 3), 8, 10);
+
+        // 頭、帽子、鬍子
+        rect("#f7c59a", -12, feet - 66, 26, 22);
+        rect("#e43f4f", -14, feet - 76, 28, 10);
+        rect("#e43f4f", -14, feet - 68, 34, 4);
+        rect("#ffffff", -2, feet - 75, 10, 8);
+        rect("#e43f4f", 1, feet - 74, 4, 5);
+        rect("#3a2418", 8, feet - 62, 3, 8);
+        rect("#3a2418", 3, feet - 49, 14, 5);
+        rect("#3a2418", -14, feet - 66, 5, 14);
+        rect("#f7c59a", 12, feet - 56, 6, 6);
 
         context.restore();
+      }
 
-        if (!player.walking && !crouch && player.grounded) {
-          context.fillStyle = "#ffffffaa";
-          context.font = "16px Segoe UI, sans-serif";
-          context.textAlign = "center";
-          context.fillText("準備好了嗎？", player.x, headY - 34 + Math.sin(time / 350) * 3);
+      let audio = null;
+      let musicTimer = null;
+      let musicStep = 0;
+      const melody = [
+        523, 0, 659, 784, 659, 0, 523, 0, 587, 0, 698, 880, 698, 0, 587, 0,
+        659, 0, 784, 988, 784, 0, 659, 0, 523, 659, 784, 659, 523, 0, 392, 0
+      ];
+      const bass = [131, 131, 147, 147, 165, 165, 131, 131];
+
+      function tone(freq, start, length, type, volume, endFreq) {
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, start);
+        if (endFreq) {
+          osc.frequency.exponentialRampToValueAtTime(endFreq, start + length);
         }
+        gain.gain.setValueAtTime(volume, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + length);
+        osc.connect(gain).connect(audio.destination);
+        osc.start(start);
+        osc.stop(start + length + 0.02);
+      }
+
+      function startMusic() {
+        if (!audio) {
+          audio = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audio.state === "suspended") {
+          audio.resume();
+        }
+        if (musicTimer) {
+          return;
+        }
+        const beat = 0.16;
+        musicTimer = setInterval(() => {
+          const now = audio.currentTime + 0.05;
+          const note = melody[musicStep % melody.length];
+          if (note) {
+            tone(note, now, beat * 0.9, "square", 0.05);
+          }
+          if (musicStep % 4 === 0) {
+            tone(bass[(musicStep / 4) % bass.length], now, beat * 3.5, "triangle", 0.12);
+          }
+          musicStep += 1;
+        }, beat * 1000);
+      }
+
+      function playJumpSound() {
+        if (!audio) {
+          return;
+        }
+        const now = audio.currentTime;
+        tone(600, now, 0.09, "sine", 0.18, 1100);
+        tone(900, now + 0.09, 0.12, "sine", 0.18, 1500);
       }
 
       function draw(time) {
         context.clearRect(0, 0, world.width, world.height);
         drawBackground();
+        drawObstacles();
         drawPlayer(time);
+        drawHud();
       }
 
       function update(time) {
         const delta = Math.min((time - previousTime) / 1000 || 0, 0.04);
         previousTime = time;
 
-        const movingLeft = keys.has("ArrowLeft");
-        const movingRight = keys.has("ArrowRight");
-        player.walking = movingLeft !== movingRight;
-        player.crouching = keys.has("ArrowDown");
-
-        if (movingLeft !== movingRight) {
-          const direction = movingLeft ? -1 : 1;
-          player.facing = direction;
-          player.x += direction * 240 * delta;
+        if (!gameOver) {
+          score += delta * 10;
           player.step += delta * 12;
-        }
+          const speed = 300 + score * 0.8;
 
-        player.x = Math.max(28, Math.min(world.width - 28, player.x));
+          spawnTimer -= delta;
+          if (spawnTimer <= 0) {
+            obstacles.push({ x: world.width + 20, w: 28 + Math.random() * 18, h: 36 + Math.random() * 30 });
+            spawnTimer = 1.1 + Math.random() * 1.1;
+          }
+
+          for (const o of obstacles) {
+            o.x -= speed * delta;
+            const hit = o.x < player.x + 14 && o.x + o.w > player.x - 14 && player.feetY > groundY - o.h;
+            if (hit && !o.hit && time >= invincibleUntil) {
+              o.hit = true;
+              health -= 1;
+              invincibleUntil = time + 1000;
+              if (health <= 0) {
+                gameOver = true;
+              }
+            }
+          }
+          obstacles = obstacles.filter((o) => o.x + o.w > -10);
+        }
 
         if (!player.grounded) {
           player.jumpSpeed += 1450 * delta;
@@ -281,21 +421,11 @@
         window.requestAnimationFrame(update);
       }
 
-      canvas.addEventListener("click", () => canvas.focus());
-
-      window.addEventListener("keydown", (event) => {
-        if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
-          event.preventDefault();
-        }
-        if (event.code === "ArrowUp" && !event.repeat && player.grounded) {
-          player.jumpSpeed = -570;
-          player.grounded = false;
-        }
-        keys.add(event.code);
+      canvas.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        jump();
       });
 
-      window.addEventListener("keyup", (event) => keys.delete(event.code));
-      window.addEventListener("blur", () => keys.clear());
       window.addEventListener("resize", resizeCanvas);
 
       resizeCanvas();
