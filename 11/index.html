@@ -106,6 +106,38 @@
       text-align: center;
     }
 
+    @media (orientation: landscape) and (max-height: 600px) {
+      body {
+        display: block;
+        min-height: 0;
+        padding: 0;
+        background: #000;
+      }
+
+      header, .hint {
+        display: none;
+      }
+
+      main {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        display: grid;
+        place-items: center;
+      }
+
+      .game-frame {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        background: #000;
+      }
+
+      canvas {
+        width: min(100vw, calc(100vh * 1.875));
+      }
+    }
+
     @media (max-width: 520px) {
       body {
         padding: 16px;
@@ -297,24 +329,61 @@
         context.lineCap = "round";
         context.lineJoin = "round";
 
-        const frontFoot = airborne
-          ? { x: 16, y: feet - 16 }
-          : { x: 9 + phase * 13, y: feet - 6 - Math.max(0, -phase) * 9 };
-        const backFoot = airborne
-          ? { x: -14, y: feet - 7 }
-          : { x: -9 - phase * 13, y: feet - 6 - Math.max(0, phase) * 9 };
-        const frontHand = airborne
-          ? { x: 20, y: shoulderY - 16 }
-          : { x: 16 - phase * 7, y: shoulderY + 6 - Math.max(0, -phase) * 8 };
-        const backHand = airborne
-          ? { x: -19, y: shoulderY + 4 }
-          : { x: -15 + phase * 7, y: shoulderY + 10 - Math.max(0, phase) * 6 };
+        const lean = airborne ? 0.12 : 0.22;
+        const hipX = -1;
+        const leg = (s) => {
+          const thigh = 0.65 * s;
+          const bend = s > 0 ? 0.15 : 0.15 + 0.9 * -s;
+          const kneeX = hipX + Math.sin(thigh) * 15;
+          const kneeY = hipY + Math.cos(thigh) * 15;
+          const shin = thigh - bend;
+          return {
+            kneeX, kneeY,
+            footX: kneeX + Math.sin(shin) * 15,
+            footY: kneeY + Math.cos(shin) * 15
+          };
+        };
+        const arm = (t) => {
+          const upper = 0.9 * t;
+          const fore = upper + Math.max(-1, Math.min(1, t * 4)) * 1.9;
+          const elbowX = Math.sin(upper) * 13;
+          const elbowY = Math.cos(upper) * 13;
+          return {
+            elbowX, elbowY,
+            handX: elbowX + Math.sin(fore) * 12,
+            handY: elbowY + Math.cos(fore) * 12
+          };
+        };
+        const withLean = (draw) => {
+          context.save();
+          context.translate(0, hipY);
+          context.rotate(lean);
+          context.translate(0, -hipY);
+          draw();
+          context.restore();
+        };
+        const drawLeg = (pose, color) => {
+          limb(hipX, hipY, pose.kneeX, pose.kneeY, 12, color);
+          limb(pose.kneeX, pose.kneeY, pose.footX, pose.footY - 3, 11, color);
+          shoe(pose.footX, pose.footY);
+        };
+        const drawArm = (pose, color) => {
+          const sx = 2;
+          const sy = shoulderY + 4;
+          limb(sx, sy, sx + pose.elbowX, sy + pose.elbowY, 9, color);
+          limb(sx + pose.elbowX, sy + pose.elbowY, sx + pose.handX, sy + pose.handY, 8, color);
+          glove(sx + pose.handX, sy + pose.handY);
+        };
 
-        // 後側手臂與後腳
-        limb(-4, shoulderY + 3, backHand.x, backHand.y, 9, "#c81e28");
-        glove(backHand.x, backHand.y);
-        limb(-3, hipY, backFoot.x, backFoot.y - 4, 12, "#1f4fbf");
-        shoe(backFoot.x, backFoot.y);
+        const sPhase = airborne ? 0.9 : phase;
+        const frontLeg = leg(sPhase);
+        const backLeg = leg(-sPhase);
+        const frontArm = arm(airborne ? 0.9 : -phase);
+        const backArm = arm(airborne ? -0.9 : phase);
+
+        drawLeg(backLeg, "#1f4fbf");
+        withLean(() => {
+          drawArm(backArm, "#c81e28");
 
         // 身體：紅色上衣、藍色吊帶褲、金色鈕扣
         ellipse(0, shoulderY + 10, 15, 14, "#e0262e");
@@ -337,12 +406,12 @@
         context.fill();
         ellipse(-7, shoulderY + 17, 3.2, 3.2, "#ffd23f");
         ellipse(8, shoulderY + 17, 3.2, 3.2, "#ffd23f");
+        });
 
-        // 前腳與前手臂
-        limb(3, hipY, frontFoot.x, frontFoot.y - 4, 12, "#2a5fd0");
-        shoe(frontFoot.x, frontFoot.y);
-        limb(5, shoulderY + 3, frontHand.x, frontHand.y, 9, "#e0262e");
-        glove(frontHand.x, frontHand.y);
+        drawLeg(frontLeg, "#2a5fd0");
+
+        withLean(() => {
+        drawArm(frontArm, "#e0262e");
 
         // 頭部：耳朵、頭髮、臉
         ellipse(headX - 11, headY + 3, 4.5, 6, "#f4b98c");
@@ -376,6 +445,7 @@
         context.font = "bold 8px Segoe UI, sans-serif";
         context.textAlign = "center";
         context.fillText("M", headX + 3, headY - 12.2);
+        });
 
         context.restore();
       }
@@ -543,6 +613,10 @@
 
       canvas.addEventListener("pointerdown", (event) => {
         event.preventDefault();
+        const landscape = window.matchMedia("(orientation: landscape) and (max-height: 600px)").matches;
+        if (landscape && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
         jump();
       });
 
