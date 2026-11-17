@@ -65,6 +65,20 @@
         return;
       }
 
+      let url;
+      try {
+        url = new URL(COUNTER_ENDPOINT);
+      } catch (error) {
+        countElement.textContent = '網址設定錯誤';
+        console.error('計數器網址無效：', error);
+        return;
+      }
+      if (url.protocol !== 'https:' || url.hostname !== 'script.google.com') {
+        countElement.textContent = '網址設定錯誤';
+        console.error('計數器網址必須是 Google Apps Script 的 HTTPS 網址。');
+        return;
+      }
+
       const callbackName = 'counterCallback_' + Date.now() + '_' +
         Math.random().toString(36).slice(2);
       const script = document.createElement('script');
@@ -91,7 +105,6 @@
         countElement.textContent = '讀取失敗';
         cleanup();
       };
-      const url = new URL(COUNTER_ENDPOINT);
       url.searchParams.set('callback', callbackName);
       script.src = url.toString();
       document.head.appendChild(script);
